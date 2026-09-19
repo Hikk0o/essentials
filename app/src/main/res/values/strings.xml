@@ -2779,5 +2779,18 @@
     <string name="action_expand_notifications">Expand notifications</string>
     <string name="action_expand_settings">Expand settings</string>
     <string name="action_collapse_status_bar">Collapse status bar</string>
+
+    <!-- Watchface Promotion & Testing -->
+    <string name="whats_new_watchface_title">New: Essentials Watchface</string>
+    <string name="whats_new_watchface_desc">Try our brand new Essentials watchface on Wear OS via Google Play Internal Testing.</string>
+    <string name="watchface_promo_step1_title">1. Join Google Group</string>
+    <string name="watchface_promo_step1_desc">Join the testing group using the Gmail account associated with your watch</string>
+    <string name="watchface_promo_step1_action">Join Google Group</string>
+    <string name="watchface_promo_step2_title">2. Join Beta Program</string>
+    <string name="watchface_promo_step2_desc">Opt-in to the internal testing program on Google Play</string>
+    <string name="watchface_promo_step2_action">Join Beta Program</string>
+    <string name="watchface_promo_step3_title">3. Install on Watch</string>
+    <string name="watchface_promo_step3_desc">Open the Play Store listing directly on your watch to install</string>
+    <string name="watchface_promo_step3_action">Open on Watch</string>
 </resources>
 

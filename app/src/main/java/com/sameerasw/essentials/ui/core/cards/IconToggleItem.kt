@@ -67,6 +67,7 @@ fun IconToggleItem(
     checked: Boolean? = null,
     onCheckedChangeWithPosition: ((Boolean, Offset) -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
 ) {
     val view = LocalView.current
     val context = LocalContext.current
@@ -336,6 +337,7 @@ fun IconToggleItem(
                     } else {
                         null
                     },
+                trailingContent = trailingContent,
                 colors =
                     ListItemDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.surfaceBright,

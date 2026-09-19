@@ -91,7 +91,7 @@ android {
         versionCode = 64
         versionName = "18.2-beta.2"
 
-        val whatsNewCounter = 3
+        val whatsNewCounter = 4
         buildConfigField("int", "WHATS_NEW_COUNTER", whatsNewCounter.toString())
         buildConfigField("int", "REQUIRED_WEAR_VERSION_CODE", "7")
 

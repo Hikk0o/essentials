@@ -78,4 +78,17 @@ class WatchViewModel : ViewModel() {
                 .RemoteActivityHelper(context)
         remoteActivityHelper.startRemoteActivity(intent)
     }
+
+    fun openWatchfacePlayStoreOnWatch(context: Context) {
+        val intent =
+            android.content
+                .Intent(android.content.Intent.ACTION_VIEW)
+                .setData(android.net.Uri.parse("market://details?id=com.sameerasw.essentials.watchface"))
+                .addCategory(android.content.Intent.CATEGORY_BROWSABLE)
+
+        val remoteActivityHelper =
+            androidx.wear.remote.interactions
+                .RemoteActivityHelper(context)
+        remoteActivityHelper.startRemoteActivity(intent)
+    }
 }
