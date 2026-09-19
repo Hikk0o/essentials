@@ -30,6 +30,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sameerasw.essentials.R
+import com.sameerasw.essentials.ui.components.CategoryExpandableSection
+import com.sameerasw.essentials.ui.components.EssentialsWatchfacePromoContent
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
 import com.sameerasw.essentials.ui.core.sheets.EssentialsBottomSheet
 import com.sameerasw.essentials.utils.HapticUtil
@@ -173,6 +179,18 @@ fun WatchInstallHelpBottomSheet(
                 context = context,
                 view = view,
             )
+
+            var isWatchfaceSectionExpanded by remember { mutableStateOf(false) }
+            CategoryExpandableSection(
+                title = stringResource(R.string.watch_watchface_title),
+                itemCount = 3,
+                isExpanded = isWatchfaceSectionExpanded,
+                onToggleExpand = { isWatchfaceSectionExpanded = !isWatchfaceSectionExpanded },
+            ) {
+                EssentialsWatchfacePromoContent(
+                    watchViewModel = viewModel,
+                )
+            }
         }
     }
 }
