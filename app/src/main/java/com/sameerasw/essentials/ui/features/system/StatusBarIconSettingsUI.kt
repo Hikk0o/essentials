@@ -66,10 +66,9 @@ fun StatusBarIconSettingsUI(
     val view = LocalView.current
     val isMasterEnabled = mainViewModel.isStatusBarIconControlEnabled.value
     val isPermissionGranted =
-        viewModel.isWriteSecureSettingsEnabled.value || viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value
+        viewModel.isWriteSecureSettingsEnabled.value || viewModel.isShellPermissionGranted.value
     val hasWriteSettings = viewModel.isWriteSettingsEnabled.value
-    val batteryPermissionGranted =
-        isPermissionGranted || hasWriteSettings || viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value
+    val batteryPermissionGranted = isPermissionGranted || hasWriteSettings
 
     var showPermissionSheet by remember { mutableStateOf(false) }
     var showAdvancedPermissionSheet by remember { mutableStateOf(false) }
@@ -129,7 +128,7 @@ fun StatusBarIconSettingsUI(
                                 )
                             context.startActivity(intent)
                         },
-                        isGranted = viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value,
+                        isGranted = viewModel.isShellPermissionGranted.value,
                     ),
                 ),
         )
@@ -460,7 +459,7 @@ fun StatusBarIconSettingsUI(
                                     )
                                 },
                         )
-                        if (!viewModel.isShizukuAvailable.value && !viewModel.isRootAvailable.value) {
+                        if (!viewModel.isShellPermissionGranted.value) {
                             Spacer(modifier = Modifier.weight(1f))
                             Text(
                                 text = stringResource(R.string.req_shizuku),
@@ -516,8 +515,7 @@ fun StatusBarIconSettingsUI(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        val isAdvancedEnabled =
-            viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value
+        val isAdvancedEnabled = viewModel.isShellPermissionGranted.value
 
         RoundedCardContainer(
             modifier = Modifier,
