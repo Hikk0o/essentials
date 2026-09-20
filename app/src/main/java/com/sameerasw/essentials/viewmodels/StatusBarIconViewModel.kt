@@ -21,6 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import com.sameerasw.essentials.domain.StatusBarIconRegistry
+import com.sameerasw.essentials.utils.ShellUtils
+import com.sameerasw.essentials.utils.writeSecureSetting
 import com.sameerasw.essentials.ui.core.pickers.NetworkType
 import com.sameerasw.essentials.utils.resetAllIconVisibilities
 import com.sameerasw.essentials.utils.updateIconBlacklistSetting
@@ -30,6 +32,7 @@ import kotlinx.coroutines.Job
 
 class StatusBarIconViewModel : ViewModel() {
     val isWriteSecureSettingsEnabled = mutableStateOf(false)
+    val isShellPermissionGranted = mutableStateOf(false)
     val isSmartWiFiEnabled = mutableStateOf(false)
     val isSmartDataEnabled = mutableStateOf(false)
     val selectedNetworkTypes = mutableStateOf(setOf(NetworkType.NETWORK_4G, NetworkType.NETWORK_5G))
@@ -117,6 +120,7 @@ class StatusBarIconViewModel : ViewModel() {
         isRootAvailable.value =
             com.sameerasw.essentials.utils.RootUtils
                 .isRootPermissionGranted()
+        isShellPermissionGranted.value = ShellUtils.hasPermission(context)
         loadIconVisibilityState(context)
         loadSmartWiFiPref(context)
         loadSmartDataPref(context)
@@ -481,14 +485,7 @@ class StatusBarIconViewModel : ViewModel() {
      * Reset all icons to their default visibility states
      */
     fun resetAllIcons(context: Context) {
-        // Reset blacklist setting
-        try {
-            Settings.Secure.putString(context.contentResolver, ICON_BLACKLIST_SETTING, null)
-        } catch (
-            @Suppress("UNUSED_PARAMETER") e: Exception,
-        ) {
-            e.printStackTrace()
-        }
+        writeSecureSetting(context, ICON_BLACKLIST_SETTING, null)
 
         // Reset UI state to defaults
         for (icon in StatusBarIconRegistry.ALL_ICONS) {
@@ -648,22 +645,11 @@ class StatusBarIconViewModel : ViewModel() {
                 -1
             }
 
-        // If standard API failed, fallback to Shizuku OR Root
+        // If standard API failed, fall back to the user's preferred shell
         if (!success || currentValue != value) {
-            if (com.sameerasw.essentials.utils.ShizukuUtils
-                    .hasPermission()
-            ) {
-                com.sameerasw.essentials.utils.ShizukuUtils
-                    .runCommand("settings put system $key $value")
-                com.sameerasw.essentials.utils.ShizukuUtils
-                    .runCommand("settings put secure $key $value")
-            } else if (com.sameerasw.essentials.utils.RootUtils
-                    .isRootPermissionGranted()
-            ) {
-                com.sameerasw.essentials.utils.RootUtils
-                    .runCommand("settings put system $key $value")
-                com.sameerasw.essentials.utils.RootUtils
-                    .runCommand("settings put secure $key $value")
+            if (ShellUtils.hasPermission(context)) {
+                ShellUtils.runCommand(context, "settings put system $key $value", notifyOnError = false)
+                ShellUtils.runCommand(context, "settings put secure $key $value", notifyOnError = false)
             }
         }
     }

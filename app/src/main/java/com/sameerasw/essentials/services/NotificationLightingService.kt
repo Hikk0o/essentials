@@ -26,11 +26,15 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
+import com.sameerasw.essentials.domain.model.DashConfig
 import com.sameerasw.essentials.domain.model.NotificationLightingColorMode
 import com.sameerasw.essentials.domain.model.NotificationLightingSide
 import com.sameerasw.essentials.domain.model.NotificationLightingStyle
+import com.sameerasw.essentials.domain.model.RippleConfig
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
 import com.sameerasw.essentials.utils.OverlayHelper
+import com.sameerasw.essentials.utils.overlay.fromIntent
+import com.sameerasw.essentials.utils.overlay.writeTo
 
 /**
  * Overlay service that shows a light pulse for notifications.
@@ -58,6 +62,8 @@ class NotificationLightingService : Service() {
     private var sweepThickness: Float = 8f
     private var randomShapes: Boolean = true
     private var systemLightingMode: Int = 0
+    private var rippleConfig: RippleConfig = RippleConfig()
+    private var dashConfig: DashConfig = DashConfig()
 
     private var screenReceiver: BroadcastReceiver? = null
 
@@ -179,6 +185,8 @@ class NotificationLightingService : Service() {
         sweepThickness = intent.getFloatExtra("sweep_thickness", 8f)
         randomShapes = intent.getBooleanExtra("random_shapes", false)
         systemLightingMode = intent.getIntExtra("system_lighting_mode", 0)
+        rippleConfig = RippleConfig.fromIntent(intent)
+        dashConfig = DashConfig.fromIntent(intent)
         val ignoreScreenState = intent.getBooleanExtra("ignore_screen_state", false)
         val removePreview = intent.getBooleanExtra("remove_preview", false)
 
@@ -248,6 +256,8 @@ class NotificationLightingService : Service() {
                         )
                         putExtra("random_shapes", randomShapes)
                         putExtra("system_lighting_mode", systemLightingMode)
+                        rippleConfig.writeTo(this)
+                        dashConfig.writeTo(this)
                         putExtra("package_name", intent.getStringExtra("package_name"))
                     }
                 // Use startService to request the accessibility service perform the elevated overlay.
@@ -361,6 +371,8 @@ class NotificationLightingService : Service() {
                     indicatorScale = indicatorScale,
                     randomShapes = randomShapes,
                     showBackground = isAmbientDisplay,
+                    rippleConfig = rippleConfig,
+                    dashConfig = dashConfig,
                 )
             val params = OverlayHelper.createOverlayLayoutParams(getOverlayType())
 
@@ -377,6 +389,8 @@ class NotificationLightingService : Service() {
                         indicatorScale,
                         randomShapes = randomShapes,
                         pulseDurationMillis = pulseDuration,
+                        rippleConfig = rippleConfig,
+                        dashConfig = dashConfig,
                     )
                 } else {
                     // Normal mode
@@ -399,6 +413,8 @@ class NotificationLightingService : Service() {
                         indicatorY = indicatorY,
                         indicatorScale = indicatorScale,
                         randomShapes = randomShapes,
+                        rippleConfig = rippleConfig,
+                        dashConfig = dashConfig,
                     ) {
                         // When pulsing completes, remove the overlay
                         OverlayHelper.fadeOutAndRemoveOverlay(

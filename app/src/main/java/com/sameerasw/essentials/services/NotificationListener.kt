@@ -29,16 +29,21 @@ import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.HapticFeedbackType
 import com.sameerasw.essentials.domain.MapsState
 import com.sameerasw.essentials.domain.model.ActiveNotificationAlert
+import com.sameerasw.essentials.domain.model.DashConfig
 import com.sameerasw.essentials.domain.model.NotificationActionItem
 import com.sameerasw.essentials.domain.model.NotificationLightingColorMode
 import com.sameerasw.essentials.domain.model.NotificationLightingSide
 import com.sameerasw.essentials.domain.model.ProgressNotificationData
+import com.sameerasw.essentials.domain.model.RippleConfig
 import com.sameerasw.essentials.services.receivers.FlashlightActionReceiver
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
 import com.sameerasw.essentials.services.widgets.PixelSearchbarWidget
+import com.sameerasw.essentials.utils.AppColorUtil
 import com.sameerasw.essentials.utils.AppUtil
 import com.sameerasw.essentials.utils.HapticUtil
 import com.sameerasw.essentials.utils.PermissionUtils
+import com.sameerasw.essentials.utils.overlay.fromPrefs
+import com.sameerasw.essentials.utils.overlay.writeTo
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -1185,6 +1190,8 @@ class NotificationListener : NotificationListenerService() {
                         val randomShapes =
                             prefs.getBoolean("edge_lighting_sweep_random_shapes", true)
                         val systemLightingMode = prefs.getInt("edge_lighting_system_mode", 0)
+                        val rippleConfig = RippleConfig.fromPrefs(prefs)
+                        val dashConfig = DashConfig.fromPrefs(prefs)
 
                         fun startNotificationLighting(resolvedColor: Int? = null) {
                             val intent =
@@ -1228,6 +1235,8 @@ class NotificationListener : NotificationListenerService() {
                                     putExtra("sweep_thickness", sweepThickness)
                                     putExtra("random_shapes", randomShapes)
                                     putExtra("system_lighting_mode", systemLightingMode)
+                                    rippleConfig.writeTo(this)
+                                    dashConfig.writeTo(this)
                                     putExtra("package_name", sbn.packageName)
                                 }
                             if (PermissionUtils.isAccessibilityServiceEnabled(applicationContext)) {
@@ -1238,11 +1247,11 @@ class NotificationListener : NotificationListenerService() {
                         }
 
                         if (colorMode == NotificationLightingColorMode.APP_SPECIFIC) {
-                            AppUtil.getAppBrandColor(
+                            AppColorUtil.resolveColor(
                                 applicationContext,
                                 sbn.packageName,
-                            ) { brandColor ->
-                                startNotificationLighting(brandColor)
+                            ) { appColor ->
+                                startNotificationLighting(appColor)
                             }
                         } else {
                             startNotificationLighting()

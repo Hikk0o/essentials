@@ -41,8 +41,12 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.sameerasw.essentials.data.repository.SettingsRepository
+import com.sameerasw.essentials.domain.model.DashConfig
 import com.sameerasw.essentials.domain.model.NotificationLightingSide
 import com.sameerasw.essentials.domain.model.NotificationLightingStyle
+import com.sameerasw.essentials.domain.model.RippleConfig
+import com.sameerasw.essentials.utils.overlay.DashOverlay
+import com.sameerasw.essentials.utils.overlay.RippleOverlay
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**
@@ -78,6 +82,8 @@ object OverlayHelper {
         indicatorScale: Float = 1.0f,
         randomShapes: Boolean = false,
         showBackground: Boolean = false,
+        rippleConfig: RippleConfig = RippleConfig(),
+        dashConfig: DashConfig = DashConfig(),
     ): FrameLayout {
         if (style == NotificationLightingStyle.GLOW) {
             return createGlowOverlayView(context, color, glowSides, showBackground)
@@ -87,6 +93,18 @@ object OverlayHelper {
         }
         if (style == NotificationLightingStyle.SWEEP) {
             return createSweepOverlayView(context, color, strokeDp, randomShapes, showBackground)
+        }
+        if (style == NotificationLightingStyle.RIPPLE) {
+            return RippleOverlay.createOverlay(context, color, showBackground, rippleConfig)
+        }
+        if (style == NotificationLightingStyle.DASH) {
+            return DashOverlay.createOverlay(
+                context,
+                color,
+                cornerRadiusDp,
+                dashConfig,
+                showBackground,
+            )
         }
 
         val overlay = FrameLayout(context)
@@ -568,8 +586,20 @@ object OverlayHelper {
         indicatorScale: Float = 1.0f,
         randomShapes: Boolean = false,
         pulseDurationMillis: Long = 3000L,
+        rippleConfig: RippleConfig = RippleConfig(),
+        dashConfig: DashConfig = DashConfig(),
         onAnimationEnd: (() -> Unit)? = null,
     ) {
+        if (style == NotificationLightingStyle.RIPPLE) {
+            RippleOverlay.pulse(view, rippleConfig, onAnimationEnd)
+            return
+        }
+
+        if (style == NotificationLightingStyle.DASH) {
+            DashOverlay.pulse(view, 1, pulseDurationMillis, dashConfig, onAnimationEnd)
+            return
+        }
+
         if (style == NotificationLightingStyle.GLOW) {
             val vg = view as? ViewGroup
             if (vg != null) {
@@ -684,8 +714,20 @@ object OverlayHelper {
         indicatorY: Float = 2f,
         indicatorScale: Float = 1.0f,
         randomShapes: Boolean = false,
+        rippleConfig: RippleConfig = RippleConfig(),
+        dashConfig: DashConfig = DashConfig(),
         onAnimationEnd: (() -> Unit)? = null,
     ) {
+        if (style == NotificationLightingStyle.RIPPLE) {
+            RippleOverlay.pulse(view, rippleConfig, onAnimationEnd)
+            return
+        }
+
+        if (style == NotificationLightingStyle.DASH) {
+            DashOverlay.pulse(view, maxPulses, pulseDurationMillis, dashConfig, onAnimationEnd)
+            return
+        }
+
         if (style == NotificationLightingStyle.GLOW) {
             pulseGlowOverlay(
                 view as ViewGroup,

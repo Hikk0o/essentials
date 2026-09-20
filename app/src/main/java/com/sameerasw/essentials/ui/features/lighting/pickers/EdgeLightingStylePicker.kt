@@ -11,6 +11,7 @@ package com.sameerasw.essentials.ui.core.pickers
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -47,6 +48,8 @@ fun NotificationLightingStylePicker(
             NotificationLightingStyle.INDICATOR,
             NotificationLightingStyle.SWEEP,
             NotificationLightingStyle.SYSTEM,
+            NotificationLightingStyle.RIPPLE,
+            NotificationLightingStyle.DASH,
         )
     val icons =
         listOf(
@@ -55,6 +58,8 @@ fun NotificationLightingStylePicker(
             R.drawable.rounded_circles_24,
             R.drawable.rounded_target_24,
             R.drawable.rounded_mobile_24,
+            R.drawable.rounded_auto_awesome_24,
+            R.drawable.rounded_crop_portrait_24,
         )
     val view = LocalView.current
 
@@ -86,11 +91,12 @@ fun NotificationLightingStylePicker(
                             styles.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                             else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                         },
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                 ) {
                     Icon(
                         painter = painterResource(id = icons[index]),
                         contentDescription = style.name,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(22.dp),
                     )
                 }
             }

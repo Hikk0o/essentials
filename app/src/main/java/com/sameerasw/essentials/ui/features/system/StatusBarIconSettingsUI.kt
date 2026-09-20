@@ -12,6 +12,8 @@ package com.sameerasw.essentials.ui.features.system
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.widget.Toast
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.ComponentActivity
@@ -24,7 +26,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -66,10 +72,9 @@ fun StatusBarIconSettingsUI(
     val view = LocalView.current
     val isMasterEnabled = mainViewModel.isStatusBarIconControlEnabled.value
     val isPermissionGranted =
-        viewModel.isWriteSecureSettingsEnabled.value || viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value
+        viewModel.isWriteSecureSettingsEnabled.value || viewModel.isShellPermissionGranted.value
     val hasWriteSettings = viewModel.isWriteSettingsEnabled.value
-    val batteryPermissionGranted =
-        isPermissionGranted || hasWriteSettings || viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value
+    val batteryPermissionGranted = isPermissionGranted || hasWriteSettings
 
     var showPermissionSheet by remember { mutableStateOf(false) }
     var showAdvancedPermissionSheet by remember { mutableStateOf(false) }
@@ -129,7 +134,7 @@ fun StatusBarIconSettingsUI(
                                 )
                             context.startActivity(intent)
                         },
-                        isGranted = viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value,
+                        isGranted = viewModel.isShellPermissionGranted.value,
                     ),
                 ),
         )
@@ -193,6 +198,10 @@ fun StatusBarIconSettingsUI(
                                     viewModel.setIconVisibility(icon.id, checked, context)
                                 },
                                 enabled = isPermissionGranted,
+                                infoText =
+                                    icon.infoRes
+                                        ?.takeIf { Build.VERSION.SDK_INT >= icon.infoMinSdk }
+                                        ?.let { stringResource(it) },
                                 modifier =
                                     Modifier.highlight(
                                         highlightSetting ==
@@ -396,6 +405,22 @@ fun StatusBarIconSettingsUI(
                                     )
                                 },
                         )
+                        Spacer(modifier = Modifier.weight(1f))
+                        val clockPositionInfo = stringResource(R.string.stb_info_not_effective)
+                        IconButton(
+                            onClick = {
+                                HapticUtil.performVirtualKeyHaptic(view)
+                                Toast.makeText(context, clockPositionInfo, Toast.LENGTH_LONG).show()
+                            },
+                            modifier = Modifier.size(36.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.rounded_info_24),
+                                contentDescription = clockPositionInfo,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                     SegmentedPicker(
                         items = listOf(1, 2, 3),
@@ -460,7 +485,7 @@ fun StatusBarIconSettingsUI(
                                     )
                                 },
                         )
-                        if (!viewModel.isShizukuAvailable.value && !viewModel.isRootAvailable.value) {
+                        if (!viewModel.isShellPermissionGranted.value) {
                             Spacer(modifier = Modifier.weight(1f))
                             Text(
                                 text = stringResource(R.string.req_shizuku),
@@ -516,8 +541,7 @@ fun StatusBarIconSettingsUI(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        val isAdvancedEnabled =
-            viewModel.isShizukuAvailable.value || viewModel.isRootAvailable.value
+        val isAdvancedEnabled = viewModel.isShellPermissionGranted.value
 
         RoundedCardContainer(
             modifier = Modifier,

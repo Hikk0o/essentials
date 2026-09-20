@@ -70,6 +70,7 @@ import com.sameerasw.essentials.services.CaffeinateWakeLockService
 import com.sameerasw.essentials.services.NotificationLightingService
 import com.sameerasw.essentials.services.receivers.FlashlightActionReceiver
 import com.sameerasw.essentials.services.receivers.SecurityDeviceAdminReceiver
+import com.sameerasw.essentials.services.receivers.SecurityReceiver
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
 import com.sameerasw.essentials.utils.AppIconUtil
 import com.sameerasw.essentials.utils.AppUtil
@@ -82,6 +83,10 @@ import com.sameerasw.essentials.utils.ShizukuUtils
 import com.sameerasw.essentials.utils.SurfaceFlingerControl
 import com.sameerasw.essentials.utils.TestNotificationUtil
 import com.sameerasw.essentials.utils.UpdateNotificationHelper
+import com.sameerasw.essentials.utils.island.IslandStatusBarHider
+import com.sameerasw.essentials.utils.overlay.writeTo
+import com.sameerasw.essentials.viewmodels.state.DashSettings
+import com.sameerasw.essentials.viewmodels.state.RippleSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -182,6 +187,7 @@ class MainViewModel : ViewModel() {
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
     val islandExpandedTimeoutMs = mutableLongStateOf(0L)
     val isIslandSuppressSystemHeadsUp = mutableStateOf(false)
+    val isIslandDynamicHideStatusBar = mutableStateOf(false)
     val isIslandHideWhenScreenOff = mutableStateOf(true)
     val islandTimeoutMs = mutableLongStateOf(4500L)
     val isIslandTapActionEnabled = mutableStateOf(true)
@@ -272,6 +278,7 @@ class MainViewModel : ViewModel() {
     val aodWallpaperBlackThreshold = mutableFloatStateOf(15f)
     val hasAodWallpaperCustomImage = mutableStateOf(false)
     val isAodWallpaperUseAlbumArt = mutableStateOf(false)
+    val isAodWallpaperDisableOnDnd = mutableStateOf(false)
     val isAodWallpaperKeepOnMedia = mutableStateOf(false)
     val currentWallpaperBitmap = mutableStateOf<Bitmap?>(null)
     val isPocketModeEnabled = mutableStateOf(false)
@@ -350,6 +357,7 @@ class MainViewModel : ViewModel() {
     val selectedCalendarIds = mutableStateOf(setOf<String>())
 
     val isScreenLockedSecurityEnabled = mutableStateOf(false)
+    val isDisableNotificationInteractions = mutableStateOf(false)
     val isDeviceAdminEnabled = mutableStateOf(false)
     val isDeveloperModeEnabled = mutableStateOf(false)
     val isNotificationPolicyAccessGranted = mutableStateOf(false)
@@ -368,6 +376,8 @@ class MainViewModel : ViewModel() {
     val notificationLightingSweepThickness = mutableFloatStateOf(8f)
     val notificationLightingSweepRandomShapes = mutableStateOf(false)
     val notificationLightingSystemMode = mutableIntStateOf(0) // 0: Charging ripple, 1: Auth ripple
+    val ripple = RippleSettings { settingsRepository }
+    val dash = DashSettings { settingsRepository }
     val skipPersistentNotifications = mutableStateOf(false)
     val isAppLockEnabled = mutableStateOf(false)
     val appLockAutoLockDelayIndex = mutableIntStateOf(0)
@@ -750,6 +760,13 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP ->
                         isIslandSuppressSystemHeadsUp.value = settingsRepository.isIslandSuppressSystemHeadsUpEnabled()
+
+                    SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR ->
+                        isIslandDynamicHideStatusBar.value =
+                            settingsRepository.getBoolean(
+                                SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR,
+                                false,
+                            )
 
                     SettingsRepository.KEY_ISLAND_HIDE_WHEN_SCREEN_OFF ->
                         isIslandHideWhenScreenOff.value = settingsRepository.isIslandHideWhenScreenOffEnabled()
@@ -2009,6 +2026,8 @@ class MainViewModel : ViewModel() {
                 SettingsRepository.KEY_EDGE_LIGHTING_SWEEP_RANDOM_SHAPES,
                 true,
             )
+        ripple.load()
+        dash.load()
 
         MapsState.isEnabled = isMapsPowerSavingEnabled.value
         hapticFeedbackType.value = settingsRepository.getHapticFeedbackType()
@@ -2135,6 +2154,11 @@ class MainViewModel : ViewModel() {
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
         islandExpandedTimeoutMs.longValue = settingsRepository.getIslandExpandedTimeoutMs()
         isIslandSuppressSystemHeadsUp.value = settingsRepository.isIslandSuppressSystemHeadsUpEnabled()
+        isIslandDynamicHideStatusBar.value =
+            settingsRepository.getBoolean(
+                SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR,
+                false,
+            )
         isIslandHideWhenScreenOff.value = settingsRepository.isIslandHideWhenScreenOffEnabled()
         islandTimeoutMs.longValue = settingsRepository.getIslandTimeoutMs()
         isIslandTapActionEnabled.value = settingsRepository.isIslandTapActionEnabled()
@@ -2301,6 +2325,11 @@ class MainViewModel : ViewModel() {
 
         isScreenLockedSecurityEnabled.value =
             settingsRepository.getBoolean(SettingsRepository.KEY_SCREEN_LOCKED_SECURITY_ENABLED)
+        isDisableNotificationInteractions.value =
+            settingsRepository.getBoolean(
+                SettingsRepository.KEY_SCREEN_LOCKED_DISABLE_NOTIFICATION_INTERACTIONS,
+                false,
+            )
         isDeviceAdminEnabled.value = isDeviceAdminActive(context)
 
         isAutoUpdateEnabled.value =
@@ -2432,6 +2461,11 @@ class MainViewModel : ViewModel() {
             settingsRepository.hasAodWallpaperCustomImage()
         isAodWallpaperUseAlbumArt.value =
             settingsRepository.isAodWallpaperUseAlbumArtEnabled()
+        isAodWallpaperDisableOnDnd.value =
+            settingsRepository.getBoolean(
+                SettingsRepository.KEY_AOD_WALLPAPER_DISABLE_ON_DND,
+                false,
+            )
         isAodWallpaperKeepOnMedia.value =
             settingsRepository.isAodWallpaperKeepOnMediaEnabled()
         pixelSearchResultApps.value = settingsRepository.isPixelSearchResultAppsEnabled()
@@ -4339,6 +4373,35 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun resetLockScreenClock(context: Context): Boolean {
+        val key = "lock_screen_custom_clock_face"
+        var success = false
+
+        if (PermissionUtils.canWriteSecureSettings(context)) {
+            try {
+                success = Settings.Secure.putString(context.contentResolver, key, null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        if (!success) {
+            val command = "settings delete secure $key"
+            if (ShizukuUtils.hasPermission()) {
+                ShizukuUtils.runCommand(command)
+                success = true
+            } else if (RootUtils.isRootPermissionGranted()) {
+                RootUtils.runCommand(command)
+                success = true
+            }
+        }
+
+        if (success) {
+            lockScreenClockId.value = null
+        }
+        return success
+    }
+
     /**
      * Executes the set lock screen clock weight operation.
      *
@@ -4994,6 +5057,20 @@ class MainViewModel : ViewModel() {
     fun setIslandSuppressSystemHeadsUp(enabled: Boolean) {
         isIslandSuppressSystemHeadsUp.value = enabled
         settingsRepository.setIslandSuppressSystemHeadsUpEnabled(enabled)
+    }
+
+    fun setIslandDynamicHideStatusBar(
+        enabled: Boolean,
+        context: Context,
+    ) {
+        isIslandDynamicHideStatusBar.value = enabled
+        settingsRepository.putBoolean(
+            SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR,
+            enabled,
+        )
+        if (!enabled) {
+            IslandStatusBarHider.restore(context)
+        }
     }
 
     fun setIslandHideWhenScreenOff(enabled: Boolean) {
@@ -6443,6 +6520,8 @@ class MainViewModel : ViewModel() {
         putExtra("sweep_thickness", notificationLightingSweepThickness.floatValue)
         putExtra("random_shapes", notificationLightingSweepRandomShapes.value)
         putExtra("system_lighting_mode", notificationLightingSystemMode.intValue)
+        ripple.toConfig().writeTo(this)
+        dash.toConfig().writeTo(this)
     }
 
     /**
@@ -6620,6 +6699,30 @@ class MainViewModel : ViewModel() {
             val intent =
                 Intent(context, NotificationLightingService::class.java).apply {
                     addLightingExtras(styleOverride = NotificationLightingStyle.INDICATOR)
+                }
+            context.startService(intent)
+        } catch (e: Exception) {
+            // ignore
+        }
+    }
+
+    fun triggerNotificationLightingForDash(context: Context) {
+        try {
+            val intent =
+                Intent(context, NotificationLightingService::class.java).apply {
+                    addLightingExtras(styleOverride = NotificationLightingStyle.DASH)
+                }
+            context.startService(intent)
+        } catch (e: Exception) {
+            // ignore
+        }
+    }
+
+    fun triggerNotificationLightingForRipple(context: Context) {
+        try {
+            val intent =
+                Intent(context, NotificationLightingService::class.java).apply {
+                    addLightingExtras(styleOverride = NotificationLightingStyle.RIPPLE)
                 }
             context.startService(intent)
         } catch (e: Exception) {
@@ -7948,6 +8051,23 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun setDisableNotificationInteractions(
+        enabled: Boolean,
+        context: Context,
+    ) {
+        isDisableNotificationInteractions.value = enabled
+        settingsRepository.putBoolean(
+            SettingsRepository.KEY_SCREEN_LOCKED_DISABLE_NOTIFICATION_INTERACTIONS,
+            enabled,
+        )
+        if (!enabled) {
+            com.sameerasw.essentials.utils.StatusBarManager.requestRestore(
+                context,
+                SecurityReceiver.REQUESTER_NOTIFICATION_INTERACTIONS,
+            )
+        }
+    }
+
     /**
      * Executes the set notification lighting glow sides operation.
      *
@@ -8276,6 +8396,14 @@ class MainViewModel : ViewModel() {
     fun setAodWallpaperBlackThreshold(threshold: Float) {
         settingsRepository.setAodWallpaperBlackThreshold(threshold)
         aodWallpaperBlackThreshold.floatValue = threshold
+    }
+
+    fun setAodWallpaperDisableOnDnd(enabled: Boolean) {
+        settingsRepository.putBoolean(
+            SettingsRepository.KEY_AOD_WALLPAPER_DISABLE_ON_DND,
+            enabled,
+        )
+        isAodWallpaperDisableOnDnd.value = enabled
     }
 
     fun setAodWallpaperUseAlbumArt(enabled: Boolean) {

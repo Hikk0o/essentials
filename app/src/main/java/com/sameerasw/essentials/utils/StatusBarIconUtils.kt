@@ -17,6 +17,32 @@ import androidx.core.content.edit
  * Extensions and utilities for managing statusbar icon visibility
  */
 
+private const val ICON_BLACKLIST_KEY = "icon_blacklist"
+
+fun writeSecureSetting(
+    context: Context,
+    key: String,
+    value: String?,
+): Boolean {
+    if (PermissionUtils.canWriteSecureSettings(context)) {
+        try {
+            if (Settings.Secure.putString(context.contentResolver, key, value)) return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    if (!ShellUtils.hasPermission(context)) return false
+    val command =
+        if (value == null) {
+            "settings delete secure $key"
+        } else {
+            "settings put secure $key $value"
+        }
+    ShellUtils.runCommand(context, command, notifyOnError = false)
+    return true
+}
+
 /**
  * Update the icon blacklist setting in secure settings
  */
@@ -34,22 +60,11 @@ fun updateIconBlacklistSetting(
         )
     if (!isEnabled) return
 
-    if (blacklistNames.isEmpty()) {
-        try {
-            Settings.Secure.putString(context.contentResolver, "icon_blacklist", null)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    } else {
-        val blacklistString = blacklistNames.joinToString(",")
-        try {
-            Settings.Secure.putString(context.contentResolver, "icon_blacklist", blacklistString)
-        } catch (
-            @Suppress("UNUSED_PARAMETER") e: Exception,
-        ) {
-            e.printStackTrace()
-        }
-    }
+    writeSecureSetting(
+        context,
+        ICON_BLACKLIST_KEY,
+        blacklistNames.takeIf { it.isNotEmpty() }?.joinToString(","),
+    )
 }
 
 /**
