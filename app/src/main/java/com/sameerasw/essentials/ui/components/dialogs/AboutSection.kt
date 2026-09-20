@@ -15,6 +15,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,6 +30,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,7 +43,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
@@ -51,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -61,12 +71,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.compose.material3.toShape
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.ui.core.sheets.LicensesBottomSheet
 import com.sameerasw.essentials.utils.HapticUtil
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 fun AboutSection(
     modifier: Modifier = Modifier,
     appName: String = "Essentials",
@@ -75,9 +86,9 @@ fun AboutSection(
     onAvatarLongClick: () -> Unit = {},
     onAvatarLongClickWithPosition: ((Offset) -> Unit)? = null,
 ) {
+    val context = LocalContext.current
     val view = LocalView.current
     var showLicensesSheet by remember { mutableStateOf(false) }
-    val context = LocalContext.current
     val versionName =
         try {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName
@@ -110,13 +121,21 @@ fun AboutSection(
 
             var avatarCenterOffset by remember { mutableStateOf(Offset.Zero) }
 
-            Image(
-                painter = painterResource(id = R.drawable.avatar),
-                contentDescription = "Developer Avatar",
-                contentScale = ContentScale.Crop,
+            val infiniteTransition = rememberInfiniteTransition(label = "avatar_cookie_rotation")
+            val rotationDegrees by infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 30000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart,
+                ),
+                label = "cookie_rotation",
+            )
+
+            Box(
                 modifier =
                     Modifier
-                        .size(120.dp)
+                        .size(180.dp)
                         .onGloballyPositioned { coords ->
                             val pos = coords.positionInRoot()
                             val size = coords.size
@@ -125,8 +144,9 @@ fun AboutSection(
                                 y = pos.y + (size.height / 2f)
                             )
                         }
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.primary)
+                        .graphicsLayer { rotationZ = rotationDegrees }
+                        .clip(MaterialShapes.Cookie12Sided.toShape())
+                        .background(MaterialTheme.colorScheme.primaryContainer)
                         .combinedClickable(
                             onClick = {},
                             onLongClick = {
@@ -134,7 +154,18 @@ fun AboutSection(
                                 onAvatarLongClickWithPosition?.invoke(avatarCenterOffset)
                             },
                         ),
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.avatar),
+                    contentDescription = "Developer Avatar",
+                    contentScale = ContentScale.Crop,
+                    modifier =
+                        Modifier
+                            .size(180.dp)
+                            .graphicsLayer { rotationZ = -rotationDegrees },
+                )
+            }
 
             Text(
                 text = stringResource(R.string.developed_by_format, developerName),
