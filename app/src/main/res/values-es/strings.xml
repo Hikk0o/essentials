@@ -1681,4 +1681,5 @@ Cuando llegue un mensaje o alerta de una aplicación seleccionada, la Pantalla s
     <string name="status_glance_action_tap_media_desc">Play / Pausar si los medios se estan reproduciendo</string>
     <string name="diy_genai_lazy_title">Soy perezoso, hazlo por mí</string>
     <string name="status_glance_action_swipe_right_desc">Desliza para la siguiente cancion (Si los medios se estan reproduciendo)</string>
+    <string name="feat_conscious_gate_desc">Una pausa antes de abrir las aplicaciones seleccionadas</string>
 </resources>
