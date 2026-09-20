@@ -596,6 +596,9 @@
     <string name="action_reset_all_icons">Reset All Icons</string>
     <string name="status_bar_section_advanced">More Settings</string>
     <string name="stb_advanced_flags_title">Advanced (Requires Shizuku/Root)</string>
+    <string name="stb_info_broken_android_17_qpr1">May not work after Android 17 QPR1</string>
+    <string name="stb_info_broken_android_16_qpr1">May not work after Android 16 QPR1</string>
+    <string name="stb_info_not_effective">Known to be not effective</string>
     <string name="hide_all_system_icons_title">Hide all system icons</string>
     <string name="hide_all_system_icons_desc">Clear all non-notification icons from the status bar</string>
     <string name="hide_system_icons_locked_only_title">Only hide system icons when locked</string>

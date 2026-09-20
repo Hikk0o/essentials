@@ -29,6 +29,8 @@ data class StatusBarIcon(
     val preferencesKey: String = "icon_${id}_visible",
     val categoryRes: Int = R.string.status_bar_category_oem_specific,
     val iconRes: Int? = null,
+    val infoRes: Int? = null,
+    val infoMinSdk: Int = 0,
 )
 
 /**
@@ -59,6 +61,8 @@ object StatusBarIconRegistry {
                 blacklistNames = listOf("bluetooth", "bluetooth_handsfree_battery", "ble_unlock_mode"),
                 categoryRes = CAT_CONNECTIVITY,
                 iconRes = R.drawable.rounded_bluetooth_24,
+                infoRes = R.string.stb_info_broken_android_17_qpr1,
+                infoMinSdk = 37,
             ),
             StatusBarIcon(
                 id = "nfc",
@@ -73,6 +77,8 @@ object StatusBarIconRegistry {
                 blacklistNames = listOf("vpn"),
                 categoryRes = CAT_CONNECTIVITY,
                 iconRes = R.drawable.rounded_vpn_key_24,
+                infoRes = R.string.stb_info_broken_android_17_qpr1,
+                infoMinSdk = 37,
             ),
             StatusBarIcon(
                 id = "airplane_mode",
@@ -189,6 +195,7 @@ object StatusBarIconRegistry {
                 blacklistNames = listOf("clock", "clock_meridiem"),
                 categoryRes = CAT_SYSTEM_STATUS,
                 iconRes = R.drawable.rounded_nest_clock_farsight_analog_24,
+                infoRes = R.string.stb_info_not_effective,
             ),
             StatusBarIcon(
                 id = "ime",
@@ -211,6 +218,8 @@ object StatusBarIconRegistry {
                 blacklistNames = listOf("battery"),
                 categoryRes = CAT_SYSTEM_STATUS,
                 iconRes = R.drawable.rounded_battery_android_frame_6_24,
+                infoRes = R.string.stb_info_broken_android_16_qpr1,
+                infoMinSdk = 36,
             ),
             StatusBarIcon(
                 id = "power_saver",
@@ -261,6 +270,8 @@ object StatusBarIconRegistry {
                 blacklistNames = listOf("do_not_disturb", "dnd", "zen"),
                 categoryRes = CAT_SYSTEM_STATUS,
                 iconRes = R.drawable.rounded_do_not_disturb_on_24,
+                infoRes = R.string.stb_info_broken_android_17_qpr1,
+                infoMinSdk = 37,
             ),
             StatusBarIcon(
                 id = "privacy",

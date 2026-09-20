@@ -10,6 +10,7 @@
 
 package com.sameerasw.essentials.ui.core.cards
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +69,7 @@ fun IconToggleItem(
     onCheckedChangeWithPosition: ((Boolean, Offset) -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
+    infoText: String? = null,
 ) {
     val view = LocalView.current
     val context = LocalContext.current
@@ -172,6 +174,22 @@ fun IconToggleItem(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
+                            if (infoText != null) {
+                                IconButton(
+                                    onClick = {
+                                        HapticUtil.performVirtualKeyHaptic(view)
+                                        Toast.makeText(context, infoText, Toast.LENGTH_LONG).show()
+                                    },
+                                    modifier = Modifier.size(36.dp),
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.rounded_info_24),
+                                        contentDescription = infoText,
+                                        modifier = Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
                             VerticalDivider(
                                 modifier =
                                     Modifier
@@ -253,6 +271,22 @@ fun IconToggleItem(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
+                            if (infoText != null) {
+                                IconButton(
+                                    onClick = {
+                                        HapticUtil.performVirtualKeyHaptic(view)
+                                        Toast.makeText(context, infoText, Toast.LENGTH_LONG).show()
+                                    },
+                                    modifier = Modifier.size(36.dp),
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.rounded_info_24),
+                                        contentDescription = infoText,
+                                        modifier = Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
                             if (onSettingsClick != null && enabled && finalIsChecked) {
                                 IconButton(
                                     onClick = {
