@@ -19,23 +19,48 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.sameerasw.essentials.R
 
-// Create a FontFamily backed by the google_sans_flex font in res/font
-val GoogleSansFlex =
-    FontFamily(
-        Font(R.font.google_sans_flex, weight = FontWeight.Normal),
-    )
-
 @OptIn(ExperimentalTextApi::class)
 val GoogleSansFlexRounded =
     FontFamily(
         Font(
             R.font.google_sans_flex,
+            weight = FontWeight.Normal,
             variationSettings =
                 FontVariation.Settings(
                     FontVariation.Setting("ROND", 100f),
+                    FontVariation.weight(FontWeight.Normal.weight),
+                ),
+        ),
+        Font(
+            R.font.google_sans_flex,
+            weight = FontWeight.Medium,
+            variationSettings =
+                FontVariation.Settings(
+                    FontVariation.Setting("ROND", 100f),
+                    FontVariation.weight(FontWeight.Medium.weight),
+                ),
+        ),
+        Font(
+            R.font.google_sans_flex,
+            weight = FontWeight.SemiBold,
+            variationSettings =
+                FontVariation.Settings(
+                    FontVariation.Setting("ROND", 100f),
+                    FontVariation.weight(FontWeight.SemiBold.weight),
+                ),
+        ),
+        Font(
+            R.font.google_sans_flex,
+            weight = FontWeight.Bold,
+            variationSettings =
+                FontVariation.Settings(
+                    FontVariation.Setting("ROND", 100f),
+                    FontVariation.weight(FontWeight.Bold.weight),
                 ),
         ),
     )
+
+val GoogleSansFlex = GoogleSansFlexRounded
 
 // Set of Material typography styles to start with, using GoogleSansFlex throughout
 val Typography =
