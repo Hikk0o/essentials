@@ -12,7 +12,9 @@ package com.sameerasw.essentials.services.handlers
 import android.accessibilityservice.AccessibilityService
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.app.NotificationManager
 import android.app.WallpaperManager
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -41,6 +43,7 @@ import android.widget.ImageView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.sameerasw.essentials.data.repository.SettingsRepository
+import com.sameerasw.essentials.utils.PriorityModeUtil
 import com.sameerasw.essentials.domain.model.AppSelection
 import com.sameerasw.essentials.services.NotificationListener
 import com.sameerasw.essentials.utils.AppUtil
@@ -201,12 +204,55 @@ class AodWallpaperOverlayHandler(
         }
 
     private var isReceiverRegistered = false
+    private var isPriorityModeReceiverRegistered = false
+
+    private val priorityModeReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?,
+            ) {
+                updateState()
+            }
+        }
 
     init {
         registerWallpaperChangeListeners()
     }
 
+    private fun registerPriorityModeListener() {
+        if (isPriorityModeReceiverRegistered) return
+        try {
+            val filter =
+                android.content.IntentFilter(
+                    NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED,
+                )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                service.registerReceiver(
+                    priorityModeReceiver,
+                    filter,
+                    AccessibilityService.RECEIVER_NOT_EXPORTED,
+                )
+            } else {
+                service.registerReceiver(priorityModeReceiver, filter)
+            }
+            isPriorityModeReceiverRegistered = true
+        } catch (e: Exception) {
+            Log.e("AodWallpaperOverlay", "Failed to register priority mode receiver", e)
+        }
+    }
+
+    private fun unregisterPriorityModeListener() {
+        if (!isPriorityModeReceiverRegistered) return
+        try {
+            service.unregisterReceiver(priorityModeReceiver)
+        } catch (_: Exception) {
+        }
+        isPriorityModeReceiverRegistered = false
+    }
+
     private fun registerWallpaperChangeListeners() {
+        registerPriorityModeListener()
         if (!isReceiverRegistered) {
             try {
                 val filter = android.content.IntentFilter(Intent.ACTION_WALLPAPER_CHANGED)
@@ -238,6 +284,7 @@ class AodWallpaperOverlayHandler(
     }
 
     private fun unregisterWallpaperChangeListeners() {
+        unregisterPriorityModeListener()
         if (isReceiverRegistered) {
             try {
                 service.unregisterReceiver(wallpaperChangeReceiver)
@@ -272,11 +319,16 @@ class AodWallpaperOverlayHandler(
 
     fun updateState() {
         val enabled = prefs.getBoolean(SettingsRepository.KEY_AOD_WALLPAPER_ENABLED, false)
-        if (enabled && isScreenOff) {
+        if (enabled && isScreenOff && !isSuppressedByPriorityMode()) {
             showOverlay()
         } else {
             hideOverlay()
         }
+    }
+
+    private fun isSuppressedByPriorityMode(): Boolean {
+        if (!prefs.getBoolean(SettingsRepository.KEY_AOD_WALLPAPER_DISABLE_ON_DND, false)) return false
+        return PriorityModeUtil.isActive(service)
     }
 
     private fun applyBurnInShift(animated: Boolean) {

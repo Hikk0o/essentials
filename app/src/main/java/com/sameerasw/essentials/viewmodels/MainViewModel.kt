@@ -278,6 +278,7 @@ class MainViewModel : ViewModel() {
     val aodWallpaperBlackThreshold = mutableFloatStateOf(15f)
     val hasAodWallpaperCustomImage = mutableStateOf(false)
     val isAodWallpaperUseAlbumArt = mutableStateOf(false)
+    val isAodWallpaperDisableOnDnd = mutableStateOf(false)
     val isAodWallpaperKeepOnMedia = mutableStateOf(false)
     val currentWallpaperBitmap = mutableStateOf<Bitmap?>(null)
     val isPocketModeEnabled = mutableStateOf(false)
@@ -2460,6 +2461,11 @@ class MainViewModel : ViewModel() {
             settingsRepository.hasAodWallpaperCustomImage()
         isAodWallpaperUseAlbumArt.value =
             settingsRepository.isAodWallpaperUseAlbumArtEnabled()
+        isAodWallpaperDisableOnDnd.value =
+            settingsRepository.getBoolean(
+                SettingsRepository.KEY_AOD_WALLPAPER_DISABLE_ON_DND,
+                false,
+            )
         isAodWallpaperKeepOnMedia.value =
             settingsRepository.isAodWallpaperKeepOnMediaEnabled()
         pixelSearchResultApps.value = settingsRepository.isPixelSearchResultAppsEnabled()
@@ -8390,6 +8396,14 @@ class MainViewModel : ViewModel() {
     fun setAodWallpaperBlackThreshold(threshold: Float) {
         settingsRepository.setAodWallpaperBlackThreshold(threshold)
         aodWallpaperBlackThreshold.floatValue = threshold
+    }
+
+    fun setAodWallpaperDisableOnDnd(enabled: Boolean) {
+        settingsRepository.putBoolean(
+            SettingsRepository.KEY_AOD_WALLPAPER_DISABLE_ON_DND,
+            enabled,
+        )
+        isAodWallpaperDisableOnDnd.value = enabled
     }
 
     fun setAodWallpaperUseAlbumArt(enabled: Boolean) {

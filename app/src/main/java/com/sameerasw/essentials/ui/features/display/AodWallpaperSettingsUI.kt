@@ -131,6 +131,23 @@ fun AodWallpaperSettingsUI(
                 enter = expandVertically(animationSpec = tween(durationMillis = 300)) + fadeIn(animationSpec = tween(durationMillis = 300)),
                 exit = shrinkVertically(animationSpec = tween(durationMillis = 300)) + fadeOut(animationSpec = tween(durationMillis = 300)),
             ) {
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_do_not_disturb_on_24,
+                    title = stringResource(R.string.feat_aod_wallpaper_disable_on_dnd),
+                    isChecked = viewModel.isAodWallpaperDisableOnDnd.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setAodWallpaperDisableOnDnd(checked)
+                    },
+                    modifier = Modifier.highlight(highlightSetting == "aod_wallpaper_disable_on_dnd"),
+                )
+            }
+
+            AnimatedVisibility(
+                visible = isWallpaperEnabled,
+                enter = expandVertically(animationSpec = tween(durationMillis = 300)) + fadeIn(animationSpec = tween(durationMillis = 300)),
+                exit = shrinkVertically(animationSpec = tween(durationMillis = 300)) + fadeOut(animationSpec = tween(durationMillis = 300)),
+            ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     ConfigSliderItem(
                         title = stringResource(R.string.feat_aod_wallpaper_opacity),
