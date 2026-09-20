@@ -49,10 +49,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import com.mikepenz.aboutlibraries.ui.compose.produceLibraries
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
 import com.sameerasw.essentials.utils.HapticUtil
@@ -62,7 +62,6 @@ data class LicenseSection(
     val iconRes: Int = R.drawable.rounded_code_24,
     val description: String? = null,
     val licenseType: String,
-    val licenseText: String,
     val links: List<Pair<String, String>> = emptyList(), // Pair(label, url)
 )
 
@@ -70,70 +69,50 @@ data class LicenseSection(
 @Composable
 fun LicensesBottomSheet(onDismissRequest: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val context = LocalContext.current
+    val libraries by produceLibraries {
+        context.resources.openRawResource(R.raw.aboutlibraries).bufferedReader().use { it.readText() }
+    }
 
-    val sections = remember {
+    val customSections = remember {
         listOf(
             LicenseSection(
                 title = "emojis.json",
                 iconRes = R.drawable.rounded_emoji_language_24,
                 description = "Comprehensive emoji dataset and categorization used in the built-in keyboard.",
                 licenseType = "MIT License",
-                links = listOf("View on GitHub" to "https://github.com/chalda-pnuzig/emojis.json"),
-                licenseText = """
-                    MIT License
-
-                    Copyright (c) 2020 chalda-pnuzig
-
-                    Permission is hereby granted, free of charge, to any person obtaining a copy
-                    of this software and associated documentation files (the "Software"), to deal
-                    in the Software without restriction, including without limitation the rights
-                    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-                    copies of the Software, and to permit persons to whom the Software is
-                    furnished to do so, subject to the following conditions:
-
-                    The above copyright notice and this permission notice shall be included in all
-                    copies or substantial portions of the Software.
-
-                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-                    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-                    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-                    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-                    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-                    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-                    SOFTWARE.
-                """.trimIndent(),
+                links = listOf(context.getString(R.string.action_view_on_github) to "https://github.com/chalda-pnuzig/emojis.json"),
             ),
             LicenseSection(
                 title = "generate-kaomoji",
                 iconRes = R.drawable.rounded_heart_smile_24,
                 description = "Kaomoji dataset and unicode character combinations for keyboard kaomojis.",
                 licenseType = "MIT License",
-                links = listOf("View on GitHub" to "https://github.com/xav-ie/generate-kaomoji"),
-                licenseText = """
-                    MIT License
-
-                    Copyright (c) 2021 Xavier
-
-                    Permission is hereby granted, free of charge, to any person obtaining a copy
-                    of this software and associated documentation files (the "Software"), to deal
-                    in the Software without restriction, including without limitation the rights
-                    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-                    copies of the Software, and to permit persons to whom the Software is
-                    furnished to do so, subject to the following conditions:
-
-                    The above copyright notice and this permission notice shall be included in all
-                    copies or substantial portions of the Software.
-
-                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-                    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-                    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-                    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-                    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-                    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-                    SOFTWARE.
-                """.trimIndent(),
+                links = listOf(context.getString(R.string.action_view_on_github) to "https://github.com/xav-ie/generate-kaomoji"),
             ),
         )
+    }
+
+    val allSections = remember(libraries) {
+        val libList = libraries?.libraries?.map { lib ->
+            val license = lib.licenses.firstOrNull()
+            val licenseName = license?.name ?: "Open Source"
+
+            val links = mutableListOf<Pair<String, String>>()
+            license?.url?.takeIf { it.isNotBlank() }?.let { links.add(context.getString(R.string.action_license) to it) }
+            lib.website?.takeIf { it.isNotBlank() }?.let { links.add(context.getString(R.string.action_website) to it) }
+            lib.scm?.url?.takeIf { it.isNotBlank() && it != lib.website }?.let { links.add(context.getString(R.string.action_source_code) to it) }
+
+            LicenseSection(
+                title = lib.name.ifBlank { lib.uniqueId },
+                iconRes = R.drawable.rounded_code_24,
+                description = lib.description?.takeIf { it.isNotBlank() },
+                licenseType = licenseName + (lib.artifactVersion?.let { " • v$it" } ?: ""),
+                links = links,
+            )
+        } ?: emptyList()
+
+        customSections + libList
     }
 
     EssentialsBottomSheet(
@@ -149,24 +128,32 @@ fun LicensesBottomSheet(onDismissRequest: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item {
-                Text(
-                    text = stringResource(R.string.licenses_credits_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 4.dp, top = 8.dp),
-                )
-                Text(
-                    text = stringResource(R.string.licenses_credits_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                )
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(R.string.licenses_credits_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 4.dp, top = 8.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.licenses_credits_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
             }
 
             item {
                 RoundedCardContainer {
-                    sections.forEach { section ->
+                    allSections.forEach { section ->
                         ExpandableLicenseSection(section)
                     }
                 }
@@ -252,14 +239,13 @@ fun ExpandableLicenseSection(section: LicenseSection) {
                 )
             }
 
-            // Content with AnimatedVisibility exactly like Help & Guides
             AnimatedVisibility(visible = expanded) {
                 Column(
                     modifier =
                         Modifier
-                            .padding(top = 24.dp)
+                            .padding(top = 16.dp)
                             .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     if (section.description != null) {
@@ -271,21 +257,6 @@ fun ExpandableLicenseSection(section: LicenseSection) {
                         )
                     }
 
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        modifier = Modifier.fillMaxWidth(fraction = 0.95f),
-                    ) {
-                        Text(
-                            text = section.licenseText,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontFamily = FontFamily.Monospace,
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(12.dp),
-                        )
-                    }
-
                     if (section.links.isNotEmpty()) {
                         FlowRow(
                             modifier = Modifier.fillMaxWidth(fraction = 0.95f),
@@ -293,6 +264,12 @@ fun ExpandableLicenseSection(section: LicenseSection) {
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             section.links.forEach { (label, url) ->
+                                val iconRes = when {
+                                    url.contains("github.com", ignoreCase = true) -> R.drawable.brand_github
+                                    label == stringResource(R.string.action_license) -> R.drawable.rounded_description_24
+                                    label == stringResource(R.string.action_website) -> R.drawable.rounded_web_24
+                                    else -> R.drawable.rounded_code_24
+                                }
                                 OutlinedButton(
                                     onClick = {
                                         HapticUtil.performUIHaptic(view)
@@ -302,7 +279,7 @@ fun ExpandableLicenseSection(section: LicenseSection) {
                                     shape = RoundedCornerShape(12.dp),
                                 ) {
                                     Icon(
-                                        painter = painterResource(id = R.drawable.brand_github),
+                                        painter = painterResource(id = iconRes),
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp),
                                     )
