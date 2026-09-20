@@ -238,6 +238,7 @@ class ScreenOffAccessibilityService :
             } else if (key == SettingsRepository.KEY_AOD_WALLPAPER_ENABLED ||
                 key == SettingsRepository.KEY_AOD_WALLPAPER_OPACITY ||
                 key == SettingsRepository.KEY_AOD_WALLPAPER_TIMEOUT ||
+                key == SettingsRepository.KEY_AOD_WALLPAPER_CUSTOM_TIMEOUT ||
                 key == SettingsRepository.KEY_AOD_WALLPAPER_BLUR ||
                 key == SettingsRepository.KEY_AOD_WALLPAPER_VIGNETTE ||
                 key == SettingsRepository.KEY_AOD_WALLPAPER_BLACK_THRESHOLD ||
