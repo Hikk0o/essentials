@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -55,6 +56,7 @@ import androidx.core.net.toUri
 import com.mikepenz.aboutlibraries.ui.compose.produceLibraries
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
+import com.sameerasw.essentials.utils.ColorUtil
 import com.sameerasw.essentials.utils.HapticUtil
 
 data class LicenseSection(
@@ -62,8 +64,25 @@ data class LicenseSection(
     val iconRes: Int = R.drawable.rounded_code_24,
     val description: String? = null,
     val licenseType: String,
+    val licenseColor: Color = Color.Unspecified,
     val links: List<Pair<String, String>> = emptyList(), // Pair(label, url)
 )
+
+private fun getLicenseColor(licenseName: String): Color {
+    val clean = licenseName.lowercase()
+    return when {
+        clean.contains("apache") -> Color(0xFF4CAF50)
+        clean.contains("mit") -> Color(0xFF2196F3)
+        clean.contains("bsd") -> Color(0xFFFF9800)
+        clean.contains("gpl") -> Color(0xFFE91E63)
+        clean.contains("mpl") || clean.contains("mozilla") -> Color(0xFF9C27B0)
+        clean.contains("eclipse") || clean.contains("epl") -> Color(0xFF009688)
+        clean.contains("creative commons") || clean.contains("cc-") -> Color(0xFF8D6E63)
+        clean.contains("isc") -> Color(0xFF00ACC1)
+        clean.contains("unlicense") -> Color(0xFF78909C)
+        else -> ColorUtil.getVibrantColorFor(licenseName)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,6 +100,7 @@ fun LicensesBottomSheet(onDismissRequest: () -> Unit) {
                 iconRes = R.drawable.rounded_emoji_language_24,
                 description = "Comprehensive emoji dataset and categorization used in the built-in keyboard.",
                 licenseType = "MIT License",
+                licenseColor = getLicenseColor("MIT"),
                 links = listOf(context.getString(R.string.action_view_on_github) to "https://github.com/chalda-pnuzig/emojis.json"),
             ),
             LicenseSection(
@@ -88,6 +108,7 @@ fun LicensesBottomSheet(onDismissRequest: () -> Unit) {
                 iconRes = R.drawable.rounded_heart_smile_24,
                 description = "Kaomoji dataset and unicode character combinations for keyboard kaomojis.",
                 licenseType = "MIT License",
+                licenseColor = getLicenseColor("MIT"),
                 links = listOf(context.getString(R.string.action_view_on_github) to "https://github.com/xav-ie/generate-kaomoji"),
             ),
         )
@@ -108,6 +129,7 @@ fun LicensesBottomSheet(onDismissRequest: () -> Unit) {
                 iconRes = R.drawable.rounded_code_24,
                 description = lib.description?.takeIf { it.isNotBlank() },
                 licenseType = licenseName + (lib.artifactVersion?.let { " • v$it" } ?: ""),
+                licenseColor = getLicenseColor(licenseName),
                 links = links,
             )
         } ?: emptyList()
@@ -223,7 +245,8 @@ fun ExpandableLicenseSection(section: LicenseSection) {
                     Text(
                         text = section.licenseType,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = if (section.licenseColor != Color.Unspecified) section.licenseColor else MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium,
                     )
                 }
 
