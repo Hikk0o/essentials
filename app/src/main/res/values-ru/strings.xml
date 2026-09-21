@@ -1609,7 +1609,7 @@
     <string name="feat_status_glance_title">Динамичный Статус</string>
     <string name="duo_hide_when_screen_off_title">Скрыть когда экран выключен</string>
     <string name="duo_action_double_tap_title">Двойное касание </string>
-    <string name="duo_action_long_press_title">Длинное касание</string>
+    <string name="duo_action_long_press_title">Длинное удержание</string>
     <string name="duo_action_swipe_down_title">Свайп вниз</string>
     <string name="duo_action_horizontal_slide_title">Горизонтальный свайп</string>
     <string name="duo_camera_offset_y_title">Вертикальная позиция </string>
