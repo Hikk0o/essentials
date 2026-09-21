@@ -20,6 +20,7 @@ import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.telephony.TelephonyManager
 import android.provider.Settings
 import android.view.KeyEvent
 import android.widget.Toast
@@ -730,8 +731,10 @@ object CombinedActionExecutor {
                 }
                 is Action.TurnOnWifi -> setWifiEnabled(context, true)
                 is Action.TurnOffWifi -> setWifiEnabled(context, false)
+                is Action.ToggleWifi -> setWifiEnabled(context, !isWifiEnabled(context))
                 is Action.TurnOnCellularData -> setCellularDataEnabled(context, true)
                 is Action.TurnOffCellularData -> setCellularDataEnabled(context, false)
+                is Action.ToggleCellularData -> setCellularDataEnabled(context, !isCellularDataEnabled(context))
                 is Action.TurnOnAutoBrightness -> setAutoBrightnessEnabled(context, true)
                 is Action.TurnOffAutoBrightness -> setAutoBrightnessEnabled(context, false)
                 is Action.ToggleAutoBrightness -> setAutoBrightnessEnabled(context, !isAutoBrightnessEnabled(context))
@@ -871,6 +874,16 @@ object CombinedActionExecutor {
         }
     }
 
+    private fun isWifiEnabled(context: Context): Boolean =
+        try {
+            val wifiManager =
+                context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            wifiManager.isWifiEnabled
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+
     private fun setWifiEnabled(
         context: Context,
         enabled: Boolean,
@@ -882,6 +895,27 @@ object CombinedActionExecutor {
             featureName = context.getString(if (enabled) R.string.diy_action_wifi_on else R.string.diy_action_wifi_off),
         )
     }
+
+    private fun isCellularDataEnabled(context: Context): Boolean =
+        try {
+            val telephonyManager =
+                context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            val result =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    org.lsposed.hiddenapibypass.HiddenApiBypass.invoke(
+                        TelephonyManager::class.java,
+                        telephonyManager,
+                        "isDataEnabled",
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    TelephonyManager::class.java.getMethod("isDataEnabled").invoke(telephonyManager)
+                }
+            result as? Boolean ?: false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
 
     private fun setCellularDataEnabled(
         context: Context,

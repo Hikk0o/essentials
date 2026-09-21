@@ -33,8 +33,10 @@ object ActionRegistry {
             listOf(
                 Action.TurnOnWifi,
                 Action.TurnOffWifi,
+                Action.ToggleWifi,
                 Action.TurnOnCellularData,
                 Action.TurnOffCellularData,
+                Action.ToggleCellularData,
                 Action.TurnOnHotspot,
                 Action.TurnOffHotspot,
                 Action.ToggleHotspot,
