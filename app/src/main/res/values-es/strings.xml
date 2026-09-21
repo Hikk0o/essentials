@@ -1684,4 +1684,6 @@ Cuando llegue un mensaje o alerta de una aplicación seleccionada, la Pantalla s
     <string name="feat_conscious_gate_desc">Una pausa antes de abrir las aplicaciones seleccionadas</string>
     <string name="setting_show_legacy_features_title">Mostrar funciones heredadas</string>
     <string name="setting_show_legacy_features_desc">Estas funciones no van a recibir futuras actualizaciones por limitaciones tecnicas o no son esenciales.</string>
+    <string name="perm_calendar_title">Calendario</string>
+    <string name="perm_contacts_title">Permiso de contactos</string>
 </resources>
