@@ -26,6 +26,7 @@ import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.ui.components.menus.SegmentedDropdownMenuItem
 import com.sameerasw.essentials.ui.core.cards.ConfigPickerItem
+import com.sameerasw.essentials.ui.core.cards.IconToggleItem
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
 import com.sameerasw.essentials.ui.core.sheets.EssentialsBottomSheet
 import com.sameerasw.essentials.utils.HapticUtil
@@ -75,6 +76,15 @@ fun IslandTimeBatteryOptionsBottomSheet(
                         },
                     )
                 }
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_percent_24,
+                    title = stringResource(R.string.island_battery_percentage_title),
+                    isChecked = viewModel.isIslandBatteryPercentageEnabled.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setIslandBatteryPercentageEnabled(checked)
+                    },
+                )
             }
 
             BatteryColorOptions(viewModel)
