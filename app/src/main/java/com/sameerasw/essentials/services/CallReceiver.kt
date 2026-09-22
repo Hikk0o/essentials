@@ -9,6 +9,7 @@
 
 package com.sameerasw.essentials.services
 
+import com.sameerasw.essentials.utils.call.CallStateRepository
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -56,6 +57,11 @@ class CallReceiver : BroadcastReceiver() {
             savedNumber = null
         }
 
+        try {
+            CallStateRepository.onCallStateChanged(context, state, numberToUse)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to update call state", e)
+        }
         WatchCallSyncManager.onCallStateChanged(context, state, numberToUse)
     }
 }
