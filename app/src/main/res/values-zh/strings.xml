@@ -1556,7 +1556,7 @@
     <string name="label_battery_current_now">实时电流</string>
     <string name="label_auto_reset_battery_stats_title">自动重置</string>
     <string name="label_auto_reset_battery_stats_desc">当电池电量在90%以上且未充电时自动重置电池状态</string>
-    <string name="label_ripple_animation">漣漪動畫效果</string>
+    <string name="label_ripple_animation">涟漪动画效果</string>
     <string name="setting_app_icon_title">App 图标</string>
     <string name="setting_app_icon_desc">自訂在主畫面啟動器上的圖示</string>
     <string name="feat_power_saving_title">電量節約</string>
@@ -1572,4 +1572,6 @@
     <string name="perm_bubbles_instructions">在应用通知设置中设置气泡在所有会话中均可出现，或通过Shizuku/Root授权</string>
     <string name="feat_sim_names_title">运营商名称</string>
     <string name="feat_sim_names_desc">给激活的SIM卡重命名显示的运营商名称</string>
+    <string name="label_online_help_media">在线帮助媒体</string>
+    <string name="label_motion_blur">运动模糊</string>
 </resources>

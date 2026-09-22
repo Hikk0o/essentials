@@ -542,9 +542,29 @@ class AodWallpaperOverlayHandler(
             return
         }
 
-        val timeoutMinutes = prefs.getInt(SettingsRepository.KEY_AOD_WALLPAPER_TIMEOUT, 3)
-        if (timeoutMinutes > 0) {
-            handler.postDelayed(timeoutRunnable, timeoutMinutes * 60_000L)
+        val timeoutStr = try {
+            prefs.getString(SettingsRepository.KEY_AOD_WALLPAPER_TIMEOUT, "3m") ?: "3m"
+        } catch (e: Exception) {
+            val oldInt = prefs.getInt(SettingsRepository.KEY_AOD_WALLPAPER_TIMEOUT, 3)
+            if (oldInt == 0) "never" else "${oldInt}m"
+        }
+
+        val millis = parseTimeoutToMillis(timeoutStr)
+        if (millis > 0L) {
+            handler.postDelayed(timeoutRunnable, millis)
+        }
+    }
+
+    private fun parseTimeoutToMillis(timeout: String): Long {
+        return when {
+            timeout == "never" || timeout == "0" -> 0L
+            timeout == "custom" -> {
+                val customSecs = prefs.getFloat(SettingsRepository.KEY_AOD_WALLPAPER_CUSTOM_TIMEOUT, 30f).toLong()
+                customSecs * 1000L
+            }
+            timeout.endsWith("s") -> (timeout.dropLast(1).toLongOrNull() ?: 0L) * 1000L
+            timeout.endsWith("m") -> (timeout.dropLast(1).toLongOrNull() ?: 0L) * 60_000L
+            else -> (timeout.toLongOrNull() ?: 0L) * 60_000L
         }
     }
 

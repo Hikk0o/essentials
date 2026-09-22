@@ -361,6 +361,7 @@ class SettingsRepository(
         const val KEY_AOD_WALLPAPER_ENABLED = "aod_wallpaper_enabled"
         const val KEY_AOD_WALLPAPER_OPACITY = "aod_wallpaper_opacity"
         const val KEY_AOD_WALLPAPER_TIMEOUT = "aod_wallpaper_timeout"
+        const val KEY_AOD_WALLPAPER_CUSTOM_TIMEOUT = "aod_wallpaper_custom_timeout"
         const val KEY_AOD_WALLPAPER_BLUR = "aod_wallpaper_blur"
         const val KEY_AOD_WALLPAPER_VIGNETTE = "aod_wallpaper_vignette"
         const val KEY_AOD_WALLPAPER_BLACK_THRESHOLD = "aod_wallpaper_black_threshold"
@@ -3200,10 +3201,30 @@ class SettingsRepository(
 
     fun setAodWallpaperOpacity(value: Float) = putFloat(KEY_AOD_WALLPAPER_OPACITY, value)
 
-    // timeout in minutes; 0 = Never, default = 3
-    fun getAodWallpaperTimeout(): Int = getInt(KEY_AOD_WALLPAPER_TIMEOUT, 3)
+    // timeout as string (e.g., "never", "5s", "15s", "30s", "1m", "3m", "5m", "10m"); default = "3m"
+    fun getAodWallpaperTimeout(): String {
+        return try {
+            getString(KEY_AOD_WALLPAPER_TIMEOUT, "3m") ?: "3m"
+        } catch (e: Exception) {
+            val oldInt = getInt(KEY_AOD_WALLPAPER_TIMEOUT, 3)
+            val strVal = when (oldInt) {
+                0 -> "never"
+                1 -> "1m"
+                3 -> "3m"
+                5 -> "5m"
+                10 -> "10m"
+                else -> "${oldInt}m"
+            }
+            setAodWallpaperTimeout(strVal)
+            strVal
+        }
+    }
 
-    fun setAodWallpaperTimeout(value: Int) = putInt(KEY_AOD_WALLPAPER_TIMEOUT, value)
+    fun setAodWallpaperTimeout(value: String) = putString(KEY_AOD_WALLPAPER_TIMEOUT, value)
+
+    fun getAodWallpaperCustomTimeout(): Float = getFloat(KEY_AOD_WALLPAPER_CUSTOM_TIMEOUT, 30f)
+
+    fun setAodWallpaperCustomTimeout(value: Float) = putFloat(KEY_AOD_WALLPAPER_CUSTOM_TIMEOUT, value)
 
     // blur  0-25
     fun getAodWallpaperBlur(): Float = getFloat(KEY_AOD_WALLPAPER_BLUR, 0f)

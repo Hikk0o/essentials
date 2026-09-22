@@ -277,7 +277,8 @@ class MainViewModel : ViewModel() {
     val isAodForceTurnOffEnabled = mutableStateOf(false)
     val isAodWallpaperEnabled = mutableStateOf(false)
     val aodWallpaperOpacity = mutableFloatStateOf(0.3f)
-    val aodWallpaperTimeout = mutableIntStateOf(3)
+    val aodWallpaperTimeout = mutableStateOf("3m")
+    val aodWallpaperCustomTimeout = mutableFloatStateOf(30f)
     val aodWallpaperBlur = mutableFloatStateOf(0f)
     val aodWallpaperVignette = mutableFloatStateOf(0f)
     val aodWallpaperBlackThreshold = mutableFloatStateOf(15f)
@@ -1160,8 +1161,12 @@ class MainViewModel : ViewModel() {
                             settingsRepository.getFloat(key, 0.3f)
 
                     SettingsRepository.KEY_AOD_WALLPAPER_TIMEOUT ->
-                        aodWallpaperTimeout.intValue =
+                        aodWallpaperTimeout.value =
                             settingsRepository.getAodWallpaperTimeout()
+
+                    SettingsRepository.KEY_AOD_WALLPAPER_CUSTOM_TIMEOUT ->
+                        aodWallpaperCustomTimeout.floatValue =
+                            settingsRepository.getAodWallpaperCustomTimeout()
 
                     SettingsRepository.KEY_AOD_WALLPAPER_BLUR ->
                         aodWallpaperBlur.floatValue =
@@ -2462,8 +2467,10 @@ class MainViewModel : ViewModel() {
             settingsRepository.getBoolean(SettingsRepository.KEY_AOD_WALLPAPER_ENABLED)
         aodWallpaperOpacity.floatValue =
             settingsRepository.getAodWallpaperOpacity()
-        aodWallpaperTimeout.intValue =
+        aodWallpaperTimeout.value =
             settingsRepository.getAodWallpaperTimeout()
+        aodWallpaperCustomTimeout.floatValue =
+            settingsRepository.getAodWallpaperCustomTimeout()
         aodWallpaperBlur.floatValue =
             settingsRepository.getAodWallpaperBlur()
         aodWallpaperVignette.floatValue =
@@ -8416,9 +8423,14 @@ class MainViewModel : ViewModel() {
         aodWallpaperOpacity.floatValue = opacity
     }
 
-    fun setAodWallpaperTimeout(minutes: Int) {
-        settingsRepository.setAodWallpaperTimeout(minutes)
-        aodWallpaperTimeout.intValue = minutes
+    fun setAodWallpaperTimeout(timeout: String) {
+        settingsRepository.setAodWallpaperTimeout(timeout)
+        aodWallpaperTimeout.value = timeout
+    }
+
+    fun setAodWallpaperCustomTimeout(seconds: Float) {
+        settingsRepository.setAodWallpaperCustomTimeout(seconds)
+        aodWallpaperCustomTimeout.floatValue = seconds
     }
 
     fun setAodWallpaperBlur(radius: Float) {
