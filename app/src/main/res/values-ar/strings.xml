@@ -2091,4 +2091,13 @@
     <string name="feat_sim_names_title">أسماء SIM</string>
     <string name="setting_location_reached_full_screen_alarm_title">منبه في وضع ملء الشاشة</string>
     <string name="setting_location_reached_full_screen_alarm_desc">شغل نغمة رنين المنبه وعرض تنبيه في ملء الشاشة عند الوصول</string>
+    <string name="duo_show_flashlight_title">كشاف</string>
+    <string name="status_glance_show_calendar_title">تقويم</string>
+    <string name="duo_show_media_title">مشغلات في الخلفية</string>
+    <string name="duo_show_time_title">وقت</string>
+    <string name="duo_show_battery_title">بطارية</string>
+    <string name="status_glance_action_tap_title">نقره واحدة</string>
+    <string name="duo_action_double_tap_title">نقرتين</string>
+    <string name="duo_action_long_press_title">نقره طويلة</string>
+    <string name="status_glance_action_swipe_right_title">سحب يمين</string>
 </resources>
