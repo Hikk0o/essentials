@@ -9,6 +9,10 @@
 
 package com.sameerasw.essentials.services
 
+import com.sameerasw.essentials.utils.notification.NotificationRepostFilter
+import com.sameerasw.essentials.utils.chronometer.ChronometerRepository
+import com.sameerasw.essentials.utils.call.CallNotificationParser
+import com.sameerasw.essentials.utils.call.CallStateRepository
 import android.app.Notification
 import android.app.Person
 import android.content.Context
@@ -288,6 +292,12 @@ class NotificationListener : NotificationListenerService() {
             } else {
                 registerReceiver(likeActionReceiver, filter)
             }
+
+            // Calls already in progress when the listener (re)connects.
+            activeNotifications?.filter { CallNotificationParser.isCall(it) && it.packageName != packageName }
+                ?.forEach { CallStateRepository.onCallNotificationPosted(applicationContext, it) }
+            activeNotifications?.filter { it.packageName != packageName && ChronometerRepository.isCandidate(it) }
+                ?.forEach { ChronometerRepository.onPosted(applicationContext, it) }
 
             // Initial discovery from active notifications
             activeNotifications?.forEach { sbn ->
@@ -960,18 +970,22 @@ class NotificationListener : NotificationListenerService() {
         if (sbn.packageName == packageName) {
             return
         }
+
+        val isRepost = NotificationRepostFilter.isUnchangedRepost(sbn)
+        if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationPosted(applicationContext, sbn)
+        if (ChronometerRepository.isCandidate(sbn)) ChronometerRepository.onPosted(applicationContext, sbn)
         if (isOngoingScreenCaptureNotification(sbn)) {
             ScreenOffAccessibilityService.updateSmartPixelsState()
         }
         handleRespectNotifications(sbn)
-        WatchNotificationSyncManager.onNotificationPosted(applicationContext, sbn, isSilentNotification(sbn, rankingMap))
+        if (!isRepost) WatchNotificationSyncManager.onNotificationPosted(applicationContext, sbn, isSilentNotification(sbn, rankingMap))
 
         val extras = sbn.notification.extras
         if (extras != null && (extras.getInt(Notification.EXTRA_PROGRESS_MAX, 0) > 0 || extras.containsKey(Notification.EXTRA_PROGRESS_INDETERMINATE))) {
             notifyProgressListeners(extractLatestProgressNotification())
         }
 
-        if (isHeadsUpNotification(sbn, rankingMap)) {
+        if (!isRepost && isHeadsUpNotification(sbn, rankingMap)) {
             val alert = extractNotificationAlert(sbn)
             if (alert != null) {
                 notifyAlertPosted(alert)
@@ -1000,7 +1014,7 @@ class NotificationListener : NotificationListenerService() {
                     sessions.firstOrNull {
                         it.playbackState?.state == android.media.session.PlaybackState.STATE_PLAYING
                     }
-                if (activeSession != null) {
+                if (activeSession != null && !isRepost) {
                     triggerAmbientGlance(activeSession, "notification_update")
                 }
             } catch (_: Exception) {
@@ -1054,6 +1068,8 @@ class NotificationListener : NotificationListenerService() {
         } catch (_: Exception) {
             // Safe to ignore
         }
+
+        if (isRepost) return
 
         // trigger notification lighting for any newly posted notification if feature enabled
         try {
@@ -1325,6 +1341,9 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        NotificationRepostFilter.forget(sbn.key)
+        if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationRemoved(sbn.key)
+        ChronometerRepository.onRemoved(sbn.key)
         unreadNotifications.remove(sbn.key)
         WatchNotificationSyncManager.onNotificationRemoved(applicationContext, sbn.key)
 

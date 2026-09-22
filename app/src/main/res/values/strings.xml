@@ -2506,10 +2506,15 @@
     <string name="feat_aod_wallpaper_opacity">Opacity</string>
     <string name="feat_aod_wallpaper_timeout">Wallpaper timeout</string>
     <string name="feat_aod_wallpaper_timeout_never">Never</string>
+    <string name="feat_aod_wallpaper_timeout_5s" translatable="false">5 sec</string>
+    <string name="feat_aod_wallpaper_timeout_15s" translatable="false">15 sec</string>
+    <string name="feat_aod_wallpaper_timeout_30s" translatable="false">30 sec</string>
     <string name="feat_aod_wallpaper_timeout_1m">1 min</string>
     <string name="feat_aod_wallpaper_timeout_3m">3 min</string>
     <string name="feat_aod_wallpaper_timeout_5m">5 min</string>
     <string name="feat_aod_wallpaper_timeout_10m">10 min</string>
+    <string name="feat_aod_wallpaper_timeout_custom" translatable="false">Custom</string>
+    <string name="feat_aod_wallpaper_custom_timeout_slider" translatable="false">Custom duration</string>
     <string name="feat_aod_wallpaper_blur">Blur</string>
     <string name="feat_aod_wallpaper_vignette">Vignette</string>
     <string name="feat_aod_wallpaper_black_threshold">Black threshold</string>
@@ -2804,6 +2809,33 @@
     <string name="island_catch_up_title">Catch up</string>
     <string name="island_catch_up_desc">Keep last notification in island for longer</string>
     <string name="island_catch_up_timeout_title">Catch up duration</string>
+    <string name="island_expanded_scale_title">Expanded scale</string>
+    <string name="island_expanded_scale_desc">Grow the expanded island evenly on every side</string>
+    <string name="island_camera_position_title">Camera position</string>
+    <string name="island_camera_position_left">Left</string>
+    <string name="island_camera_position_center">Center</string>
+    <string name="island_camera_position_right">Right</string>
+    <string name="island_show_calls_title">Calls</string>
+    <string name="island_show_timers_title">Timers and stopwatches</string>
+    <string name="island_timer_default">Timer</string>
+    <string name="island_stopwatch_default">Stopwatch</string>
+    <string name="island_call_incoming">Incoming call</string>
+    <string name="island_call_incoming_app">%1$s call</string>
+    <string name="island_call_answer">Answer</string>
+    <string name="island_call_decline">Decline</string>
+    <string name="island_call_end">End</string>
+    <string name="island_call_mute">Mute</string>
+    <string name="island_call_speaker">Speaker</string>
+    <string name="island_calendar_view_event">View event</string>
+    <string name="island_calendar_all_day">All day</string>
+    <string name="island_line_peek_title">Line peek</string>
+    <string name="island_line_peek_desc">Briefly show updates across the island, then return to compact</string>
+    <string name="island_action_hide">Hide</string>
+    <string name="island_notif_queue_title">Notification queue</string>
+    <string name="island_notif_compact_heads_up_title">Compact heads up</string>
+    <string name="island_notif_compact_heads_up_desc">Show new notifications as a line peek</string>
+    <string name="island_media_peek_song_change_title">Peek song change</string>
+    <string name="island_media_peek_song_change_desc">Show the new track as a line peek</string>
 
     <string name="shizuku_not_running_title">Shizuku is not running</string>
     <string name="shizuku_not_running_desc">Please start Shizuku to enable features.</string>

@@ -83,7 +83,7 @@ import com.sameerasw.essentials.utils.ShizukuUtils
 import com.sameerasw.essentials.utils.SurfaceFlingerControl
 import com.sameerasw.essentials.utils.TestNotificationUtil
 import com.sameerasw.essentials.utils.UpdateNotificationHelper
-import com.sameerasw.essentials.utils.island.IslandStatusBarHider
+import com.sameerasw.essentials.island.service.IslandStatusBarHider
 import com.sameerasw.essentials.utils.overlay.writeTo
 import com.sameerasw.essentials.viewmodels.state.DashSettings
 import com.sameerasw.essentials.viewmodels.state.RippleSettings
@@ -183,6 +183,10 @@ class MainViewModel : ViewModel() {
     val islandCutoutGap = mutableFloatStateOf(6f)
     val islandExpandedWidth = mutableFloatStateOf(360f)
     val islandExpandedRoundness = mutableFloatStateOf(24f)
+    val islandExpandedScale = mutableFloatStateOf(1f)
+    val islandCameraPosition = mutableStateOf(SettingsRepository.ISLAND_CAMERA_POSITION_CENTER)
+    val isIslandShowCalls = mutableStateOf(true)
+    val isIslandShowTimers = mutableStateOf(true)
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
     val islandExpandedTimeoutMs = mutableLongStateOf(0L)
@@ -190,9 +194,10 @@ class MainViewModel : ViewModel() {
     val isIslandDynamicHideStatusBar = mutableStateOf(false)
     val isIslandHideWhenScreenOff = mutableStateOf(true)
     val islandTimeoutMs = mutableLongStateOf(4500L)
-    val isIslandTapActionEnabled = mutableStateOf(true)
-    val islandTapAction = mutableStateOf(SettingsRepository.ISLAND_TAP_ACTION_OPEN)
-    val isIslandSwipeUpActionEnabled = mutableStateOf(true)
+    val isIslandLineStageEnabled = mutableStateOf(true)
+    val isIslandMediaPeekSongChange = mutableStateOf(true)
+    val isIslandNotifCompactHeadsUp = mutableStateOf(true)
+    val isIslandNotifQueue = mutableStateOf(true)
     val isIslandCatchUpEnabled = mutableStateOf(false)
     val islandCatchUpTimeoutMs = mutableLongStateOf(10000L)
     val isIslandShowGlow = mutableStateOf(true)
@@ -272,7 +277,8 @@ class MainViewModel : ViewModel() {
     val isAodForceTurnOffEnabled = mutableStateOf(false)
     val isAodWallpaperEnabled = mutableStateOf(false)
     val aodWallpaperOpacity = mutableFloatStateOf(0.3f)
-    val aodWallpaperTimeout = mutableIntStateOf(3)
+    val aodWallpaperTimeout = mutableStateOf("3m")
+    val aodWallpaperCustomTimeout = mutableFloatStateOf(30f)
     val aodWallpaperBlur = mutableFloatStateOf(0f)
     val aodWallpaperVignette = mutableFloatStateOf(0f)
     val aodWallpaperBlackThreshold = mutableFloatStateOf(15f)
@@ -774,14 +780,17 @@ class MainViewModel : ViewModel() {
                     SettingsRepository.KEY_ISLAND_TIMEOUT_MS ->
                         islandTimeoutMs.longValue = settingsRepository.getIslandTimeoutMs()
 
-                    SettingsRepository.KEY_ISLAND_TAP_ACTION_ENABLED ->
-                        isIslandTapActionEnabled.value = settingsRepository.isIslandTapActionEnabled()
+                    SettingsRepository.KEY_ISLAND_LINE_STAGE_ENABLED ->
+                        isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
 
-                    SettingsRepository.KEY_ISLAND_TAP_ACTION ->
-                        islandTapAction.value = settingsRepository.getIslandTapAction()
+                    SettingsRepository.KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE ->
+                        isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
 
-                    SettingsRepository.KEY_ISLAND_SWIPE_UP_ACTION_ENABLED ->
-                        isIslandSwipeUpActionEnabled.value = settingsRepository.isIslandSwipeUpActionEnabled()
+                    SettingsRepository.KEY_ISLAND_NOTIF_COMPACT_HEADS_UP ->
+                        isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
+
+                    SettingsRepository.KEY_ISLAND_NOTIF_QUEUE ->
+                        isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
 
                     SettingsRepository.KEY_ISLAND_CATCH_UP_ENABLED ->
                         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
@@ -1152,8 +1161,12 @@ class MainViewModel : ViewModel() {
                             settingsRepository.getFloat(key, 0.3f)
 
                     SettingsRepository.KEY_AOD_WALLPAPER_TIMEOUT ->
-                        aodWallpaperTimeout.intValue =
+                        aodWallpaperTimeout.value =
                             settingsRepository.getAodWallpaperTimeout()
+
+                    SettingsRepository.KEY_AOD_WALLPAPER_CUSTOM_TIMEOUT ->
+                        aodWallpaperCustomTimeout.floatValue =
+                            settingsRepository.getAodWallpaperCustomTimeout()
 
                     SettingsRepository.KEY_AOD_WALLPAPER_BLUR ->
                         aodWallpaperBlur.floatValue =
@@ -2150,6 +2163,10 @@ class MainViewModel : ViewModel() {
         islandCutoutGap.floatValue = settingsRepository.getIslandCutoutGap()
         islandExpandedWidth.floatValue = settingsRepository.getIslandExpandedWidth()
         islandExpandedRoundness.floatValue = settingsRepository.getIslandExpandedRoundness()
+        islandExpandedScale.floatValue = settingsRepository.getIslandExpandedScale()
+        islandCameraPosition.value = settingsRepository.getIslandCameraPosition()
+        isIslandShowCalls.value = settingsRepository.isIslandShowCallsEnabled()
+        isIslandShowTimers.value = settingsRepository.isIslandShowTimersEnabled()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
         islandExpandedTimeoutMs.longValue = settingsRepository.getIslandExpandedTimeoutMs()
@@ -2161,9 +2178,10 @@ class MainViewModel : ViewModel() {
             )
         isIslandHideWhenScreenOff.value = settingsRepository.isIslandHideWhenScreenOffEnabled()
         islandTimeoutMs.longValue = settingsRepository.getIslandTimeoutMs()
-        isIslandTapActionEnabled.value = settingsRepository.isIslandTapActionEnabled()
-        islandTapAction.value = settingsRepository.getIslandTapAction()
-        isIslandSwipeUpActionEnabled.value = settingsRepository.isIslandSwipeUpActionEnabled()
+        isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
+        isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
+        isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
+        isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
         islandCatchUpTimeoutMs.longValue = settingsRepository.getIslandCatchUpTimeoutMs()
         isIslandShowGlow.value = settingsRepository.isIslandShowGlowEnabled()
@@ -2449,8 +2467,10 @@ class MainViewModel : ViewModel() {
             settingsRepository.getBoolean(SettingsRepository.KEY_AOD_WALLPAPER_ENABLED)
         aodWallpaperOpacity.floatValue =
             settingsRepository.getAodWallpaperOpacity()
-        aodWallpaperTimeout.intValue =
+        aodWallpaperTimeout.value =
             settingsRepository.getAodWallpaperTimeout()
+        aodWallpaperCustomTimeout.floatValue =
+            settingsRepository.getAodWallpaperCustomTimeout()
         aodWallpaperBlur.floatValue =
             settingsRepository.getAodWallpaperBlur()
         aodWallpaperVignette.floatValue =
@@ -5034,6 +5054,26 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandExpandedWidth(value)
     }
 
+    fun setIslandShowTimers(enabled: Boolean) {
+        isIslandShowTimers.value = enabled
+        settingsRepository.setIslandShowTimersEnabled(enabled)
+    }
+
+    fun setIslandShowCalls(enabled: Boolean) {
+        isIslandShowCalls.value = enabled
+        settingsRepository.setIslandShowCallsEnabled(enabled)
+    }
+
+    fun setIslandCameraPosition(value: String) {
+        islandCameraPosition.value = value
+        settingsRepository.setIslandCameraPosition(value)
+    }
+
+    fun setIslandExpandedScale(value: Float) {
+        islandExpandedScale.floatValue = value
+        settingsRepository.setIslandExpandedScale(value)
+    }
+
     fun setIslandExpandedRoundness(value: Float) {
         islandExpandedRoundness.floatValue = value
         settingsRepository.setIslandExpandedRoundness(value)
@@ -5083,19 +5123,24 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandTimeoutMs(value)
     }
 
-    fun setIslandTapActionEnabled(enabled: Boolean) {
-        isIslandTapActionEnabled.value = enabled
-        settingsRepository.setIslandTapActionEnabled(enabled)
+    fun setIslandLineStageEnabled(enabled: Boolean) {
+        isIslandLineStageEnabled.value = enabled
+        settingsRepository.setIslandLineStageEnabled(enabled)
     }
 
-    fun setIslandTapAction(value: String) {
-        islandTapAction.value = value
-        settingsRepository.setIslandTapAction(value)
+    fun setIslandMediaPeekSongChange(enabled: Boolean) {
+        isIslandMediaPeekSongChange.value = enabled
+        settingsRepository.setIslandMediaPeekSongChangeEnabled(enabled)
     }
 
-    fun setIslandSwipeUpActionEnabled(enabled: Boolean) {
-        isIslandSwipeUpActionEnabled.value = enabled
-        settingsRepository.setIslandSwipeUpActionEnabled(enabled)
+    fun setIslandNotifQueue(enabled: Boolean) {
+        isIslandNotifQueue.value = enabled
+        settingsRepository.setIslandNotifQueueEnabled(enabled)
+    }
+
+    fun setIslandNotifCompactHeadsUp(enabled: Boolean) {
+        isIslandNotifCompactHeadsUp.value = enabled
+        settingsRepository.setIslandNotifCompactHeadsUpEnabled(enabled)
     }
 
     fun setIslandCatchUpEnabled(enabled: Boolean) {
@@ -8378,9 +8423,14 @@ class MainViewModel : ViewModel() {
         aodWallpaperOpacity.floatValue = opacity
     }
 
-    fun setAodWallpaperTimeout(minutes: Int) {
-        settingsRepository.setAodWallpaperTimeout(minutes)
-        aodWallpaperTimeout.intValue = minutes
+    fun setAodWallpaperTimeout(timeout: String) {
+        settingsRepository.setAodWallpaperTimeout(timeout)
+        aodWallpaperTimeout.value = timeout
+    }
+
+    fun setAodWallpaperCustomTimeout(seconds: Float) {
+        settingsRepository.setAodWallpaperCustomTimeout(seconds)
+        aodWallpaperCustomTimeout.floatValue = seconds
     }
 
     fun setAodWallpaperBlur(radius: Float) {
