@@ -266,6 +266,8 @@ The Actions section in settings assigns a long press action, a double tap action
 - Double tap runs its action; it is only registered when assigned, so otherwise a single tap still expands immediately. Sound mode and track commit on release past 56dp. Volume and brightness step every 18dp while moving.
 - A finger landing on the compact pill gives a light tick and a small press scale. Drags stretch the pill toward the finger; unassigned directions stretch less. Stretch and press scale only go above 1, from the edge opposite the finger, so the camera stays covered.
 
+While a horizontal slide is in progress the pill previews it: volume and brightness take over the whole pill (percentage on the far side, icon by the camera), sound mode shows the mode name and icon and switches to the mode the release would set, and track skip replaces only the battery cell with a filled pill holding the next/previous icon, which lights up once a release would commit. `gestures/SlideFeedback.kt` carries that state; `ui/components/SlideFeedbackContent.kt` renders it.
+
 `IslandActions.compactGestures` supplies the `CompactGestures` implementation; the coordinator passes `CompactGestureController`. The picker UI (`ui/features/display/actions/`) is shared and can back any gesture setting.
 
 "Toward" and "away" are relative to the camera's side of the surface, so they work for edge cameras too. Any touch resets the auto-collapse and peek timers.

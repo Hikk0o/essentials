@@ -57,13 +57,44 @@ class CompactGestureController(
     }
 
     override fun slideCommit(dx: Float) {
-        val inverted = settings.isIslandSlideInvertDirectionEnabled()
-        val forward = if (inverted) dx < 0f else dx > 0f
+        val forward = forward(dx)
         when (slideMode) {
             SlideMode.Track -> mediaKey(if (forward) KeyEvent.KEYCODE_MEDIA_NEXT else KeyEvent.KEYCODE_MEDIA_PREVIOUS)
             SlideMode.SoundMode -> cycleSoundMode(forward)
             else -> {}
         }
+    }
+
+    override fun levelPercent(): Int = when (slideMode) {
+        SlideMode.Volume -> {
+            val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+            audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) * 100 / max
+        }
+        SlideMode.Brightness -> try {
+            Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS, 128) * 100 / 255
+        } catch (_: Exception) {
+            0
+        }
+        else -> 0
+    }
+
+    override fun soundMode(): RingMode = when (audioManager.ringerMode) {
+        AudioManager.RINGER_MODE_SILENT -> RingMode.Silent
+        AudioManager.RINGER_MODE_VIBRATE -> RingMode.Vibrate
+        else -> RingMode.Normal
+    }
+
+    override fun soundModeAfter(dx: Float): RingMode {
+        val order = listOf(RingMode.Normal, RingMode.Vibrate, RingMode.Silent)
+        val index = order.indexOf(soundMode()).coerceAtLeast(0)
+        return order[(index + if (forward(dx)) 1 else order.size - 1) % order.size]
+    }
+
+    override fun trackForward(dx: Float): Boolean = forward(dx)
+
+    private fun forward(dx: Float): Boolean {
+        val inverted = settings.isIslandSlideInvertDirectionEnabled()
+        return if (inverted) dx < 0f else dx > 0f
     }
 
     private fun cycleSoundMode(forward: Boolean) {

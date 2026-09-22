@@ -13,9 +13,12 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.island.gestures.CompactGestures
+import com.sameerasw.essentials.island.gestures.IslandSlideFeedback
+import com.sameerasw.essentials.island.gestures.SlideFeedback
 import com.sameerasw.essentials.island.gestures.SlideMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.exp
@@ -92,6 +95,7 @@ suspend fun PointerInputScope.detectCompactGestures(
             tracker.resetTracking()
             config = gestures()
             mode = config.slideMode
+            publish(config, mode, 0f, armed = false)
         },
         onDrag = { change, amount ->
             if (isBlocked()) return@detectDragGestures
@@ -109,9 +113,11 @@ suspend fun PointerInputScope.detectCompactGestures(
                         config.slideStep(forward = dx > lastStepX)
                         lastStepX = dx
                         IslandHaptics.sliderStep(context)
+                        publish(config, mode, dx, armed = false)
                     }
                     SlideMode.SoundMode, SlideMode.Track -> {
                         val now = abs(dx) >= commitThreshold
+                        publish(config, mode, dx, armed = now)
                         if (now != crossed) {
                             crossed = now
                             if (now) IslandHaptics.thresholdReached(context) else IslandHaptics.thresholdLeft(context)
@@ -131,13 +137,34 @@ suspend fun PointerInputScope.detectCompactGestures(
             if (!isBlocked() && crossed && horizontal == true) {
                 IslandHaptics.commit(context)
                 config.slideCommit(dx)
+                publish(config, mode, dx, armed = mode == SlideMode.Track)
+            }
+            val settled = mode
+            scope.launch {
+                delay(if (settled == SlideMode.None) 0L else FEEDBACK_LINGER_MS)
+                IslandSlideFeedback.publish(null)
             }
             scope.launch { jelly.releaseStretch(v.x, v.y) }
             reset()
         },
         onDragCancel = {
+            IslandSlideFeedback.publish(null)
             scope.launch { jelly.releaseStretch(0f, 0f) }
             reset()
+        },
+    )
+}
+
+private const val FEEDBACK_LINGER_MS = 700L
+
+private fun publish(config: CompactGestures, mode: SlideMode, dx: Float, armed: Boolean) {
+    IslandSlideFeedback.publish(
+        when (mode) {
+            SlideMode.Volume -> SlideFeedback.Level(brightness = false, percent = config.levelPercent())
+            SlideMode.Brightness -> SlideFeedback.Level(brightness = true, percent = config.levelPercent())
+            SlideMode.SoundMode -> SlideFeedback.Sound(if (armed) config.soundModeAfter(dx) else config.soundMode())
+            SlideMode.Track -> SlideFeedback.Track(next = config.trackForward(dx), armed = armed)
+            SlideMode.None -> null
         },
     )
 }

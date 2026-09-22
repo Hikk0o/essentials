@@ -66,7 +66,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
 import com.sameerasw.essentials.island.gestures.CompactGestures
+import com.sameerasw.essentials.island.gestures.IslandSlideFeedback
+import com.sameerasw.essentials.island.gestures.SlideFeedback
+import com.sameerasw.essentials.island.ui.components.SlideFeedbackCompact
 import com.sameerasw.essentials.island.model.IslandItem
 import com.sameerasw.essentials.island.model.IslandStage
 import com.sameerasw.essentials.island.state.IslandUiState
@@ -720,12 +724,20 @@ private fun StageContent(
     val a = if (interactive) actions else NoActions
     when (stage) {
         IslandStage.Hidden -> Spacer(Modifier.size(spec.cameraDiameter, spec.compactHeight))
-        IslandStage.Compact -> CompactTemplate(
-            state = state,
-            spec = spec,
-            onCellTap = { if (interactive) onCellTap(it) },
-            onCellLongPress = { if (interactive) onCellLongPress(it) },
-        )
+        IslandStage.Compact -> {
+            val feedback by IslandSlideFeedback.state.collectAsState()
+            val takeover = feedback
+            if (takeover is SlideFeedback.Level || takeover is SlideFeedback.Sound) {
+                SlideFeedbackCompact(takeover, spec)
+            } else {
+                CompactTemplate(
+                    state = state,
+                    spec = spec,
+                    onCellTap = { if (interactive) onCellTap(it) },
+                    onCellLongPress = { if (interactive) onCellLongPress(it) },
+                )
+            }
+        }
         IslandStage.Line -> item?.line?.let { LineTemplate(it, spec) }
             ?: Spacer(Modifier.size(spec.lineWidth, spec.compactHeight))
         IslandStage.Expanded -> item?.let {

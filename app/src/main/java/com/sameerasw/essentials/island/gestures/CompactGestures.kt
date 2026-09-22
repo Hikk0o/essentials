@@ -14,6 +14,11 @@ interface CompactGestures {
 
     fun slideCommit(dx: Float)
 
+    fun levelPercent(): Int
+    fun soundMode(): RingMode
+    fun soundModeAfter(dx: Float): RingMode
+    fun trackForward(dx: Float): Boolean
+
     val hasAny: Boolean get() = hasLongPress || hasDoubleTap || slideMode != SlideMode.None
 
     object None : CompactGestures {
@@ -24,5 +29,9 @@ interface CompactGestures {
         override fun doubleTap() {}
         override fun slideStep(forward: Boolean) {}
         override fun slideCommit(dx: Float) {}
+        override fun levelPercent() = 0
+        override fun soundMode() = RingMode.Normal
+        override fun soundModeAfter(dx: Float) = RingMode.Normal
+        override fun trackForward(dx: Float) = true
     }
 }

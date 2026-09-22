@@ -17,7 +17,12 @@ import com.sameerasw.essentials.island.model.IslandItem
 import com.sameerasw.essentials.island.model.IslandPriority
 import com.sameerasw.essentials.island.plugins.BaseIslandPlugin
 import com.sameerasw.essentials.island.plugins.soften
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.sameerasw.essentials.island.gestures.IslandSlideFeedback
+import com.sameerasw.essentials.island.gestures.SlideFeedback
 import com.sameerasw.essentials.island.ui.components.BatteryGlyph
+import com.sameerasw.essentials.island.ui.components.TrackSkipPill
 import com.sameerasw.essentials.island.ui.components.BatteryRing
 import com.sameerasw.essentials.island.ui.components.RollingText
 import java.text.SimpleDateFormat
@@ -133,7 +138,10 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
             placement = CompactPlacement.Pinned,
             compact = listOf(
                 CompactCell("battery") {
+                    val slide by IslandSlideFeedback.state.collectAsState()
+                    val track = slide as? SlideFeedback.Track
                     when {
+                        track != null -> TrackSkipPill(track.next, track.armed, stateColor ?: MaterialTheme.colorScheme.primary)
                         iconStyle -> BatteryGlyph(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
                         else -> BatteryRing(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
                     }

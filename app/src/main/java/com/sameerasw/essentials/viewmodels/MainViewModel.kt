@@ -213,7 +213,7 @@ class MainViewModel : ViewModel() {
     val islandDoubleTapAction = mutableStateOf<Action?>(null)
     val islandSlideMode = mutableStateOf("none")
     val isIslandSlideTrack = mutableStateOf(false)
-    val isIslandSlideInvertDirection = mutableStateOf(false)
+    val isIslandSlideInvertDirection = mutableStateOf(true)
 
     val isStatusGlanceEnabled = mutableStateOf(false)
     val isStatusGlanceAutoDetect = mutableStateOf(true)
