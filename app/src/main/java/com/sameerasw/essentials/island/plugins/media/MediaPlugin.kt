@@ -18,7 +18,13 @@ import com.sameerasw.essentials.island.plugins.BaseIslandPlugin
 import com.sameerasw.essentials.island.plugins.accentFrom
 import com.sameerasw.essentials.island.plugins.launchPackage
 import com.sameerasw.essentials.island.plugins.sendPendingIntent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.sameerasw.essentials.island.gestures.IslandSlideFeedback
+import com.sameerasw.essentials.island.gestures.SlideFeedback
 import com.sameerasw.essentials.island.ui.components.EqualizerBars
+import com.sameerasw.essentials.island.ui.components.MediaArtCue
+import com.sameerasw.essentials.island.ui.components.TrackSkipPill
 import com.sameerasw.essentials.island.ui.components.IslandBitmap
 import com.sameerasw.essentials.services.NotificationListener
 import androidx.compose.ui.unit.dp
@@ -153,8 +159,16 @@ class MediaPlugin : BaseIslandPlugin() {
                 priority = IslandPriority.MEDIA,
                 placement = CompactPlacement.Dynamic,
                 compact = listOf(
-                    CompactCell("media.art") { IslandBitmap(t.artwork, 22.dp, circle = true) },
-                    CompactCell("media.eq") { EqualizerBars(isPlaying, accent) },
+                    CompactCell("media.art") { MediaArtCue(t.artwork, accent, 22.dp) },
+                    CompactCell("media.eq") {
+                        val slide by IslandSlideFeedback.state.collectAsState()
+                        val track = slide as? SlideFeedback.Track
+                        if (track != null) {
+                            TrackSkipPill(track.next, track.armed, accent)
+                        } else {
+                            EqualizerBars(isPlaying, accent)
+                        }
+                    },
                 ),
                 line = LineContent(
                     icon = { IslandBitmap(t.artwork, 24.dp, circle = true) },

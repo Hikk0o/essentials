@@ -210,9 +210,9 @@ class MainViewModel : ViewModel() {
     val isIslandBatteryPercentageEnabled = mutableStateOf(false)
     val isIslandBatteryPercentageConditional = mutableStateOf(false)
     val islandLongPressAction = mutableStateOf<Action?>(null)
-    val islandDoubleTapAction = mutableStateOf<Action?>(null)
     val islandSlideMode = mutableStateOf("none")
     val isIslandSlideTrack = mutableStateOf(false)
+    val isIslandLikeWhilePlaying = mutableStateOf(false)
     val isIslandSlideInvertDirection = mutableStateOf(true)
 
     val isStatusGlanceEnabled = mutableStateOf(false)
@@ -2201,9 +2201,9 @@ class MainViewModel : ViewModel() {
         isIslandBatteryPercentageEnabled.value = settingsRepository.isIslandBatteryPercentageEnabled()
         isIslandBatteryPercentageConditional.value = settingsRepository.isIslandBatteryPercentageConditional()
         islandLongPressAction.value = settingsRepository.getIslandLongPressAction()
-        islandDoubleTapAction.value = settingsRepository.getIslandDoubleTapAction()
         islandSlideMode.value = settingsRepository.getIslandSlideMode()
         isIslandSlideTrack.value = settingsRepository.isIslandSlideTrackEnabled()
+        isIslandLikeWhilePlaying.value = settingsRepository.isIslandLikeWhilePlayingEnabled()
         isIslandSlideInvertDirection.value = settingsRepository.isIslandSlideInvertDirectionEnabled()
         isStatusGlanceEnabled.value = settingsRepository.isStatusGlanceEnabled()
         isStatusGlanceAutoDetect.value = settingsRepository.isStatusGlanceAutoDetectEnabled()
@@ -5217,14 +5217,14 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandLongPressAction(action)
     }
 
-    fun setIslandDoubleTapAction(action: Action?) {
-        islandDoubleTapAction.value = action
-        settingsRepository.setIslandDoubleTapAction(action)
-    }
-
     fun setIslandSlideMode(mode: String) {
         islandSlideMode.value = mode
         settingsRepository.setIslandSlideMode(mode)
+    }
+
+    fun setIslandLikeWhilePlayingEnabled(enabled: Boolean) {
+        isIslandLikeWhilePlaying.value = enabled
+        settingsRepository.setIslandLikeWhilePlayingEnabled(enabled)
     }
 
     fun setIslandSlideTrackEnabled(enabled: Boolean) {

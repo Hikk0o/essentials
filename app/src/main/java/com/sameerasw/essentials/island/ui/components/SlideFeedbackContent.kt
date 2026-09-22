@@ -1,7 +1,9 @@
 package com.sameerasw.essentials.island.ui.components
 
+import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -22,11 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.R
+import androidx.compose.runtime.collectAsState
+import com.sameerasw.essentials.island.gestures.IslandMediaCue
 import com.sameerasw.essentials.island.gestures.RingMode
 import com.sameerasw.essentials.island.gestures.SlideFeedback
 import com.sameerasw.essentials.island.ui.IslandLayoutSpec
@@ -138,4 +145,39 @@ private fun SlideFeedback.iconRes(): Int = when (this) {
         RingMode.Silent -> R.drawable.rounded_volume_off_24
     }
     is SlideFeedback.Track -> if (next) R.drawable.rounded_skip_next_24 else R.drawable.rounded_skip_previous_24
+}
+
+@Composable
+fun MediaArtCue(artwork: Bitmap?, accent: Color, size: Dp) {
+    val liked by IslandMediaCue.liked.collectAsState()
+    val pop by animateFloatAsState(
+        targetValue = if (liked) 1f else 0f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
+        label = "likedPop",
+    )
+    Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+        if (pop < 1f) {
+            Box(
+                Modifier.graphicsLayer {
+                    alpha = 1f - pop
+                    val s = 1f - 0.25f * pop
+                    scaleX = s
+                    scaleY = s
+                },
+            ) { IslandBitmap(artwork, size, circle = true) }
+        }
+        if (pop > 0f) {
+            IslandIcon(
+                res = R.drawable.rounded_favorite_24,
+                tint = accent,
+                size = size,
+                modifier = Modifier.graphicsLayer {
+                    alpha = pop
+                    val s = 0.6f + 0.4f * pop
+                    scaleX = s
+                    scaleY = s
+                },
+            )
+        }
+    }
 }

@@ -260,13 +260,13 @@ Handled once in `IslandRoot` for every item:
 
 ### Compact actions
 
-The Actions section in settings assigns a long press action, a double tap action and a horizontal slide mode (volume, brightness, sound mode, track skip while media plays). These apply **only in Compact**; Line and Expanded keep the gestures above.
+The Actions section in settings assigns a long press action and a horizontal slide mode (volume, brightness, sound mode, track skip while media plays). These apply **only in Compact**; Line and Expanded keep the gestures above.
 
 - Long press runs the assigned action instead of opening the item's app, with a swelling rumble while held.
-- Double tap runs its action; it is only registered when assigned, so otherwise a single tap still expands immediately. Sound mode and track commit on release past 56dp. Volume and brightness step every 18dp while moving.
+- Sound mode and track commit on release past 56dp. Volume and brightness step every 18dp while moving.
 - A finger landing on the compact pill gives a light tick and a small press scale. Drags stretch the pill toward the finger; unassigned directions stretch less. Stretch and press scale only go above 1, from the edge opposite the finger, so the camera stays covered.
 
-While a horizontal slide is in progress the pill previews it: volume and brightness take over the whole pill (percentage on the far side, icon by the camera), sound mode shows the mode name and icon and switches to the mode the release would set, and track skip replaces only the battery cell with a filled pill holding the next/previous icon, which lights up once a release would commit. `gestures/SlideFeedback.kt` carries that state; `ui/components/SlideFeedbackContent.kt` renders it.
+While a horizontal slide is in progress the pill previews it: volume and brightness take over the whole pill (percentage on the far side, icon by the camera), sound mode shows the mode name and icon and switches to the mode the release would set, and track skip replaces the media equalizer cell with a filled pill holding the next/previous icon, which lights up once a release would commit. Liking a song (long press while media plays, when enabled) flashes a filled heart in place of the album art. `gestures/SlideFeedback.kt` and `gestures/MediaCue.kt` carry that state; `ui/components/SlideFeedbackContent.kt` renders it. Music cues live on the media complication, everything else on the time/battery one.
 
 `IslandActions.compactGestures` supplies the `CompactGestures` implementation; the coordinator passes `CompactGestureController`. The picker UI (`ui/features/display/actions/`) is shared and can back any gesture setting.
 

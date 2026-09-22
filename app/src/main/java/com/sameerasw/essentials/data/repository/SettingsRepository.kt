@@ -473,9 +473,9 @@ class SettingsRepository(
         const val ISLAND_BATTERY_STYLE_ICON = "icon"
         const val KEY_ISLAND_BATTERY_PERCENTAGE = "island_battery_percentage"
         const val KEY_ISLAND_LONG_PRESS_ACTION = "island_long_press_action"
-        const val KEY_ISLAND_DOUBLE_TAP_ACTION = "island_double_tap_action"
         const val KEY_ISLAND_SLIDE_MODE = "island_slide_mode"
         const val KEY_ISLAND_SLIDE_TRACK = "island_slide_track"
+        const val KEY_ISLAND_LIKE_WHILE_PLAYING = "island_like_while_playing"
         const val KEY_ISLAND_SLIDE_INVERT_DIRECTION = "island_slide_invert_direction"
         const val KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL = "island_battery_percentage_conditional"
         const val KEY_ISLAND_EXPANDED_SCALE = "island_expanded_scale"
@@ -3528,11 +3528,11 @@ class SettingsRepository(
     fun getIslandLongPressAction(): Action? = getRemapAction(KEY_ISLAND_LONG_PRESS_ACTION)
     fun setIslandLongPressAction(action: Action?) = setRemapAction(KEY_ISLAND_LONG_PRESS_ACTION, action)
 
-    fun getIslandDoubleTapAction(): Action? = getRemapAction(KEY_ISLAND_DOUBLE_TAP_ACTION)
-    fun setIslandDoubleTapAction(action: Action?) = setRemapAction(KEY_ISLAND_DOUBLE_TAP_ACTION, action)
-
     fun getIslandSlideMode(): String = getString(KEY_ISLAND_SLIDE_MODE, "none") ?: "none"
     fun setIslandSlideMode(mode: String) = putString(KEY_ISLAND_SLIDE_MODE, mode)
+
+    fun isIslandLikeWhilePlayingEnabled(): Boolean = getBoolean(KEY_ISLAND_LIKE_WHILE_PLAYING, false)
+    fun setIslandLikeWhilePlayingEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_LIKE_WHILE_PLAYING, enabled)
 
     fun isIslandSlideTrackEnabled(): Boolean = getBoolean(KEY_ISLAND_SLIDE_TRACK, false)
     fun setIslandSlideTrackEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SLIDE_TRACK, enabled)

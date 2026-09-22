@@ -748,18 +748,21 @@ fun IslandSettingsUI(
             )
 
             IconToggleItem(
-                iconRes = R.drawable.rounded_touch_app_24,
-                title = stringResource(R.string.duo_action_double_tap_title),
-                description = viewModel.islandDoubleTapAction.value?.let { stringResource(it.title) }
-                    ?: stringResource(R.string.duo_action_none),
-                showToggle = false,
-                onClick = {
+                iconRes = R.drawable.rounded_favorite_24,
+                title = stringResource(R.string.island_like_while_playing_title),
+                isChecked = viewModel.isIslandLikeWhilePlaying.value,
+                onCheckedChange = { checked ->
                     HapticUtil.performVirtualKeyHaptic(view)
-                    pickingGesture = "double_tap"
+                    viewModel.setIslandLikeWhilePlayingEnabled(checked)
                 },
-                modifier = Modifier.highlight(highlightSetting == "island_double_tap_action"),
+                modifier = Modifier.highlight(highlightSetting == "island_like_while_playing"),
             )
+        }
 
+        RoundedCardContainer(
+            spacing = 2.dp,
+            cornerRadius = 24.dp,
+        ) {
             IconToggleItem(
                 iconRes = R.drawable.rounded_compare_arrows_24,
                 title = stringResource(R.string.duo_action_horizontal_slide_title),
@@ -770,6 +773,18 @@ fun IslandSettingsUI(
                     showSlideModeSheet = true
                 },
                 modifier = Modifier.highlight(highlightSetting == "island_slide_mode"),
+            )
+
+            IconToggleItem(
+                iconRes = R.drawable.rounded_skip_next_24,
+                title = stringResource(R.string.duo_action_horizontal_slide_track),
+                description = stringResource(R.string.duo_action_horizontal_slide_track_desc),
+                isChecked = viewModel.isIslandSlideTrack.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandSlideTrackEnabled(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_slide_track"),
             )
 
             AnimatedVisibility(
@@ -790,16 +805,27 @@ fun IslandSettingsUI(
             }
         }
 
+        AnimatedVisibility(
+            visible = !viewModel.isIslandShowTimeBattery.value,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            Text(
+                text = stringResource(R.string.island_gesture_visuals_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
     }
 
-    pickingGesture?.let { gesture ->
+    if (pickingGesture != null) {
         GestureActionPickerSheet(
             viewModel = viewModel,
-            currentAction = if (gesture == "long_press") viewModel.islandLongPressAction.value else viewModel.islandDoubleTapAction.value,
-            onActionSelected = { action ->
-                if (gesture == "long_press") viewModel.setIslandLongPressAction(action) else viewModel.setIslandDoubleTapAction(action)
-            },
+            currentAction = viewModel.islandLongPressAction.value,
+            onActionSelected = viewModel::setIslandLongPressAction,
             onPickerClosed = { pickingGesture = null },
         )
     }
@@ -807,9 +833,7 @@ fun IslandSettingsUI(
     if (showSlideModeSheet) {
         HorizontalSlideModeSheet(
             mode = viewModel.islandSlideMode.value,
-            trackEnabled = viewModel.isIslandSlideTrack.value,
             onModeSelected = viewModel::setIslandSlideMode,
-            onTrackChanged = viewModel::setIslandSlideTrackEnabled,
             onDismissRequest = { showSlideModeSheet = false },
         )
     }

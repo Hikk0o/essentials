@@ -8,16 +8,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.R
-import com.sameerasw.essentials.ui.core.cards.IconToggleItem
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
 import com.sameerasw.essentials.ui.core.sheets.EssentialsBottomSheet
 import com.sameerasw.essentials.ui.features.system.RemapActionItem
-import com.sameerasw.essentials.utils.HapticUtil
 
 val HORIZONTAL_SLIDE_MODES = listOf(
     Triple("none", R.string.duo_action_horizontal_slide_none, R.drawable.rounded_do_not_disturb_on_24),
@@ -40,12 +37,9 @@ fun horizontalSlideDescription(mode: String, track: Boolean): String {
 @Composable
 fun HorizontalSlideModeSheet(
     mode: String,
-    trackEnabled: Boolean,
     onModeSelected: (String) -> Unit,
-    onTrackChanged: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    val view = LocalView.current
     EssentialsBottomSheet(onDismissRequest = onDismissRequest) {
         Column(
             modifier = Modifier
@@ -74,18 +68,6 @@ fun HorizontalSlideModeSheet(
                 }
             }
 
-            RoundedCardContainer(spacing = 2.dp) {
-                IconToggleItem(
-                    iconRes = R.drawable.rounded_skip_next_24,
-                    title = stringResource(R.string.duo_action_horizontal_slide_track),
-                    description = stringResource(R.string.duo_action_horizontal_slide_track_desc),
-                    isChecked = trackEnabled,
-                    onCheckedChange = { checked ->
-                        HapticUtil.performVirtualKeyHaptic(view)
-                        onTrackChanged(checked)
-                    },
-                )
-            }
         }
     }
 }

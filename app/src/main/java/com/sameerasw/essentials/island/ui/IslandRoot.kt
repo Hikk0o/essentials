@@ -158,9 +158,6 @@ fun IslandRoot(
     val jelly = rememberCompactJellyState()
     val jellyRangePx = with(density) { 90.dp.toPx() }
     var compactLongPressed by remember { mutableStateOf(false) }
-    val compactDoubleTap = remember(stage, state.items.size) {
-        stage == IslandStage.Compact && actions.compactGestures.hasDoubleTap
-    }
 
     LaunchedEffect(key) {
         if (stage != IslandStage.Hidden) visible = true
@@ -371,19 +368,11 @@ fun IslandRoot(
                         if (compact) scope.launch { jelly.pressUp() }
                     }
                 }
-                .pointerInput(stage, compactDoubleTap) {
+                .pointerInput(stage) {
                     if (stage == IslandStage.Hidden) return@pointerInput
                     detectTapGestures(
                         onTap = { handleTap(null) },
                         onLongPress = { handleLongPress(null) },
-                        onDoubleTap = if (compactDoubleTap) {
-                            {
-                                IslandHaptics.commit(context)
-                                actions.compactGestures.doubleTap()
-                            }
-                        } else {
-                            null
-                        },
                     )
                 }
                 .pointerInput(stage) {
