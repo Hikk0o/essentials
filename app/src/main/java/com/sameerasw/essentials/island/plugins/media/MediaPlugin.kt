@@ -106,6 +106,7 @@ class MediaPlugin : BaseIslandPlugin() {
             c.scope.launch {
                 val (art, accent) = withContext(Dispatchers.IO) {
                     val bmp = MediaSessionSource.artwork(context, metadata)
+                        ?: MediaSessionSource.appIcon(context, playingController.packageName)
                     bmp to accentFrom(bmp)
                 }
                 if (active?.sessionToken != playingController.sessionToken) return@launch

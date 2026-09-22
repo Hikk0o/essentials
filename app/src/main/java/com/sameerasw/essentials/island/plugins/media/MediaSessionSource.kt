@@ -13,6 +13,7 @@ import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.SystemClock
 import com.sameerasw.essentials.services.NotificationListener
+import com.sameerasw.essentials.utils.AppUtil
 import java.io.File
 import kotlin.math.abs
 
@@ -134,6 +135,12 @@ class MediaSessionSource(
             } catch (_: Exception) {
             }
             return false
+        }
+
+        fun appIcon(context: Context, packageName: String): Bitmap? = try {
+            AppUtil.drawableToBitmap(context.packageManager.getApplicationIcon(packageName))
+        } catch (_: Exception) {
+            null
         }
 
         fun artwork(context: Context, metadata: MediaMetadata?): Bitmap? {
