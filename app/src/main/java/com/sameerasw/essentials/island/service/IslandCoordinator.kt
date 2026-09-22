@@ -91,6 +91,7 @@ class IslandCoordinator(
     private var isLandscape = false
     private var isFullscreenApp = false
     private var running = false
+    private var foregroundPackage: String? = null
 
     private val isWindowSuppressed get() = isLandscape || isFullscreenApp
     private val isContentSuppressed: Boolean
@@ -162,6 +163,16 @@ class IslandCoordinator(
                 plugins.forEach { it.refresh() }
             }
         }
+    }
+
+    fun onForegroundPackage(packageName: String) {
+        if (foregroundPackage == packageName) return
+        foregroundPackage = packageName
+        applyOwnerAppHiding()
+    }
+
+    private fun applyOwnerAppHiding() {
+        controller.setHiddenPackage(foregroundPackage.takeIf { settings.isIslandHideInOwnerAppEnabled() })
     }
 
     fun updateConsciousGateState() {
@@ -305,6 +316,7 @@ class IslandCoordinator(
             SettingsRepository.KEY_ISLAND_ENABLED -> updateState()
             SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR -> syncStatusBar(controller.state.value.stage)
             SettingsRepository.KEY_ISLAND_HIDE_WHEN_SCREEN_OFF -> applySuppression()
+            SettingsRepository.KEY_ISLAND_HIDE_IN_OWNER_APP -> applyOwnerAppHiding()
             SettingsRepository.KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP ->
                 if (running) settings.applyHeadsUpSuppression(settings.isIslandSuppressSystemHeadsUpEnabled())
             in CONFIG_KEYS -> if (running) applyConfig()

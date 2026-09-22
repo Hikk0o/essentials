@@ -164,6 +164,7 @@ class TimerPlugin : BaseIslandPlugin() {
                     }
                 },
                 onOpen = { if (!sendPendingIntent(context, entry.contentIntent)) launchPackage(context, entry.packageName) },
+                sourcePackage = entry.packageName,
             ),
         )
     }

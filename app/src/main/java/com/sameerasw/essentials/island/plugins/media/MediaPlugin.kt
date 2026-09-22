@@ -45,6 +45,7 @@ class MediaPlugin : BaseIslandPlugin() {
 
     private data class Track(
         val key: String,
+        val packageName: String,
         val title: String,
         val artist: String,
         val artwork: Bitmap?,
@@ -115,7 +116,7 @@ class MediaPlugin : BaseIslandPlugin() {
                     resolved to accentFrom(resolved)
                 }
                 if (active?.sessionToken != playingController.sessionToken) return@launch
-                track = Track(key, title, artist, art, accent)
+                track = Track(key, playingController.packageName, title, artist, art, accent)
                 render()
                 if (isNewTrack && settings.isIslandMediaPeekSongChangeEnabled()) {
                     c.request(PluginRequest.Peek(ITEM_KEY, settings.getIslandPeekDurationMs()))
@@ -188,6 +189,7 @@ class MediaPlugin : BaseIslandPlugin() {
                 },
                 accent = accent,
                 onOpen = { openPlayer() },
+                sourcePackage = t.packageName,
             ),
         )
     }

@@ -213,6 +213,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
                 if (!sendPendingIntent(context, alert.contentIntent)) launchPackage(context, alert.packageName)
                 popCurrent(reExpand = false)
             },
+            sourcePackage = alert.packageName,
         )
     }
 
@@ -229,6 +230,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
         onOpen = onOpen,
         interactions = interactions,
         queue = queue,
+        sourcePackage = sourcePackage,
     )
 
     private fun sendReply(alert: ActiveNotificationAlert, action: NotificationActionItem, text: String) {

@@ -118,6 +118,19 @@ class MediaSessionSource(
             return ((state.position + elapsed) / duration.toFloat()).coerceIn(0f, 1f)
         }
 
+        fun playingMusicSession(context: Context, excluded: Set<String>): MediaController? = try {
+            val manager = context.getSystemService(Context.MEDIA_SESSION_SERVICE) as? MediaSessionManager
+            val component = ComponentName(context, NotificationListener::class.java)
+            manager?.getActiveSessions(component)?.firstOrNull { controller ->
+                val state = controller.playbackState
+                state?.state == PlaybackState.STATE_PLAYING &&
+                    controller.packageName !in excluded &&
+                    (state.actions and (PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS)) != 0L
+            }
+        } catch (_: Exception) {
+            null
+        }
+
         fun isLiked(controller: MediaController): Boolean {
             try {
                 val rating = controller.metadata?.getRating(MediaMetadata.METADATA_KEY_USER_RATING)

@@ -6,6 +6,7 @@ import android.provider.Settings
 import android.view.KeyEvent
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.diy.Action
+import com.sameerasw.essentials.island.plugins.media.MediaSessionSource
 import com.sameerasw.essentials.services.automation.executors.CombinedActionExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -17,13 +18,19 @@ class CompactGestureController(
 ) : CompactGestures {
     private val audioManager by lazy { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
 
-    private val likeWhilePlaying get() = settings.isIslandLikeWhilePlayingEnabled() && audioManager.isMusicActive
+    private val musicPlaying: Boolean
+        get() {
+            val excluded = settings.loadIslandMediaExcludedApps().filter { it.isEnabled }.map { it.packageName }.toSet()
+            return MediaSessionSource.playingMusicSession(context, excluded) != null
+        }
+
+    private val likeWhilePlaying get() = settings.isIslandLikeWhilePlayingEnabled() && musicPlaying
 
     override val hasLongPress get() = settings.getIslandLongPressAction() != null || likeWhilePlaying
 
     override val slideMode: SlideMode
         get() {
-            if (settings.isIslandSlideTrackEnabled() && audioManager.isMusicActive) return SlideMode.Track
+            if (settings.isIslandSlideTrackEnabled() && musicPlaying) return SlideMode.Track
             return when (settings.getIslandSlideMode()) {
                 "volume" -> SlideMode.Volume
                 "brightness" -> SlideMode.Brightness

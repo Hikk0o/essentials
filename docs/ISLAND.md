@@ -207,6 +207,10 @@ If the plugin needs a runtime permission, request it through `PermissionsBottomS
 
 ---
 
+### Hiding inside the owning app
+
+`IslandItem.sourcePackage` names the app an item belongs to. With "Hide complication inside the app" on, the controller drops items whose `sourcePackage` matches the foreground package, which the accessibility service reports through `IslandCoordinator.onForegroundPackage`. Media, calls, timers and notifications set it; plugins without a meaningful owner leave it null and are never hidden this way.
+
 ## Item reference
 
 | Field | Notes |

@@ -47,8 +47,16 @@ class IslandController(
     private var peekDurationMs: Long = 0L
     private var expandedTimer: Cancellable? = null
 
+    private var hiddenPackage: String? = null
+
     fun setItems(sourceId: String, items: List<IslandItem>) {
         itemsBySource[sourceId] = items
+        recompute()
+    }
+
+    fun setHiddenPackage(packageName: String?) {
+        if (hiddenPackage == packageName) return
+        hiddenPackage = packageName
         recompute()
     }
 
@@ -205,7 +213,9 @@ class IslandController(
     }
 
     private fun allItems(): Map<String, IslandItem> =
-        itemsBySource.values.flatten().associateBy { it.key }
+        itemsBySource.values.flatten()
+            .filter { hiddenPackage == null || it.sourcePackage != hiddenPackage }
+            .associateBy { it.key }
 
     private fun recompute() {
         val items = if (suppressed) emptyMap() else allItems()

@@ -504,6 +504,17 @@ fun IslandSettingsUI(
                 },
                 modifier = Modifier.highlight(highlightSetting == "island_line_stage_enabled"),
             )
+
+            IconToggleItem(
+                iconRes = R.drawable.rounded_visibility_off_24,
+                title = stringResource(R.string.island_hide_in_owner_app_title),
+                isChecked = viewModel.isIslandHideInOwnerApp.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandHideInOwnerApp(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_hide_in_owner_app"),
+            )
         }
 
         Text(
