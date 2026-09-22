@@ -27,6 +27,7 @@ import com.sameerasw.essentials.domain.diy.Action
 import com.sameerasw.essentials.services.automation.executors.CombinedActionExecutor
 import com.sameerasw.essentials.utils.DuoOverlayView
 import com.sameerasw.essentials.utils.HapticUtil
+import com.sameerasw.essentials.utils.media.MusicSessionUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -381,7 +382,10 @@ class DuoTouchHandler(
     }
 
     private fun getEffectiveSlideMode(): String {
-        if (settingsRepository.isDuoSlideTrackEnabled() && overlayView?.isMediaPlaying == true) {
+        if (settingsRepository.isDuoSlideTrackEnabled() &&
+            overlayView?.isMediaPlaying == true &&
+            MusicSessionUtil.isPlayingMusic(service)
+        ) {
             return "track"
         }
         return settingsRepository.getDuoSlideMode()

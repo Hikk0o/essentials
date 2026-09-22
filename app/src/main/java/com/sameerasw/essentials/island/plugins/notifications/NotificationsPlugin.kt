@@ -176,7 +176,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
     private fun itemFor(alert: ActiveNotificationAlert): IslandItem {
         val (sender, message) = senderAndMessage(context, alert)
         val showGlow = settings.isIslandShowGlowEnabled()
-        val icon = alert.appIcon ?: alert.icon
+        val icon = alert.chatIcon ?: alert.appIcon ?: alert.icon
         val accent = alert.appColor?.let { Color(soften(it)) }
         return IslandItem(
             key = ITEM_KEY,
@@ -213,6 +213,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
                 if (!sendPendingIntent(context, alert.contentIntent)) launchPackage(context, alert.packageName)
                 popCurrent(reExpand = false)
             },
+            sourcePackage = alert.packageName,
         )
     }
 
@@ -229,6 +230,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
         onOpen = onOpen,
         interactions = interactions,
         queue = queue,
+        sourcePackage = sourcePackage,
     )
 
     private fun sendReply(alert: ActiveNotificationAlert, action: NotificationActionItem, text: String) {

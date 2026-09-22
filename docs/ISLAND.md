@@ -42,6 +42,9 @@ island/
 │   ├── IslandController.kt    Stage machine: focus, peek, expand/collapse, dismiss, queue, timers
 │   ├── CompactLayoutEngine.kt Pure function placing compact cells around the camera
 │   └── CameraGeometry.kt      Camera position/size and CameraAnchor (Center / Start / End)
+├── gestures/
+│   ├── CompactGestures.kt     Contract for user-assigned compact gestures (long press, swipe down, slide)
+│   └── CompactGestureController.kt  Reads the Actions settings and performs them
 ├── service/
 │   ├── IslandCoordinator.kt   Entry point from the accessibility service; owns plugins and config
 │   ├── IslandWindowHost.kt    Overlay windows (fixed drawing window + touch window, text-input mode)
@@ -56,6 +59,7 @@ island/
 │   ├── IslandLayoutSpec.kt    Sizes derived from camera geometry and settings
 │   ├── IslandMotion.kt        Every spring, curve and duration
 │   ├── IslandHaptics.kt       Every haptic used by the island
+│   ├── CompactInteraction.kt  Compact press scale, jelly stretch and the compact drag detector
 │   ├── IslandModifiers.kt     animatePlacement()
 │   └── components/            Shared building blocks (see below)
 └── plugins/
@@ -203,6 +207,10 @@ If the plugin needs a runtime permission, request it through `PermissionsBottomS
 
 ---
 
+### Hiding inside the owning app
+
+`IslandItem.sourcePackage` names the app an item belongs to. With "Hide complication inside the app" on, the controller drops items whose `sourcePackage` matches the foreground package, which the accessibility service reports through `IslandCoordinator.onForegroundPackage`. Media, calls, timers and notifications set it; plugins without a meaningful owner leave it null and are never hidden this way.
+
 ## Item reference
 
 | Field | Notes |
@@ -254,6 +262,18 @@ Handled once in `IslandRoot` for every item:
 | Swipe toward the camera | Scrubs the collapse 1:1 with the finger, then finishes with the release velocity. On a notification stack, hides the current card instead. |
 | Swipe away from the camera | Dismissible items slide off and dismiss. A reveal (or, on a stack, the next card) shows behind the card, with a Hide/Dismiss chip at the threshold. |
 
+### Compact actions
+
+The Actions section in settings assigns a long press action and a horizontal slide mode (volume, brightness, sound mode, track skip while media plays). These apply **only in Compact**; Line and Expanded keep the gestures above.
+
+- Long press runs the assigned action instead of opening the item's app, with a swelling rumble while held.
+- Sound mode and track commit on release past 56dp. Volume and brightness step every 18dp while moving.
+- A finger landing on the compact pill gives a light tick and a small press scale. Drags stretch the pill toward the finger; unassigned directions stretch less. Stretch and press scale only go above 1, from the edge opposite the finger, so the camera stays covered.
+
+While a horizontal slide is in progress the pill previews it: volume and brightness take over the whole pill (percentage on the far side, icon by the camera), sound mode shows the mode name and icon and switches to the mode the release would set, and track skip replaces the media equalizer cell with a filled pill holding the next/previous icon, which lights up once a release would commit. Liking a song (long press while media plays, when enabled) flashes a filled heart in place of the album art. `gestures/SlideFeedback.kt` and `gestures/MediaCue.kt` carry that state; `ui/components/SlideFeedbackContent.kt` renders it. Music cues live on the media complication, everything else on the time/battery one.
+
+`IslandActions.compactGestures` supplies the `CompactGestures` implementation; the coordinator passes `CompactGestureController`. The picker UI (`ui/features/display/actions/`) is shared and can back any gesture setting.
+
 "Toward" and "away" are relative to the camera's side of the surface, so they work for edge cameras too. Any touch resets the auto-collapse and peek timers.
 
 ---
@@ -261,7 +281,7 @@ Handled once in `IslandRoot` for every item:
 ## Animation and haptics
 
 - All motion values live in `IslandMotion`. Expand uses a soft spring; collapse uses an eased in/out curve; swipe releases use a critically damped spring seeded with the finger velocity.
-- The surface only ever grows past the camera, never shrinks below it, and is never scaled, so the cutout stays covered.
+- The surface only ever grows past the camera and never shrinks below it. The only scaling is the compact press and jelly stretch, which never go below 1, so the cutout stays covered.
 - Content transitions (scale around the top edge, outgoing layer) are shared by every stage and plugin; plugins do not declare them.
 - All haptics go through `IslandHaptics`, which uses service-context vibration because View haptics do not fire from an accessibility overlay window.
 

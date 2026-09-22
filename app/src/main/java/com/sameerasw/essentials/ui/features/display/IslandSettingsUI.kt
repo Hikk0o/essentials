@@ -55,6 +55,9 @@ import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
 import com.sameerasw.essentials.ui.core.sheets.AppSelectionSheet
 import com.sameerasw.essentials.ui.core.sheets.PermissionsBottomSheet
 import com.sameerasw.essentials.ui.features.consciousgate.CONSCIOUS_GATE_FEATURE_ID
+import com.sameerasw.essentials.ui.features.display.actions.GestureActionPickerSheet
+import com.sameerasw.essentials.ui.features.display.actions.HorizontalSlideModeSheet
+import com.sameerasw.essentials.ui.features.display.actions.horizontalSlideDescription
 import com.sameerasw.essentials.ui.features.display.sheets.IslandTimeBatteryOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.StatusGlanceCalendarOptionsBottomSheet
 import com.sameerasw.essentials.ui.modifiers.highlight
@@ -65,7 +68,7 @@ import com.sameerasw.essentials.utils.ShellUtils
 import com.sameerasw.essentials.viewmodels.MainViewModel
 
 private val ISLAND_PLACEMENT_KEYS = setOf("island_camera_position", "island_use_auto_detect", "island_camera_size", "island_max_width", "island_expanded_width", "island_cutout_gap")
-private val ISLAND_VISUALS_KEYS = setOf("island_expanded_scale", "island_expanded_roundness", "island_expanded_padding", "island_expanded_top_padding")
+private val ISLAND_VISUALS_KEYS = setOf("island_expanded_scale", "island_font_scale", "island_expanded_roundness", "island_expanded_padding", "island_expanded_top_padding")
 
 @Composable
 private fun IslandExpandableSection(
@@ -143,6 +146,8 @@ fun IslandSettingsUI(
     var showMediaAppSelectionSheet by remember { mutableStateOf(false) }
     var showCalendarOptionsSheet by remember { mutableStateOf(false) }
     var showTimeBatteryOptionsSheet by remember { mutableStateOf(false) }
+    var pickingGesture by remember { mutableStateOf<String?>(null) }
+    var showSlideModeSheet by remember { mutableStateOf(false) }
 
     val hasShellPermission =
         if (ShellUtils.isRootEnabled(context)) {
@@ -364,6 +369,20 @@ fun IslandSettingsUI(
             )
 
             ConfigSliderItem(
+                title = stringResource(R.string.island_font_scale_title),
+                value = viewModel.islandFontScale.floatValue,
+                onValueChange = {
+                    HapticUtil.performUIHaptic(view)
+                    viewModel.setIslandFontScale(it)
+                },
+                valueRange = 0.8f..1.3f,
+                increment = 0.05f,
+                iconRes = R.drawable.rounded_format_size_24,
+                valueFormatter = { "${(it * 100).toInt()}%" },
+                modifier = Modifier.highlight(highlightSetting == "island_font_scale"),
+            )
+
+            ConfigSliderItem(
                 title = stringResource(R.string.island_expanded_roundness_title),
                 value = viewModel.islandExpandedRoundness.floatValue,
                 onValueChange = {
@@ -484,6 +503,17 @@ fun IslandSettingsUI(
                     viewModel.setIslandLineStageEnabled(checked)
                 },
                 modifier = Modifier.highlight(highlightSetting == "island_line_stage_enabled"),
+            )
+
+            IconToggleItem(
+                iconRes = R.drawable.rounded_visibility_off_24,
+                title = stringResource(R.string.island_hide_in_owner_app_title),
+                isChecked = viewModel.isIslandHideInOwnerApp.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandHideInOwnerApp(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_hide_in_owner_app"),
             )
         }
 
@@ -718,7 +748,119 @@ fun IslandSettingsUI(
             )
         }
 
+        Text(
+            text = stringResource(R.string.duo_section_actions),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 8.dp),
+        )
+
+        RoundedCardContainer(
+            spacing = 2.dp,
+            cornerRadius = 24.dp,
+        ) {
+            IconToggleItem(
+                iconRes = R.drawable.rounded_front_hand_24,
+                title = stringResource(R.string.duo_action_long_press_title),
+                description = viewModel.islandLongPressAction.value?.let { stringResource(it.title) }
+                    ?: stringResource(R.string.duo_action_none),
+                showToggle = false,
+                onClick = {
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    pickingGesture = "long_press"
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_long_press_action"),
+            )
+
+            IconToggleItem(
+                iconRes = R.drawable.rounded_favorite_24,
+                title = stringResource(R.string.island_like_while_playing_title),
+                isChecked = viewModel.isIslandLikeWhilePlaying.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandLikeWhilePlayingEnabled(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_like_while_playing"),
+            )
+        }
+
+        RoundedCardContainer(
+            spacing = 2.dp,
+            cornerRadius = 24.dp,
+        ) {
+            IconToggleItem(
+                iconRes = R.drawable.rounded_compare_arrows_24,
+                title = stringResource(R.string.duo_action_horizontal_slide_title),
+                description = horizontalSlideDescription(viewModel.islandSlideMode.value, viewModel.isIslandSlideTrack.value),
+                showToggle = false,
+                onClick = {
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    showSlideModeSheet = true
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_slide_mode"),
+            )
+
+            IconToggleItem(
+                iconRes = R.drawable.rounded_skip_next_24,
+                title = stringResource(R.string.duo_action_horizontal_slide_track),
+                description = stringResource(R.string.duo_action_horizontal_slide_track_desc),
+                isChecked = viewModel.isIslandSlideTrack.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandSlideTrackEnabled(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_slide_track"),
+            )
+
+            AnimatedVisibility(
+                visible = viewModel.isIslandSlideTrack.value || viewModel.islandSlideMode.value == "sound_mode",
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_compare_arrows_24,
+                    title = stringResource(R.string.duo_slide_mirror_direction_title),
+                    isChecked = viewModel.isIslandSlideInvertDirection.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setIslandSlideInvertDirection(checked)
+                    },
+                    modifier = Modifier.highlight(highlightSetting == "island_slide_invert_direction"),
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = !viewModel.isIslandShowTimeBattery.value,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            Text(
+                text = stringResource(R.string.island_gesture_visuals_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
+    }
+
+    if (pickingGesture != null) {
+        GestureActionPickerSheet(
+            viewModel = viewModel,
+            currentAction = viewModel.islandLongPressAction.value,
+            onActionSelected = viewModel::setIslandLongPressAction,
+            onPickerClosed = { pickingGesture = null },
+        )
+    }
+
+    if (showSlideModeSheet) {
+        HorizontalSlideModeSheet(
+            mode = viewModel.islandSlideMode.value,
+            onModeSelected = viewModel::setIslandSlideMode,
+            onDismissRequest = { showSlideModeSheet = false },
+        )
     }
 
     if (showMediaAppSelectionSheet) {

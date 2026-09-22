@@ -153,6 +153,7 @@ class CallPlugin : BaseIslandPlugin() {
                 },
                 accent = null,
                 onOpen = { guarded { if (!sendPendingIntent(context, snap.contentIntent)) CallControlUtil.showInCallScreen(context) } },
+                sourcePackage = snap.packageName,
             ),
         )
     }

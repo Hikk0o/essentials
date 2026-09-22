@@ -540,6 +540,7 @@ class ScreenOffAccessibilityService :
 
         if (detectedPackage != null) {
             appFlowHandler.onPackageChanged(detectedPackage)
+            islandOverlayHandler.onForegroundPackage(detectedPackage)
             islandOverlayHandler.updateConsciousGateState()
         }
 

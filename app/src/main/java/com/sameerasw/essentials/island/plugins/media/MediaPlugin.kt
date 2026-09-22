@@ -18,12 +18,19 @@ import com.sameerasw.essentials.island.plugins.BaseIslandPlugin
 import com.sameerasw.essentials.island.plugins.accentFrom
 import com.sameerasw.essentials.island.plugins.launchPackage
 import com.sameerasw.essentials.island.plugins.sendPendingIntent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.sameerasw.essentials.island.gestures.IslandSlideFeedback
+import com.sameerasw.essentials.island.gestures.SlideFeedback
 import com.sameerasw.essentials.island.ui.components.EqualizerBars
+import com.sameerasw.essentials.island.ui.components.MediaArtCue
+import com.sameerasw.essentials.island.ui.components.TrackSkipPill
 import com.sameerasw.essentials.island.ui.components.IslandBitmap
 import com.sameerasw.essentials.services.NotificationListener
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class MediaPlugin : BaseIslandPlugin() {
@@ -34,8 +41,11 @@ class MediaPlugin : BaseIslandPlugin() {
         SettingsRepository.KEY_ISLAND_MEDIA_EXCLUDED_APPS,
     )
 
+    private val ART_RETRY_DELAYS_MS = longArrayOf(1500L, 3000L)
+
     private data class Track(
         val key: String,
+        val packageName: String,
         val title: String,
         val artist: String,
         val artwork: Bitmap?,
@@ -98,16 +108,20 @@ class MediaPlugin : BaseIslandPlugin() {
             }
             val isNewTrack = track != null
             c.scope.launch {
+                var hadArt = true
                 val (art, accent) = withContext(Dispatchers.IO) {
                     val bmp = MediaSessionSource.artwork(context, metadata)
-                    bmp to accentFrom(bmp)
+                    hadArt = bmp != null
+                    val resolved = bmp ?: MediaSessionSource.appIcon(context, playingController.packageName)
+                    resolved to accentFrom(resolved)
                 }
                 if (active?.sessionToken != playingController.sessionToken) return@launch
-                track = Track(key, title, artist, art, accent)
+                track = Track(key, playingController.packageName, title, artist, art, accent)
                 render()
                 if (isNewTrack && settings.isIslandMediaPeekSongChangeEnabled()) {
                     c.request(PluginRequest.Peek(ITEM_KEY, settings.getIslandPeekDurationMs()))
                 }
+                if (!hadArt) retryArtwork(key, playingController)
             }
             return
         }
@@ -153,8 +167,16 @@ class MediaPlugin : BaseIslandPlugin() {
                 priority = IslandPriority.MEDIA,
                 placement = CompactPlacement.Dynamic,
                 compact = listOf(
-                    CompactCell("media.art") { IslandBitmap(t.artwork, 22.dp, circle = true) },
-                    CompactCell("media.eq") { EqualizerBars(isPlaying, accent) },
+                    CompactCell("media.art") { MediaArtCue(t.artwork, accent, 22.dp) },
+                    CompactCell("media.eq") {
+                        val slide by IslandSlideFeedback.state.collectAsState()
+                        val track = slide as? SlideFeedback.Track
+                        if (track != null) {
+                            TrackSkipPill(track.next, track.armed, accent)
+                        } else {
+                            EqualizerBars(isPlaying, accent)
+                        }
+                    },
                 ),
                 line = LineContent(
                     icon = { IslandBitmap(t.artwork, 24.dp, circle = true) },
@@ -167,8 +189,21 @@ class MediaPlugin : BaseIslandPlugin() {
                 },
                 accent = accent,
                 onOpen = { openPlayer() },
+                sourcePackage = t.packageName,
             ),
         )
+    }
+
+    private suspend fun retryArtwork(key: String, controller: MediaController) {
+        ART_RETRY_DELAYS_MS.forEach { wait ->
+            delay(wait)
+            if (track?.key != key || active?.sessionToken != controller.sessionToken) return
+            val art = withContext(Dispatchers.IO) { MediaSessionSource.artwork(context, controller.metadata) } ?: return@forEach
+            if (track?.key != key || active?.sessionToken != controller.sessionToken) return
+            track = track?.copy(artwork = art, accent = accentFrom(art))
+            render()
+            return
+        }
     }
 
     private fun togglePlay() {

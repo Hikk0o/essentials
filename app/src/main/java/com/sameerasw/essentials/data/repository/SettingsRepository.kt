@@ -471,7 +471,16 @@ class SettingsRepository(
         const val KEY_ISLAND_BATTERY_STYLE = "island_battery_style"
         const val ISLAND_BATTERY_STYLE_RING = "ring"
         const val ISLAND_BATTERY_STYLE_ICON = "icon"
+        const val KEY_ISLAND_BATTERY_PERCENTAGE = "island_battery_percentage"
+        const val KEY_ISLAND_LONG_PRESS_ACTION = "island_long_press_action"
+        const val KEY_ISLAND_SLIDE_MODE = "island_slide_mode"
+        const val KEY_ISLAND_SLIDE_TRACK = "island_slide_track"
+        const val KEY_ISLAND_LIKE_WHILE_PLAYING = "island_like_while_playing"
+        const val KEY_ISLAND_SLIDE_INVERT_DIRECTION = "island_slide_invert_direction"
+        const val KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL = "island_battery_percentage_conditional"
         const val KEY_ISLAND_EXPANDED_SCALE = "island_expanded_scale"
+        const val KEY_ISLAND_FONT_SCALE = "island_font_scale"
+        const val KEY_ISLAND_HIDE_IN_OWNER_APP = "island_hide_in_owner_app"
         const val KEY_ISLAND_CAMERA_POSITION = "island_camera_position"
         const val KEY_ISLAND_SHOW_CALLS = "island_show_calls"
         const val KEY_ISLAND_SHOW_TIMERS = "island_show_timers"
@@ -3515,6 +3524,27 @@ class SettingsRepository(
         getString(KEY_ISLAND_BATTERY_STYLE, ISLAND_BATTERY_STYLE_RING) ?: ISLAND_BATTERY_STYLE_RING
     fun setIslandBatteryStyle(value: String) = putString(KEY_ISLAND_BATTERY_STYLE, value)
 
+    fun isIslandBatteryPercentageEnabled(): Boolean = getBoolean(KEY_ISLAND_BATTERY_PERCENTAGE, false)
+    fun setIslandBatteryPercentageEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_PERCENTAGE, enabled)
+
+    fun getIslandLongPressAction(): Action? = getRemapAction(KEY_ISLAND_LONG_PRESS_ACTION)
+    fun setIslandLongPressAction(action: Action?) = setRemapAction(KEY_ISLAND_LONG_PRESS_ACTION, action)
+
+    fun getIslandSlideMode(): String = getString(KEY_ISLAND_SLIDE_MODE, "none") ?: "none"
+    fun setIslandSlideMode(mode: String) = putString(KEY_ISLAND_SLIDE_MODE, mode)
+
+    fun isIslandLikeWhilePlayingEnabled(): Boolean = getBoolean(KEY_ISLAND_LIKE_WHILE_PLAYING, false)
+    fun setIslandLikeWhilePlayingEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_LIKE_WHILE_PLAYING, enabled)
+
+    fun isIslandSlideTrackEnabled(): Boolean = getBoolean(KEY_ISLAND_SLIDE_TRACK, false)
+    fun setIslandSlideTrackEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SLIDE_TRACK, enabled)
+
+    fun isIslandSlideInvertDirectionEnabled(): Boolean = getBoolean(KEY_ISLAND_SLIDE_INVERT_DIRECTION, true)
+    fun setIslandSlideInvertDirection(enabled: Boolean) = putBoolean(KEY_ISLAND_SLIDE_INVERT_DIRECTION, enabled)
+
+    fun isIslandBatteryPercentageConditional(): Boolean = getBoolean(KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL, false)
+    fun setIslandBatteryPercentageConditional(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL, enabled)
+
     fun isIslandShowTimersEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_TIMERS, true)
     fun setIslandShowTimersEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_TIMERS, enabled)
 
@@ -3527,6 +3557,12 @@ class SettingsRepository(
 
     fun getIslandExpandedScale(): Float = getFloat(KEY_ISLAND_EXPANDED_SCALE, 1f)
     fun setIslandExpandedScale(value: Float) = putFloat(KEY_ISLAND_EXPANDED_SCALE, value)
+
+    fun isIslandHideInOwnerAppEnabled(): Boolean = getBoolean(KEY_ISLAND_HIDE_IN_OWNER_APP, false)
+    fun setIslandHideInOwnerAppEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_HIDE_IN_OWNER_APP, enabled)
+
+    fun getIslandFontScale(): Float = getFloat(KEY_ISLAND_FONT_SCALE, 1f)
+    fun setIslandFontScale(value: Float) = putFloat(KEY_ISLAND_FONT_SCALE, value)
 
     fun isIslandLineStageEnabled(): Boolean = getBoolean(KEY_ISLAND_LINE_STAGE_ENABLED, true)
     fun setIslandLineStageEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_LINE_STAGE_ENABLED, enabled)

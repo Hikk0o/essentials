@@ -17,10 +17,9 @@ import com.sameerasw.essentials.island.model.IslandItem
 import com.sameerasw.essentials.island.model.IslandPriority
 import com.sameerasw.essentials.island.plugins.BaseIslandPlugin
 import com.sameerasw.essentials.island.plugins.soften
+import com.sameerasw.essentials.island.ui.components.BatteryGlyph
 import com.sameerasw.essentials.island.ui.components.BatteryRing
-import com.sameerasw.essentials.island.ui.components.IslandIcon
 import com.sameerasw.essentials.island.ui.components.RollingText
-import com.sameerasw.essentials.utils.battery.BatteryInfoUtil
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -31,6 +30,8 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
     override val settingKeys = setOf(
         SettingsRepository.KEY_ISLAND_SHOW_TIME_BATTERY,
         SettingsRepository.KEY_ISLAND_BATTERY_STYLE,
+        SettingsRepository.KEY_ISLAND_BATTERY_PERCENTAGE,
+        SettingsRepository.KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL,
         SettingsRepository.KEY_DUO_BATTERY_CHARGING_COLOR_ENABLED,
         SettingsRepository.KEY_DUO_BATTERY_CHARGING_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_POWER_SAVE_COLOR_ENABLED,
@@ -115,7 +116,8 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         val batteryLevel = level
         val stateColor = stateColor()
         val iconStyle = settings.getIslandBatteryStyle() == SettingsRepository.ISLAND_BATTERY_STYLE_ICON
-        val iconRes = BatteryInfoUtil.getBatteryIconRes(context, batteryLevel, charging, isPowerSave = powerSave)
+        val showLevel = settings.isIslandBatteryPercentageEnabled() &&
+            (!settings.isIslandBatteryPercentageConditional() || stateColor != null)
 
         val timeItem = IslandItem(
             key = "time",
@@ -131,10 +133,9 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
             placement = CompactPlacement.Pinned,
             compact = listOf(
                 CompactCell("battery") {
-                    if (iconStyle) {
-                        IslandIcon(iconRes, tint = stateColor ?: Color.White)
-                    } else {
-                        BatteryRing(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary)
+                    when {
+                        iconStyle -> BatteryGlyph(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
+                        else -> BatteryRing(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
                     }
                 },
             ),

@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.service.notification.StatusBarNotification
 import android.telephony.TelephonyManager
+import android.telecom.TelecomManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +21,7 @@ data class CallSnapshot(
     val startedAt: Long,
     
     val appName: String? = null,
+    val packageName: String? = null,
     val answerIntent: PendingIntent? = null,
     val endIntent: PendingIntent? = null,
     val contentIntent: PendingIntent? = null,
@@ -87,10 +89,17 @@ object CallStateRepository {
             incoming = call.ringing || phone?.incoming == true,
             startedAt = activeSince[call.key] ?: phone?.startedAt ?: call.postedAt,
             appName = call.appName,
+            packageName = call.packageName,
             answerIntent = call.answerIntent,
             endIntent = call.endIntent,
             contentIntent = call.contentIntent,
         )
+    }
+
+    private fun defaultDialer(context: Context): String? = try {
+        (context.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager)?.defaultDialerPackage
+    } catch (_: Exception) {
+        null
     }
 
     private fun snapshot(context: Context, phase: CallPhase, number: String?, previous: CallSnapshot?, incoming: Boolean): CallSnapshot {
@@ -103,6 +112,7 @@ object CallStateRepository {
             photo = if (sameCall && previous?.photo != null) previous.photo else CallerLookup.photo(context, resolvedNumber),
             incoming = incoming,
             startedAt = if (sameCall && previous?.phase == phase) previous.startedAt else System.currentTimeMillis(),
+            packageName = defaultDialer(context),
         )
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.island.model.IslandExpandedScope
+import androidx.compose.ui.platform.LocalContext
+import com.sameerasw.essentials.island.ui.IslandHaptics
 import com.sameerasw.essentials.island.ui.IslandMotion
 import com.sameerasw.essentials.island.ui.IslandTextStyles
 import com.sameerasw.essentials.island.ui.components.ConnectedButtonRow
@@ -79,6 +82,7 @@ fun MediaExpanded(
             delay(200L)
         }
     }
+    val context = LocalContext.current
     val image = remember(artwork) { artwork?.asImageBitmap() }
 
     Box {
@@ -96,7 +100,16 @@ fun MediaExpanded(
                 transitionSpec = { fadeIn(IslandMotion.contentIn()) togetherWith fadeOut(IslandMotion.contentOut()) },
                 label = "playerArt",
             ) { art ->
-                Box(Modifier.size(88.dp).clip(RoundedCornerShape(20.dp)).background(Color.White.copy(alpha = 0.1f))) {
+                Box(
+                    Modifier
+                        .size(88.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.White.copy(alpha = 0.1f))
+                        .clickable {
+                            IslandHaptics.button(context)
+                            scope.openApp()
+                        },
+                ) {
                     if (art != null) {
                         Image(art, null, contentScale = ContentScale.Crop, modifier = Modifier.matchParentSize())
                     }

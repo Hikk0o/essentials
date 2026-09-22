@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
@@ -178,12 +179,21 @@ fun IslandExpandedScope.ArtworkBackdrop(image: ImageBitmap?, modifier: Modifier 
             bitmap = image,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize().blur(40.dp).alpha(0.67f),
+            
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer {
+                    scaleX = 1.08f
+                    scaleY = 1.08f
+                }
+                .blur(40.dp)
+                .alpha(0.67f),
         )
         Box(
             Modifier.matchParentSize().drawBehind {
                 val top = clearTop.toPx().coerceAtMost(size.height)
-                drawRect(Color.Black, size = Size(size.width, top))
+                
+                drawRect(Color.Black, size = Size(size.width, (top + 1f).coerceAtMost(size.height)))
                 drawRect(
                     brush = Brush.verticalGradient(
                         0f to Color.Black,

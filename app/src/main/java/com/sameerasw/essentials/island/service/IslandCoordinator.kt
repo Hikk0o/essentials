@@ -18,10 +18,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.data.repository.SettingsRepository
+import com.sameerasw.essentials.island.gestures.CompactGestureController
+import com.sameerasw.essentials.island.gestures.CompactGestures
 import com.sameerasw.essentials.island.model.IslandPlugin
 import com.sameerasw.essentials.island.model.IslandPluginContext
 import com.sameerasw.essentials.island.model.IslandStage
@@ -86,13 +91,17 @@ class IslandCoordinator(
     private var isLandscape = false
     private var isFullscreenApp = false
     private var running = false
+    private var foregroundPackage: String? = null
 
     private val isWindowSuppressed get() = isLandscape || isFullscreenApp
     private val isContentSuppressed: Boolean
         get() = isWindowSuppressed ||
             (settings.isIslandHideWhenScreenOffEnabled() && (isScreenOff || keyguardManager?.isKeyguardLocked == true))
 
+    private val compactGestures = CompactGestureController(service, settings) { scope }
+
     private val actions = object : IslandActions {
+        override val compactGestures: CompactGestures get() = this@IslandCoordinator.compactGestures
         override fun onTap(itemKey: String?) = controller.onTap(itemKey)
         override fun onLongPress(itemKey: String?) = controller.onLongPress(itemKey)
         override fun onCollapse() = controller.collapse()
@@ -156,6 +165,16 @@ class IslandCoordinator(
         }
     }
 
+    fun onForegroundPackage(packageName: String) {
+        if (foregroundPackage == packageName) return
+        foregroundPackage = packageName
+        applyOwnerAppHiding()
+    }
+
+    private fun applyOwnerAppHiding() {
+        controller.setHiddenPackage(foregroundPackage.takeIf { settings.isIslandHideInOwnerAppEnabled() })
+    }
+
     fun updateConsciousGateState() {
         mainHandler.post { plugins.filterIsInstance<ConsciousGatePlugin>().forEach { it.refresh() } }
     }
@@ -197,7 +216,12 @@ class IslandCoordinator(
             val layoutSpec by spec.collectAsState()
             val colors = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) dynamicDarkColorScheme(service) else darkColorScheme()
             MaterialTheme(colorScheme = colors, typography = IslandTypography) {
-                IslandRoot(state, layoutSpec, actions, windowHost::onTargetBoundsChanged) { controller.collapseAnimator = it }
+                val base = LocalDensity.current
+                CompositionLocalProvider(
+                    LocalDensity provides Density(base.density, base.fontScale * layoutSpec.fontScale),
+                ) {
+                    IslandRoot(state, layoutSpec, actions, windowHost::onTargetBoundsChanged) { controller.collapseAnimator = it }
+                }
             }
         }
         // Fails until the accessibility service is connected; onServiceConnected calls updateState() again.
@@ -262,6 +286,7 @@ class IslandCoordinator(
             expandedPadding = settings.getIslandExpandedPadding().dp,
             expandedTopPadding = settings.getIslandExpandedTopPadding().dp,
             expandedScale = settings.getIslandExpandedScale().coerceIn(1f, 1.3f),
+            fontScale = settings.getIslandFontScale().coerceIn(0.8f, 1.3f),
             expandedOutset = (expandedWidth * (scale - 1f) / 2f).dp,
             cameraAnchor = geo.anchor,
         )
@@ -291,6 +316,7 @@ class IslandCoordinator(
             SettingsRepository.KEY_ISLAND_ENABLED -> updateState()
             SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR -> syncStatusBar(controller.state.value.stage)
             SettingsRepository.KEY_ISLAND_HIDE_WHEN_SCREEN_OFF -> applySuppression()
+            SettingsRepository.KEY_ISLAND_HIDE_IN_OWNER_APP -> applyOwnerAppHiding()
             SettingsRepository.KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP ->
                 if (running) settings.applyHeadsUpSuppression(settings.isIslandSuppressSystemHeadsUpEnabled())
             in CONFIG_KEYS -> if (running) applyConfig()
@@ -313,6 +339,7 @@ class IslandCoordinator(
             SettingsRepository.KEY_ISLAND_EXPANDED_TIMEOUT_MS,
             SettingsRepository.KEY_ISLAND_LINE_STAGE_ENABLED,
             SettingsRepository.KEY_ISLAND_EXPANDED_SCALE,
+            SettingsRepository.KEY_ISLAND_FONT_SCALE,
             SettingsRepository.KEY_ISLAND_CAMERA_POSITION,
         )
     }

@@ -33,6 +33,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sameerasw.essentials.island.ui.IslandTextStyles
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Row
 import com.sameerasw.essentials.island.ui.IslandMotion
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -109,16 +118,73 @@ fun EqualizerBars(
 }
 
 @Composable
-fun BatteryRing(level: Int, color: Color, modifier: Modifier = Modifier, size: Dp = 18.dp) {
+fun BatteryRing(level: Int, color: Color, modifier: Modifier = Modifier, showLevel: Boolean = false, size: Dp = if (showLevel) 24.dp else 18.dp) {
     val sweep by animateFloatAsState(360f * level.coerceIn(0, 100) / 100f, IslandMotion.float(), label = "batterySweep")
     val ringColor by animateColorAsState(color, label = "batteryColor")
-    Canvas(modifier.size(size)) {
-        val stroke = this.size.minDimension * 0.16f
-        val inset = stroke / 2f
-        val arcSize = Size(this.size.width - stroke, this.size.height - stroke)
-        drawArc(Color.White.copy(alpha = 0.25f), 0f, 360f, false, Offset(inset, inset), arcSize, style = Stroke(stroke * 0.5f))
-        if (sweep > 0.5f) {
-            drawArc(ringColor, -90f, sweep, false, Offset(inset, inset), arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+    Box(modifier.size(size), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.matchParentSize()) {
+            val stroke = this.size.minDimension * (if (showLevel) 0.12f else 0.16f)
+            val inset = stroke / 2f
+            val arcSize = Size(this.size.width - stroke, this.size.height - stroke)
+            drawArc(Color.White.copy(alpha = 0.25f), 0f, 360f, false, Offset(inset, inset), arcSize, style = Stroke(stroke * 0.5f))
+            if (sweep > 0.5f) {
+                drawArc(ringColor, -90f, sweep, false, Offset(inset, inset), arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+            }
+        }
+        if (showLevel) {
+            Text(
+                text = level.coerceIn(0, 100).toString(),
+                style = IslandTextStyles.compact.copy(fontSize = 9.sp, lineHeight = 9.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+fun BatteryGlyph(level: Int, color: Color, modifier: Modifier = Modifier, showLevel: Boolean = true) {
+    val fraction by animateFloatAsState(level.coerceIn(0, 100) / 100f, IslandMotion.float(), label = "batteryFill")
+    val fillColor by animateColorAsState(color, label = "batteryGlyphColor")
+    val onFill = if (fillColor.luminance() > 0.5f) Color.Black else Color.White
+    val textStyle = IslandTextStyles.compact.copy(fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Bold)
+    val label = level.coerceIn(0, 100).toString()
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier
+                .size(width = 28.dp, height = 15.dp)
+                .clip(RoundedCornerShape(4.5.dp))
+                .drawBehind {
+                    drawRect(Color.White.copy(alpha = 0.3f))
+                    drawRect(fillColor, size = Size(size.width * fraction, size.height))
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            if (showLevel) Text(
+                label,
+                style = textStyle.copy(color = Color.White),
+                maxLines = 1,
+                modifier = Modifier.drawWithContent {
+                    val split = (size.width / 2f) + (fraction - 0.5f) * 28.dp.toPx()
+                    clipRect(left = split) { this@drawWithContent.drawContent() }
+                },
+            )
+            if (showLevel) Text(
+                label,
+                style = textStyle.copy(color = onFill),
+                maxLines = 1,
+                modifier = Modifier.drawWithContent {
+                    val split = (size.width / 2f) + (fraction - 0.5f) * 28.dp.toPx()
+                    clipRect(right = split) { this@drawWithContent.drawContent() }
+                },
+            )
+        }
+        Canvas(Modifier.size(width = 2.5.dp, height = 6.dp)) {
+            drawRoundRect(
+                color = if (fraction >= 0.99f) fillColor else Color.White.copy(alpha = 0.3f),
+                topLeft = Offset(size.width * 0.2f, 0f),
+                size = Size(size.width * 0.8f, size.height),
+                cornerRadius = CornerRadius(size.width, size.width),
+            )
         }
     }
 }

@@ -183,6 +183,8 @@ class MainViewModel : ViewModel() {
     val islandCutoutGap = mutableFloatStateOf(6f)
     val islandExpandedWidth = mutableFloatStateOf(360f)
     val islandExpandedRoundness = mutableFloatStateOf(24f)
+    val islandFontScale = mutableFloatStateOf(1f)
+    val isIslandHideInOwnerApp = mutableStateOf(false)
     val islandExpandedScale = mutableFloatStateOf(1f)
     val islandCameraPosition = mutableStateOf(SettingsRepository.ISLAND_CAMERA_POSITION_CENTER)
     val isIslandShowCalls = mutableStateOf(true)
@@ -207,6 +209,13 @@ class MainViewModel : ViewModel() {
     val isIslandShowTimeBattery = mutableStateOf(false)
     val isIslandShowFlashlight = mutableStateOf(true)
     val islandBatteryStyle = mutableStateOf(SettingsRepository.ISLAND_BATTERY_STYLE_RING)
+    val isIslandBatteryPercentageEnabled = mutableStateOf(false)
+    val isIslandBatteryPercentageConditional = mutableStateOf(false)
+    val islandLongPressAction = mutableStateOf<Action?>(null)
+    val islandSlideMode = mutableStateOf("none")
+    val isIslandSlideTrack = mutableStateOf(false)
+    val isIslandLikeWhilePlaying = mutableStateOf(false)
+    val isIslandSlideInvertDirection = mutableStateOf(true)
 
     val isStatusGlanceEnabled = mutableStateOf(false)
     val isStatusGlanceAutoDetect = mutableStateOf(true)
@@ -2163,6 +2172,8 @@ class MainViewModel : ViewModel() {
         islandCutoutGap.floatValue = settingsRepository.getIslandCutoutGap()
         islandExpandedWidth.floatValue = settingsRepository.getIslandExpandedWidth()
         islandExpandedRoundness.floatValue = settingsRepository.getIslandExpandedRoundness()
+        islandFontScale.floatValue = settingsRepository.getIslandFontScale()
+        isIslandHideInOwnerApp.value = settingsRepository.isIslandHideInOwnerAppEnabled()
         islandExpandedScale.floatValue = settingsRepository.getIslandExpandedScale()
         islandCameraPosition.value = settingsRepository.getIslandCameraPosition()
         isIslandShowCalls.value = settingsRepository.isIslandShowCallsEnabled()
@@ -2191,6 +2202,13 @@ class MainViewModel : ViewModel() {
         isIslandShowTimeBattery.value = settingsRepository.isIslandShowTimeBatteryEnabled()
         isIslandShowFlashlight.value = settingsRepository.isIslandShowFlashlightEnabled()
         islandBatteryStyle.value = settingsRepository.getIslandBatteryStyle()
+        isIslandBatteryPercentageEnabled.value = settingsRepository.isIslandBatteryPercentageEnabled()
+        isIslandBatteryPercentageConditional.value = settingsRepository.isIslandBatteryPercentageConditional()
+        islandLongPressAction.value = settingsRepository.getIslandLongPressAction()
+        islandSlideMode.value = settingsRepository.getIslandSlideMode()
+        isIslandSlideTrack.value = settingsRepository.isIslandSlideTrackEnabled()
+        isIslandLikeWhilePlaying.value = settingsRepository.isIslandLikeWhilePlayingEnabled()
+        isIslandSlideInvertDirection.value = settingsRepository.isIslandSlideInvertDirectionEnabled()
         isStatusGlanceEnabled.value = settingsRepository.isStatusGlanceEnabled()
         isStatusGlanceAutoDetect.value = settingsRepository.isStatusGlanceAutoDetectEnabled()
         statusGlanceOffsetX.floatValue = settingsRepository.getStatusGlanceOffsetX()
@@ -5074,6 +5092,16 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandExpandedScale(value)
     }
 
+    fun setIslandHideInOwnerApp(enabled: Boolean) {
+        isIslandHideInOwnerApp.value = enabled
+        settingsRepository.setIslandHideInOwnerAppEnabled(enabled)
+    }
+
+    fun setIslandFontScale(value: Float) {
+        islandFontScale.floatValue = value
+        settingsRepository.setIslandFontScale(value)
+    }
+
     fun setIslandExpandedRoundness(value: Float) {
         islandExpandedRoundness.floatValue = value
         settingsRepository.setIslandExpandedRoundness(value)
@@ -5186,6 +5214,41 @@ class MainViewModel : ViewModel() {
     fun setIslandBatteryStyle(value: String) {
         islandBatteryStyle.value = value
         settingsRepository.setIslandBatteryStyle(value)
+    }
+
+    fun setIslandBatteryPercentageEnabled(enabled: Boolean) {
+        isIslandBatteryPercentageEnabled.value = enabled
+        settingsRepository.setIslandBatteryPercentageEnabled(enabled)
+    }
+
+    fun setIslandBatteryPercentageConditional(enabled: Boolean) {
+        isIslandBatteryPercentageConditional.value = enabled
+        settingsRepository.setIslandBatteryPercentageConditional(enabled)
+    }
+
+    fun setIslandLongPressAction(action: Action?) {
+        islandLongPressAction.value = action
+        settingsRepository.setIslandLongPressAction(action)
+    }
+
+    fun setIslandSlideMode(mode: String) {
+        islandSlideMode.value = mode
+        settingsRepository.setIslandSlideMode(mode)
+    }
+
+    fun setIslandLikeWhilePlayingEnabled(enabled: Boolean) {
+        isIslandLikeWhilePlaying.value = enabled
+        settingsRepository.setIslandLikeWhilePlayingEnabled(enabled)
+    }
+
+    fun setIslandSlideTrackEnabled(enabled: Boolean) {
+        isIslandSlideTrack.value = enabled
+        settingsRepository.setIslandSlideTrackEnabled(enabled)
+    }
+
+    fun setIslandSlideInvertDirection(enabled: Boolean) {
+        isIslandSlideInvertDirection.value = enabled
+        settingsRepository.setIslandSlideInvertDirection(enabled)
     }
 
     fun loadIslandMediaApps(context: Context): List<AppSelection> = settingsRepository.loadIslandMediaExcludedApps()

@@ -78,6 +78,8 @@ class IslandItem(
     val onOpen: (() -> Unit)? = null,
     val interactions: InteractionOverrides = InteractionOverrides.Default,
     val queue: QueueInfo? = null,
+    // Owning app; used to hide the item while that app is in the foreground.
+    val sourcePackage: String? = null,
 ) {
     init {
         require(compact.size in 1..2) { "IslandItem $key must have 1..2 compact cells" }
