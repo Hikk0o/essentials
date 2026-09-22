@@ -9,6 +9,11 @@
 
 package com.sameerasw.essentials.ui.features.display.sheets
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -85,6 +90,21 @@ fun IslandTimeBatteryOptionsBottomSheet(
                         viewModel.setIslandBatteryPercentageEnabled(checked)
                     },
                 )
+                AnimatedVisibility(
+                    visible = viewModel.isIslandBatteryPercentageEnabled.value,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut(),
+                ) {
+                    IconToggleItem(
+                        iconRes = R.drawable.rounded_filter_alt_24,
+                        title = stringResource(R.string.island_battery_percentage_conditional_title),
+                        isChecked = viewModel.isIslandBatteryPercentageConditional.value,
+                        onCheckedChange = { checked ->
+                            HapticUtil.performVirtualKeyHaptic(view)
+                            viewModel.setIslandBatteryPercentageConditional(checked)
+                        },
+                    )
+                }
             }
 
             BatteryColorOptions(viewModel)

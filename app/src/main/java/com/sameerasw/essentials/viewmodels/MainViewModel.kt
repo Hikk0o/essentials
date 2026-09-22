@@ -208,6 +208,7 @@ class MainViewModel : ViewModel() {
     val isIslandShowFlashlight = mutableStateOf(true)
     val islandBatteryStyle = mutableStateOf(SettingsRepository.ISLAND_BATTERY_STYLE_RING)
     val isIslandBatteryPercentageEnabled = mutableStateOf(false)
+    val isIslandBatteryPercentageConditional = mutableStateOf(false)
 
     val isStatusGlanceEnabled = mutableStateOf(false)
     val isStatusGlanceAutoDetect = mutableStateOf(true)
@@ -2193,6 +2194,7 @@ class MainViewModel : ViewModel() {
         isIslandShowFlashlight.value = settingsRepository.isIslandShowFlashlightEnabled()
         islandBatteryStyle.value = settingsRepository.getIslandBatteryStyle()
         isIslandBatteryPercentageEnabled.value = settingsRepository.isIslandBatteryPercentageEnabled()
+        isIslandBatteryPercentageConditional.value = settingsRepository.isIslandBatteryPercentageConditional()
         isStatusGlanceEnabled.value = settingsRepository.isStatusGlanceEnabled()
         isStatusGlanceAutoDetect.value = settingsRepository.isStatusGlanceAutoDetectEnabled()
         statusGlanceOffsetX.floatValue = settingsRepository.getStatusGlanceOffsetX()
@@ -5193,6 +5195,11 @@ class MainViewModel : ViewModel() {
     fun setIslandBatteryPercentageEnabled(enabled: Boolean) {
         isIslandBatteryPercentageEnabled.value = enabled
         settingsRepository.setIslandBatteryPercentageEnabled(enabled)
+    }
+
+    fun setIslandBatteryPercentageConditional(enabled: Boolean) {
+        isIslandBatteryPercentageConditional.value = enabled
+        settingsRepository.setIslandBatteryPercentageConditional(enabled)
     }
 
     fun loadIslandMediaApps(context: Context): List<AppSelection> = settingsRepository.loadIslandMediaExcludedApps()

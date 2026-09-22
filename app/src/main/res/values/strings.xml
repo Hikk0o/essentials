@@ -2782,6 +2782,7 @@
     <string name="island_battery_style_ring">Ring</string>
     <string name="island_battery_style_icon">Icon</string>
     <string name="island_battery_percentage_title">Show percentage</string>
+    <string name="island_battery_percentage_conditional_title">Only for below conditions</string>
     <string name="island_tap_action_desc">Choose what tap and long press do</string>
     <string name="island_tap_action_open">Open</string>
     <string name="island_tap_action_expand">Expand</string>

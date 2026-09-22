@@ -31,6 +31,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         SettingsRepository.KEY_ISLAND_SHOW_TIME_BATTERY,
         SettingsRepository.KEY_ISLAND_BATTERY_STYLE,
         SettingsRepository.KEY_ISLAND_BATTERY_PERCENTAGE,
+        SettingsRepository.KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL,
         SettingsRepository.KEY_DUO_BATTERY_CHARGING_COLOR_ENABLED,
         SettingsRepository.KEY_DUO_BATTERY_CHARGING_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_POWER_SAVE_COLOR_ENABLED,
@@ -115,7 +116,8 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         val batteryLevel = level
         val stateColor = stateColor()
         val iconStyle = settings.getIslandBatteryStyle() == SettingsRepository.ISLAND_BATTERY_STYLE_ICON
-        val showLevel = settings.isIslandBatteryPercentageEnabled()
+        val showLevel = settings.isIslandBatteryPercentageEnabled() &&
+            (!settings.isIslandBatteryPercentageConditional() || stateColor != null)
 
         val timeItem = IslandItem(
             key = "time",
