@@ -2,7 +2,7 @@
 
 The Island is the camera-cutout overlay that shows live content (notifications, media, calls, timers, calendar, and more) inside a single black surface around the front camera. It is built as a small host plus a set of plugins: the host owns the window, the surface, every animation and every gesture; plugins only describe what to show.
 
-For general context, see [ARCHITECTURE.md](ARCHITECTURE.md) and [SERVICES_AND_PERMISSIONS.md](SERVICES_AND_PERMISSIONS.md). Design history and decisions are in `docs/working/island/`.
+For general context, see [ARCHITECTURE.md](ARCHITECTURE.md) and [SERVICES_AND_PERMISSIONS.md](SERVICES_AND_PERMISSIONS.md). 
 
 ---
 
