@@ -209,6 +209,11 @@ class MainViewModel : ViewModel() {
     val islandBatteryStyle = mutableStateOf(SettingsRepository.ISLAND_BATTERY_STYLE_RING)
     val isIslandBatteryPercentageEnabled = mutableStateOf(false)
     val isIslandBatteryPercentageConditional = mutableStateOf(false)
+    val islandLongPressAction = mutableStateOf<Action?>(null)
+    val islandDoubleTapAction = mutableStateOf<Action?>(null)
+    val islandSlideMode = mutableStateOf("none")
+    val isIslandSlideTrack = mutableStateOf(false)
+    val isIslandSlideInvertDirection = mutableStateOf(false)
 
     val isStatusGlanceEnabled = mutableStateOf(false)
     val isStatusGlanceAutoDetect = mutableStateOf(true)
@@ -2195,6 +2200,11 @@ class MainViewModel : ViewModel() {
         islandBatteryStyle.value = settingsRepository.getIslandBatteryStyle()
         isIslandBatteryPercentageEnabled.value = settingsRepository.isIslandBatteryPercentageEnabled()
         isIslandBatteryPercentageConditional.value = settingsRepository.isIslandBatteryPercentageConditional()
+        islandLongPressAction.value = settingsRepository.getIslandLongPressAction()
+        islandDoubleTapAction.value = settingsRepository.getIslandDoubleTapAction()
+        islandSlideMode.value = settingsRepository.getIslandSlideMode()
+        isIslandSlideTrack.value = settingsRepository.isIslandSlideTrackEnabled()
+        isIslandSlideInvertDirection.value = settingsRepository.isIslandSlideInvertDirectionEnabled()
         isStatusGlanceEnabled.value = settingsRepository.isStatusGlanceEnabled()
         isStatusGlanceAutoDetect.value = settingsRepository.isStatusGlanceAutoDetectEnabled()
         statusGlanceOffsetX.floatValue = settingsRepository.getStatusGlanceOffsetX()
@@ -5200,6 +5210,31 @@ class MainViewModel : ViewModel() {
     fun setIslandBatteryPercentageConditional(enabled: Boolean) {
         isIslandBatteryPercentageConditional.value = enabled
         settingsRepository.setIslandBatteryPercentageConditional(enabled)
+    }
+
+    fun setIslandLongPressAction(action: Action?) {
+        islandLongPressAction.value = action
+        settingsRepository.setIslandLongPressAction(action)
+    }
+
+    fun setIslandDoubleTapAction(action: Action?) {
+        islandDoubleTapAction.value = action
+        settingsRepository.setIslandDoubleTapAction(action)
+    }
+
+    fun setIslandSlideMode(mode: String) {
+        islandSlideMode.value = mode
+        settingsRepository.setIslandSlideMode(mode)
+    }
+
+    fun setIslandSlideTrackEnabled(enabled: Boolean) {
+        isIslandSlideTrack.value = enabled
+        settingsRepository.setIslandSlideTrackEnabled(enabled)
+    }
+
+    fun setIslandSlideInvertDirection(enabled: Boolean) {
+        isIslandSlideInvertDirection.value = enabled
+        settingsRepository.setIslandSlideInvertDirection(enabled)
     }
 
     fun loadIslandMediaApps(context: Context): List<AppSelection> = settingsRepository.loadIslandMediaExcludedApps()

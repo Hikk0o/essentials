@@ -22,6 +22,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.data.repository.SettingsRepository
+import com.sameerasw.essentials.island.gestures.CompactGestureController
+import com.sameerasw.essentials.island.gestures.CompactGestures
 import com.sameerasw.essentials.island.model.IslandPlugin
 import com.sameerasw.essentials.island.model.IslandPluginContext
 import com.sameerasw.essentials.island.model.IslandStage
@@ -92,7 +94,10 @@ class IslandCoordinator(
         get() = isWindowSuppressed ||
             (settings.isIslandHideWhenScreenOffEnabled() && (isScreenOff || keyguardManager?.isKeyguardLocked == true))
 
+    private val compactGestures = CompactGestureController(service, settings) { scope }
+
     private val actions = object : IslandActions {
+        override val compactGestures: CompactGestures get() = this@IslandCoordinator.compactGestures
         override fun onTap(itemKey: String?) = controller.onTap(itemKey)
         override fun onLongPress(itemKey: String?) = controller.onLongPress(itemKey)
         override fun onCollapse() = controller.collapse()

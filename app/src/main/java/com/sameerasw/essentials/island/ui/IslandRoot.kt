@@ -66,6 +66,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.sameerasw.essentials.island.gestures.CompactGestures
 import com.sameerasw.essentials.island.model.IslandItem
 import com.sameerasw.essentials.island.model.IslandStage
 import com.sameerasw.essentials.island.state.IslandUiState
@@ -83,6 +84,7 @@ interface IslandActions {
     fun onInteraction()
     fun onTextInputChanged(active: Boolean)
     fun onAdvance(): Boolean
+    val compactGestures: CompactGestures get() = CompactGestures.None
 }
 
 private data class ContentKey(val stage: IslandStage, val itemKey: String?)
@@ -149,9 +151,19 @@ fun IslandRoot(
     val showDismissReveal by remember { derivedStateOf { dismissOffset.value != 0f } }
     val revealDirection by remember { derivedStateOf { if (dismissOffset.value >= 0f) 1f else -1f } }
     val dismissThresholdPx = with(density) { 48.dp.toPx() }
+    val jelly = rememberCompactJellyState()
+    val jellyRangePx = with(density) { 90.dp.toPx() }
+    var compactLongPressed by remember { mutableStateOf(false) }
+    val compactDoubleTap = remember(stage, state.items.size) {
+        stage == IslandStage.Compact && actions.compactGestures.hasDoubleTap
+    }
 
     LaunchedEffect(key) {
         if (stage != IslandStage.Hidden) visible = true
+        if (stage != IslandStage.Compact) {
+            launch { jelly.press.animateTo(0f, CompactJellyState.JellySpring) }
+            launch { jelly.releaseStretch(0f, 0f) }
+        }
         dismissOffset.snapTo(0f)
         if (dragCommitted && (stage == IslandStage.Expanded || stage == IslandStage.Line)) {
             dragCommitted = false
@@ -216,6 +228,13 @@ fun IslandRoot(
     }
 
     fun handleLongPress(itemKey: String?) {
+        val gestures = actions.compactGestures
+        if (currentState.stage == IslandStage.Compact && gestures.hasLongPress) {
+            compactLongPressed = true
+            IslandHaptics.commit(context)
+            gestures.longPress()
+            return
+        }
         IslandHaptics.longPress(context)
         actions.onLongPress(itemKey)
     }
@@ -273,6 +292,7 @@ fun IslandRoot(
                     layout(p.width, p.height) { p.place(dx, 0) }
                 }
                 .offset { IntOffset(0, -edgeShift.floatValue.roundToInt()) }
+                .compactJelly(jelly, jellyRangePx)
                 .graphicsLayer {
                     alpha = if (visible) 1f else 0f
                     // Corner follows the live height so it can never outrun the size animation.
@@ -312,24 +332,64 @@ fun IslandRoot(
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                         actions.onInteraction()
-                        val ramp = scope.launch {
-                            IslandHaptics.RAMP_DELAYS_MS.forEachIndexed { step, wait ->
-                                delay(wait)
-                                IslandHaptics.longPressRamp(context, step)
+                        val compact = currentState.stage == IslandStage.Compact
+                        val rumble = compact && actions.compactGestures.hasLongPress
+                        val holdMs = viewConfiguration.longPressTimeoutMillis
+                        compactLongPressed = false
+                        if (compact) {
+                            IslandHaptics.touchDown(context)
+                            scope.launch { jelly.pressDown() }
+                        }
+                        val ramp = if (rumble) {
+                            IslandHaptics.holdRumbleStart(context, holdMs)
+                            null
+                        } else {
+                            scope.launch {
+                                IslandHaptics.RAMP_DELAYS_MS.forEachIndexed { step, wait ->
+                                    delay(wait)
+                                    IslandHaptics.longPressRamp(context, step)
+                                }
                             }
                         }
+                        var holding = true
                         while (true) {
                             val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull() ?: break
-                            if (!change.pressed || (change.position - down.position).getDistance() > viewConfiguration.touchSlop) break
+                            if (!change.pressed) break
+                            if (holding && (change.position - down.position).getDistance() > viewConfiguration.touchSlop) {
+                                holding = false
+                                ramp?.cancel()
+                                if (rumble && !compactLongPressed) IslandHaptics.holdRumbleStop(context)
+                            }
                         }
-                        ramp.cancel()
+                        ramp?.cancel()
+                        // Lifting early cuts the swell; after the press lands it has already finished.
+                        if (rumble && holding && !compactLongPressed) IslandHaptics.holdRumbleStop(context)
+                        if (compact) scope.launch { jelly.pressUp() }
                     }
                 }
-                .pointerInput(stage) {
+                .pointerInput(stage, compactDoubleTap) {
                     if (stage == IslandStage.Hidden) return@pointerInput
                     detectTapGestures(
                         onTap = { handleTap(null) },
                         onLongPress = { handleLongPress(null) },
+                        onDoubleTap = if (compactDoubleTap) {
+                            {
+                                IslandHaptics.commit(context)
+                                actions.compactGestures.doubleTap()
+                            }
+                        } else {
+                            null
+                        },
+                    )
+                }
+                .pointerInput(stage) {
+                    if (stage != IslandStage.Compact) return@pointerInput
+                    detectCompactGestures(
+                        gestures = { actions.compactGestures },
+                        jelly = jelly,
+                        scope = scope,
+                        context = context,
+                        isBlocked = { compactLongPressed },
                     )
                 }
                 .pointerInput(stage) {
