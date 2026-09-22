@@ -191,13 +191,17 @@ fun AodWallpaperSettingsUI(
 
                     val timeoutOptions =
                         listOf(
-                            0 to stringResource(R.string.feat_aod_wallpaper_timeout_never),
-                            1 to stringResource(R.string.feat_aod_wallpaper_timeout_1m),
-                            3 to stringResource(R.string.feat_aod_wallpaper_timeout_3m),
-                            5 to stringResource(R.string.feat_aod_wallpaper_timeout_5m),
-                            10 to stringResource(R.string.feat_aod_wallpaper_timeout_10m),
+                            "never" to stringResource(R.string.feat_aod_wallpaper_timeout_never),
+                            "5s" to stringResource(R.string.feat_aod_wallpaper_timeout_5s),
+                            "15s" to stringResource(R.string.feat_aod_wallpaper_timeout_15s),
+                            "30s" to stringResource(R.string.feat_aod_wallpaper_timeout_30s),
+                            "1m" to stringResource(R.string.feat_aod_wallpaper_timeout_1m),
+                            "3m" to stringResource(R.string.feat_aod_wallpaper_timeout_3m),
+                            "5m" to stringResource(R.string.feat_aod_wallpaper_timeout_5m),
+                            "10m" to stringResource(R.string.feat_aod_wallpaper_timeout_10m),
+                            "custom" to stringResource(R.string.feat_aod_wallpaper_timeout_custom),
                         )
-                    val currentTimeout = viewModel.aodWallpaperTimeout.intValue
+                    val currentTimeout = viewModel.aodWallpaperTimeout.value
                     val selectedLabel =
                         timeoutOptions.firstOrNull { it.first == currentTimeout }?.second
                             ?: stringResource(R.string.feat_aod_wallpaper_timeout_3m)
@@ -206,15 +210,35 @@ fun AodWallpaperSettingsUI(
                         selectedValue = selectedLabel,
                         iconRes = R.drawable.rounded_timer_24,
                     ) {
-                        timeoutOptions.forEach { (minutes, label) ->
+                        timeoutOptions.forEach { (optionValue, label) ->
                             SegmentedDropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
                                     HapticUtil.performVirtualKeyHaptic(view)
-                                    viewModel.setAodWallpaperTimeout(minutes)
+                                    viewModel.setAodWallpaperTimeout(optionValue)
                                 },
                             )
                         }
+                    }
+
+                    AnimatedVisibility(
+                        visible = currentTimeout == "custom",
+                        enter = expandVertically(animationSpec = tween(durationMillis = 300)) + fadeIn(animationSpec = tween(durationMillis = 300)),
+                        exit = shrinkVertically(animationSpec = tween(durationMillis = 300)) + fadeOut(animationSpec = tween(durationMillis = 300)),
+                    ) {
+                        val customTimeout = viewModel.aodWallpaperCustomTimeout.floatValue
+                        ConfigSliderItem(
+                            title = stringResource(R.string.feat_aod_wallpaper_custom_timeout_slider),
+                            value = customTimeout,
+                            onValueChange = { viewModel.setAodWallpaperCustomTimeout(it) },
+                            valueRange = 1f..180f,
+                            increment = 1f,
+                            valueFormatter = {
+                                val secs = it.toInt()
+                                if (secs < 60) "${secs}s" else if (secs % 60 == 0) "${secs / 60}m" else "${secs / 60}m ${secs % 60}s"
+                            },
+                            iconRes = R.drawable.rounded_timer_24,
+                        )
                     }
                 }
             }
@@ -223,7 +247,7 @@ fun AodWallpaperSettingsUI(
         val isNotificationListenerGranted = viewModel.isNotificationListenerEnabled.value
         val isAlbumArtEnabled = viewModel.isAodWallpaperUseAlbumArt.value
         val isKeepOnMedia = viewModel.isAodWallpaperKeepOnMedia.value
-        val isTimeoutNever = viewModel.aodWallpaperTimeout.intValue == 0
+        val isTimeoutNever = viewModel.aodWallpaperTimeout.value == "never" || viewModel.aodWallpaperTimeout.value == "0"
 
         Text(
             text = stringResource(R.string.feat_aod_wallpaper_media_section_title),
