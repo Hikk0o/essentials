@@ -68,7 +68,7 @@ import com.sameerasw.essentials.utils.ShellUtils
 import com.sameerasw.essentials.viewmodels.MainViewModel
 
 private val ISLAND_PLACEMENT_KEYS = setOf("island_camera_position", "island_use_auto_detect", "island_camera_size", "island_max_width", "island_expanded_width", "island_cutout_gap")
-private val ISLAND_VISUALS_KEYS = setOf("island_expanded_scale", "island_expanded_roundness", "island_expanded_padding", "island_expanded_top_padding")
+private val ISLAND_VISUALS_KEYS = setOf("island_expanded_scale", "island_font_scale", "island_expanded_roundness", "island_expanded_padding", "island_expanded_top_padding")
 
 @Composable
 private fun IslandExpandableSection(
@@ -366,6 +366,20 @@ fun IslandSettingsUI(
                 iconRes = R.drawable.rounded_magnify_fullscreen_24,
                 valueFormatter = { "${(it * 100).toInt()}%" },
                 modifier = Modifier.highlight(highlightSetting == "island_expanded_scale"),
+            )
+
+            ConfigSliderItem(
+                title = stringResource(R.string.island_font_scale_title),
+                value = viewModel.islandFontScale.floatValue,
+                onValueChange = {
+                    HapticUtil.performUIHaptic(view)
+                    viewModel.setIslandFontScale(it)
+                },
+                valueRange = 0.8f..1.3f,
+                increment = 0.05f,
+                iconRes = R.drawable.rounded_format_size_24,
+                valueFormatter = { "${(it * 100).toInt()}%" },
+                modifier = Modifier.highlight(highlightSetting == "island_font_scale"),
             )
 
             ConfigSliderItem(

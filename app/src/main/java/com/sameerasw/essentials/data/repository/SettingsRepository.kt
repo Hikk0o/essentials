@@ -479,6 +479,7 @@ class SettingsRepository(
         const val KEY_ISLAND_SLIDE_INVERT_DIRECTION = "island_slide_invert_direction"
         const val KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL = "island_battery_percentage_conditional"
         const val KEY_ISLAND_EXPANDED_SCALE = "island_expanded_scale"
+        const val KEY_ISLAND_FONT_SCALE = "island_font_scale"
         const val KEY_ISLAND_CAMERA_POSITION = "island_camera_position"
         const val KEY_ISLAND_SHOW_CALLS = "island_show_calls"
         const val KEY_ISLAND_SHOW_TIMERS = "island_show_timers"
@@ -3555,6 +3556,9 @@ class SettingsRepository(
 
     fun getIslandExpandedScale(): Float = getFloat(KEY_ISLAND_EXPANDED_SCALE, 1f)
     fun setIslandExpandedScale(value: Float) = putFloat(KEY_ISLAND_EXPANDED_SCALE, value)
+
+    fun getIslandFontScale(): Float = getFloat(KEY_ISLAND_FONT_SCALE, 1f)
+    fun setIslandFontScale(value: Float) = putFloat(KEY_ISLAND_FONT_SCALE, value)
 
     fun isIslandLineStageEnabled(): Boolean = getBoolean(KEY_ISLAND_LINE_STAGE_ENABLED, true)
     fun setIslandLineStageEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_LINE_STAGE_ENABLED, enabled)

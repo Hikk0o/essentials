@@ -16,6 +16,7 @@ data class IslandLayoutSpec(
     val expandedPadding: Dp = 16.dp,
     val expandedTopPadding: Dp = 0.dp,
     val expandedScale: Float = 1f,
+    val fontScale: Float = 1f,
     val expandedOutset: Dp = 0.dp,
     val cameraAnchor: CameraAnchor = CameraAnchor.Center,
 ) {

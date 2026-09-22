@@ -18,8 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.island.gestures.CompactGestureController
@@ -202,7 +205,12 @@ class IslandCoordinator(
             val layoutSpec by spec.collectAsState()
             val colors = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) dynamicDarkColorScheme(service) else darkColorScheme()
             MaterialTheme(colorScheme = colors, typography = IslandTypography) {
-                IslandRoot(state, layoutSpec, actions, windowHost::onTargetBoundsChanged) { controller.collapseAnimator = it }
+                val base = LocalDensity.current
+                CompositionLocalProvider(
+                    LocalDensity provides Density(base.density, base.fontScale * layoutSpec.fontScale),
+                ) {
+                    IslandRoot(state, layoutSpec, actions, windowHost::onTargetBoundsChanged) { controller.collapseAnimator = it }
+                }
             }
         }
         // Fails until the accessibility service is connected; onServiceConnected calls updateState() again.
@@ -267,6 +275,7 @@ class IslandCoordinator(
             expandedPadding = settings.getIslandExpandedPadding().dp,
             expandedTopPadding = settings.getIslandExpandedTopPadding().dp,
             expandedScale = settings.getIslandExpandedScale().coerceIn(1f, 1.3f),
+            fontScale = settings.getIslandFontScale().coerceIn(0.8f, 1.3f),
             expandedOutset = (expandedWidth * (scale - 1f) / 2f).dp,
             cameraAnchor = geo.anchor,
         )
@@ -318,6 +327,7 @@ class IslandCoordinator(
             SettingsRepository.KEY_ISLAND_EXPANDED_TIMEOUT_MS,
             SettingsRepository.KEY_ISLAND_LINE_STAGE_ENABLED,
             SettingsRepository.KEY_ISLAND_EXPANDED_SCALE,
+            SettingsRepository.KEY_ISLAND_FONT_SCALE,
             SettingsRepository.KEY_ISLAND_CAMERA_POSITION,
         )
     }
