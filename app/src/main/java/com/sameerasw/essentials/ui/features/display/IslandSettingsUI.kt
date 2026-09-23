@@ -61,6 +61,7 @@ import com.sameerasw.essentials.ui.features.consciousgate.CONSCIOUS_GATE_FEATURE
 import com.sameerasw.essentials.ui.features.display.actions.GestureActionPickerSheet
 import com.sameerasw.essentials.ui.features.display.actions.HorizontalSlideModeSheet
 import com.sameerasw.essentials.ui.features.display.actions.horizontalSlideDescription
+import com.sameerasw.essentials.ui.features.display.sheets.IslandDevicesBatteryBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandTimeBatteryOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.StatusGlanceCalendarOptionsBottomSheet
 import com.sameerasw.essentials.ui.modifiers.highlight
@@ -148,6 +149,7 @@ fun IslandSettingsUI(
     var requestingPermissionsFor by remember { mutableStateOf<Pair<Int, List<String>>?>(null) }
     var showMediaAppSelectionSheet by remember { mutableStateOf(false) }
     var showCalendarOptionsSheet by remember { mutableStateOf(false) }
+    var showDevicesBatterySheet by remember { mutableStateOf(false) }
     var showTimeBatteryOptionsSheet by remember { mutableStateOf(false) }
     var pickingGesture by remember { mutableStateOf<String?>(null) }
     var showSlideModeSheet by remember { mutableStateOf(false) }
@@ -815,6 +817,7 @@ fun IslandSettingsUI(
                         viewModel.setIslandShowDevices(checked)
                     }
                 },
+                onSettingsClick = { showDevicesBatterySheet = true },
                 modifier = Modifier.highlight(highlightSetting == "island_show_devices"),
             )
         }
@@ -995,6 +998,13 @@ fun IslandSettingsUI(
         IslandTimeBatteryOptionsBottomSheet(
             viewModel = viewModel,
             onDismissRequest = { showTimeBatteryOptionsSheet = false },
+        )
+    }
+
+    if (showDevicesBatterySheet) {
+        IslandDevicesBatteryBottomSheet(
+            viewModel = viewModel,
+            onDismissRequest = { showDevicesBatterySheet = false },
         )
     }
 

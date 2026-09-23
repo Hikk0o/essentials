@@ -2839,6 +2839,13 @@
     <string name="island_devices_connected">Connected</string>
     <string name="island_devices_disconnected">Disconnected</string>
     <string name="island_devices_unknown">Bluetooth device</string>
+    <string name="island_devices_battery_title">Device battery</string>
+    <string name="island_battery_only_low_title">Only show when low</string>
+    <string name="island_devices_battery_desc">Pick devices to show battery for. Only one is shown at a time: the highest one in this list that is connected.</string>
+    <string name="island_devices_battery_empty">No paired devices</string>
+    <string name="island_devices_battery_section">Devices</string>
+    <string name="island_devices_move_up">Move up</string>
+    <string name="island_devices_move_down">Move down</string>
     <string name="island_battery_charging">Charging</string>
     <string name="island_notif_keep_progress_title">Keep progress notifications</string>
     <string name="island_progress_open">Open</string>

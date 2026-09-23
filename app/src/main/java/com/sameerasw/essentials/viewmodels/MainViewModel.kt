@@ -196,6 +196,7 @@ class MainViewModel : ViewModel() {
     val isIslandShowTravel = mutableStateOf(true)
     val isIslandShowCaffeinate = mutableStateOf(true)
     val isIslandShowDevices = mutableStateOf(true)
+    val islandDevicesBatteryOrder = mutableStateOf<List<String>>(emptyList())
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
     val islandExpandedTimeoutMs = mutableLongStateOf(0L)
@@ -219,6 +220,8 @@ class MainViewModel : ViewModel() {
     val islandBatteryStyle = mutableStateOf(SettingsRepository.ISLAND_BATTERY_STYLE_RING)
     val isIslandBatteryPercentageEnabled = mutableStateOf(false)
     val isIslandBatteryPercentageConditional = mutableStateOf(false)
+    val isIslandBatteryOnlyLow = mutableStateOf(false)
+    val isIslandDevicesBatteryOnlyLow = mutableStateOf(false)
     val islandLongPressAction = mutableStateOf<Action?>(null)
     val islandSlideMode = mutableStateOf("none")
     val isIslandSlideTrack = mutableStateOf(false)
@@ -2193,6 +2196,7 @@ class MainViewModel : ViewModel() {
         isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
         isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
         isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
+        islandDevicesBatteryOrder.value = settingsRepository.getIslandDevicesBatteryOrder()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
         islandExpandedTimeoutMs.longValue = settingsRepository.getIslandExpandedTimeoutMs()
@@ -2220,6 +2224,8 @@ class MainViewModel : ViewModel() {
         islandBatteryStyle.value = settingsRepository.getIslandBatteryStyle()
         isIslandBatteryPercentageEnabled.value = settingsRepository.isIslandBatteryPercentageEnabled()
         isIslandBatteryPercentageConditional.value = settingsRepository.isIslandBatteryPercentageConditional()
+        isIslandBatteryOnlyLow.value = settingsRepository.isIslandBatteryOnlyLowEnabled()
+        isIslandDevicesBatteryOnlyLow.value = settingsRepository.isIslandDevicesBatteryOnlyLowEnabled()
         islandLongPressAction.value = settingsRepository.getIslandLongPressAction()
         islandSlideMode.value = settingsRepository.getIslandSlideMode()
         isIslandSlideTrack.value = settingsRepository.isIslandSlideTrackEnabled()
@@ -5147,6 +5153,11 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandExpandedWidth(value)
     }
 
+    fun setIslandDevicesBatteryOrder(addresses: List<String>) {
+        islandDevicesBatteryOrder.value = addresses
+        settingsRepository.setIslandDevicesBatteryOrder(addresses)
+    }
+
     fun setIslandShowDevices(enabled: Boolean) {
         isIslandShowDevices.value = enabled
         settingsRepository.setIslandShowDevicesEnabled(enabled)
@@ -5345,6 +5356,16 @@ class MainViewModel : ViewModel() {
     fun setIslandBatteryPercentageEnabled(enabled: Boolean) {
         isIslandBatteryPercentageEnabled.value = enabled
         settingsRepository.setIslandBatteryPercentageEnabled(enabled)
+    }
+
+    fun setIslandDevicesBatteryOnlyLow(enabled: Boolean) {
+        isIslandDevicesBatteryOnlyLow.value = enabled
+        settingsRepository.setIslandDevicesBatteryOnlyLowEnabled(enabled)
+    }
+
+    fun setIslandBatteryOnlyLow(enabled: Boolean) {
+        isIslandBatteryOnlyLow.value = enabled
+        settingsRepository.setIslandBatteryOnlyLowEnabled(enabled)
     }
 
     fun setIslandBatteryPercentageConditional(enabled: Boolean) {

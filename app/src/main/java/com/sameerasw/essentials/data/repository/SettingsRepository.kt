@@ -479,6 +479,10 @@ class SettingsRepository(
         const val KEY_ISLAND_LIKE_WHILE_PLAYING = "island_like_while_playing"
         const val KEY_ISLAND_SLIDE_INVERT_DIRECTION = "island_slide_invert_direction"
         const val KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL = "island_battery_percentage_conditional"
+        const val KEY_ISLAND_BATTERY_ONLY_LOW = "island_battery_only_low"
+        const val KEY_ISLAND_DEVICES_BATTERY_ONLY_LOW = "island_devices_battery_only_low"
+        const val ISLAND_BATTERY_LOW_LEVEL = 20
+        const val ISLAND_BATTERY_CRITICAL_LEVEL = 10
         const val KEY_ISLAND_EXPANDED_SCALE = "island_expanded_scale"
         const val KEY_ISLAND_FONT_SCALE = "island_font_scale"
         const val KEY_ISLAND_HIDE_IN_OWNER_APP = "island_hide_in_owner_app"
@@ -491,6 +495,7 @@ class SettingsRepository(
         const val KEY_ISLAND_SHOW_TRAVEL = "island_show_travel"
         const val KEY_ISLAND_SHOW_CAFFEINATE = "island_show_caffeinate"
         const val KEY_ISLAND_SHOW_DEVICES = "island_show_devices"
+        const val KEY_ISLAND_DEVICES_BATTERY_ORDER = "island_devices_battery_order"
         const val ISLAND_CAMERA_POSITION_LEFT = "left"
         const val ISLAND_CAMERA_POSITION_CENTER = "center"
         const val ISLAND_CAMERA_POSITION_RIGHT = "right"
@@ -3557,6 +3562,12 @@ class SettingsRepository(
     fun setIslandSlideInvertDirection(enabled: Boolean) = putBoolean(KEY_ISLAND_SLIDE_INVERT_DIRECTION, enabled)
 
     fun isIslandBatteryPercentageConditional(): Boolean = getBoolean(KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL, false)
+
+    fun isIslandBatteryOnlyLowEnabled(): Boolean = getBoolean(KEY_ISLAND_BATTERY_ONLY_LOW, false)
+    fun setIslandBatteryOnlyLowEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_ONLY_LOW, enabled)
+
+    fun isIslandDevicesBatteryOnlyLowEnabled(): Boolean = getBoolean(KEY_ISLAND_DEVICES_BATTERY_ONLY_LOW, false)
+    fun setIslandDevicesBatteryOnlyLowEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_DEVICES_BATTERY_ONLY_LOW, enabled)
     fun setIslandBatteryPercentageConditional(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL, enabled)
 
     fun isIslandShowTimersEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_TIMERS, true)
@@ -3576,6 +3587,11 @@ class SettingsRepository(
 
     fun isIslandShowDevicesEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_DEVICES, true)
     fun setIslandShowDevicesEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_DEVICES, enabled)
+
+    // Ordered addresses; the first connected one with a battery reading is shown
+    fun getIslandDevicesBatteryOrder(): List<String> =
+        getString(KEY_ISLAND_DEVICES_BATTERY_ORDER, "").orEmpty().split(',').filter { it.isNotBlank() }
+    fun setIslandDevicesBatteryOrder(addresses: List<String>) = putString(KEY_ISLAND_DEVICES_BATTERY_ORDER, addresses.joinToString(","))
 
     fun isIslandShowCallsEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_CALLS, true)
     fun setIslandShowCallsEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_CALLS, enabled)
