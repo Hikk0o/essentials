@@ -943,6 +943,20 @@
         </service>
 
         <service
+            android:name=".services.tiles.HeadsUpNotificationsTileService"
+            android:exported="true"
+            android:icon="@drawable/rounded_ad_units_24"
+            android:label="@string/tile_heads_up_notifications"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TILE_CATEGORY"
+                android:value="android.service.quicksettings.CATEGORY_UTILITIES" />
+        </service>
+
+        <service
             android:name=".services.tiles.TapToWakeTileService"
             android:exported="true"
             android:icon="@drawable/rounded_touch_app_24"

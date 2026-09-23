@@ -421,6 +421,9 @@
     <string name="tile_ui_blur">UI Blur</string>
     <string name="tile_bubbles">Bubbles</string>
     <string name="tile_sensitive_content">Sensitive Content</string>
+    <string name="tile_heads_up_notifications">Heads Up notifications</string>
+    <string name="tile_heads_up_shown">Shown</string>
+    <string name="tile_heads_up_hidden">Hidden</string>
     <string name="tile_tap_to_wake">Tap to Wake</string>
     <string name="tile_aod">AOD</string>
     <string name="tile_caffeinate">Caffeinate</string>
@@ -1120,6 +1123,7 @@
     <string name="about_desc_sound_mode_tile">Quickly toggle between Sound, Vibrate, and Silent modes.\n\nA convenient tile to change your ringer mode without using the volume buttons or settings. You can re-order the modes or disable any if not needed to customize the tile toggle to cycle behavior.</string>
     <string name="about_desc_ui_blur">Easily toggle the system level blur depth effect across the OS.</string>
     <string name="about_desc_bubbles">Enable or disable floating notification bubbles.\n\nQuickly toggle the system-wide setting for conversation bubbles.</string>
+    <string name="about_desc_heads_up_notifications">Show or hide system heads-up notification pop-ups.\n\nWhen hidden, notifications still arrive silently in the shade without popping up over your screen.</string>
     <string name="about_desc_sensitive_content">Hide sensitive content on the lock screen.\n\nToggle whether notification content is shown or hidden when your device is locked.</string>
     <string name="about_desc_tap_to_wake">Toggle tap to wake functionality.\n\nEnable or disable the ability to wake your screen with a tap.</string>
     <string name="about_desc_aod_wallpaper">Shows your wallpaper behind the clock on the Always On Display using an overlay, with adjustable opacity, blur, vignette and black threshold. You can also pick a custom image or show the album art of the music that is playing.\n\nThis only works with still wallpapers. Live and video wallpapers are not supported.\n\nAccessibility is required to draw the overlay, and storage access is required to read your current wallpaper. Notification access is only needed if you turn on album art.</string>
