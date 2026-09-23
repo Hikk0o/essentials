@@ -102,7 +102,7 @@ Rules worth knowing:
 - The surface stays centred on the camera; cells hug the outer ends with equal edge padding.
 - With an edge camera (`CameraAnchor.Start` / `End`) all cells go on the open side.
 
-Priorities are in `IslandPriority` (lower wins). Current order: Call, Time, Battery, Notification, Flashlight, Timer, Media, Conscious Gate, Calendar.
+Priorities are in `IslandPriority` (lower wins). Current order: Call, Time, Battery, Notification, Flashlight, Timer, Media, Conscious Gate, Calendar, Network.
 
 An item can temporarily outrank its base priority by setting `priorityOverride` (layout uses `IslandItem.effectivePriority`). Override values live in `IslandPriority` with an `_OVERRIDE` suffix and rank just after the pinned time/battery:
 

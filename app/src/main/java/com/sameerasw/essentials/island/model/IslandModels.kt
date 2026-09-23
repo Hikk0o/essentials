@@ -24,6 +24,7 @@ object IslandPriority {
     const val MEDIA = 30
     const val CONSCIOUS_GATE = 40
     const val CALENDAR = 50
+    const val NETWORK = 60
     const val DEFAULT = 100
 }
 

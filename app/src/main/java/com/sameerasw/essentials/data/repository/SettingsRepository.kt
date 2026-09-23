@@ -485,6 +485,7 @@ class SettingsRepository(
         const val KEY_ISLAND_CAMERA_POSITION = "island_camera_position"
         const val KEY_ISLAND_SHOW_CALLS = "island_show_calls"
         const val KEY_ISLAND_SHOW_TIMERS = "island_show_timers"
+        const val KEY_ISLAND_SHOW_NETWORK = "island_show_network"
         const val ISLAND_CAMERA_POSITION_LEFT = "left"
         const val ISLAND_CAMERA_POSITION_CENTER = "center"
         const val ISLAND_CAMERA_POSITION_RIGHT = "right"
@@ -3548,6 +3549,9 @@ class SettingsRepository(
 
     fun isIslandShowTimersEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_TIMERS, true)
     fun setIslandShowTimersEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_TIMERS, enabled)
+
+    fun isIslandShowNetworkEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_NETWORK, true)
+    fun setIslandShowNetworkEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_NETWORK, enabled)
 
     fun isIslandShowCallsEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_CALLS, true)
     fun setIslandShowCallsEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_CALLS, enabled)

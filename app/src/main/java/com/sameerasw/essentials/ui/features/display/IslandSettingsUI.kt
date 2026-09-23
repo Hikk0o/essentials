@@ -747,6 +747,17 @@ fun IslandSettingsUI(
                 onSettingsClick = { showCalendarOptionsSheet = true },
                 modifier = Modifier.highlight(highlightSetting == "island_show_calendar"),
             )
+
+            IconToggleItem(
+                iconRes = R.drawable.rounded_android_wifi_3_bar_24,
+                title = stringResource(R.string.island_show_network_title),
+                isChecked = viewModel.isIslandShowNetwork.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandShowNetwork(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_show_network"),
+            )
         }
 
         Text(

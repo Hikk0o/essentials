@@ -768,6 +768,11 @@ object FeatureRegistry {
                             "island_show_timers",
                         ),
                         SearchSetting(
+                            R.string.island_show_network_title,
+                            R.string.island_network_connected_to,
+                            "island_show_network",
+                        ),
+                        SearchSetting(
                             R.string.island_show_calls_title,
                             R.string.island_call_incoming,
                             "island_show_calls",
