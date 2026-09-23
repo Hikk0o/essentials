@@ -896,6 +896,7 @@ object CombinedActionExecutor {
         )
     }
 
+    @Suppress("MissingPermission")
     private fun isCellularDataEnabled(context: Context): Boolean =
         try {
             val telephonyManager =
