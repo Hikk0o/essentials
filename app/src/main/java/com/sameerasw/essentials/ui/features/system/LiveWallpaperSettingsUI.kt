@@ -9,8 +9,6 @@
 
 package com.sameerasw.essentials.ui.features.system
 
-import android.app.WallpaperManager
-import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
@@ -62,7 +60,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
-import com.sameerasw.essentials.services.LiveWallpaperService
 import com.sameerasw.essentials.ui.components.menus.SegmentedDropdownMenu
 import com.sameerasw.essentials.ui.components.menus.SegmentedDropdownMenuItem
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
@@ -130,14 +127,7 @@ fun LiveWallpaperSettingsUI(
         Button(
             onClick = {
                 HapticUtil.performCustomHaptic(view, 0.8f)
-                val intent =
-                    Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
-                        putExtra(
-                            WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                            ComponentName(context, LiveWallpaperService::class.java),
-                        )
-                    }
-                context.startActivity(intent)
+                com.sameerasw.essentials.utils.LiveWallpaperUtil.openLiveWallpaperPicker(context)
             },
             modifier =
                 Modifier

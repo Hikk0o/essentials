@@ -9,8 +9,6 @@
 
 package com.sameerasw.essentials.ui.composables.wallpaper
 
-import android.app.WallpaperManager
-import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
@@ -105,7 +103,6 @@ import androidx.compose.ui.zIndex
 import coil.compose.SubcomposeAsyncImage
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
-import com.sameerasw.essentials.services.LiveWallpaperService
 import com.sameerasw.essentials.ui.components.EssentialsFloatingToolbar
 import com.sameerasw.essentials.ui.components.menus.SegmentedDropdownMenu
 import com.sameerasw.essentials.ui.components.menus.SegmentedDropdownMenuItem
@@ -785,17 +782,7 @@ fun WallpaperScreen(
                                     }
                                 } else {
                                     HapticUtil.performCustomHaptic(view, 0.8f)
-                                    val intent =
-                                        Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
-                                            putExtra(
-                                                WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                                ComponentName(
-                                                    context,
-                                                    LiveWallpaperService::class.java,
-                                                ),
-                                            )
-                                        }
-                                    context.startActivity(intent)
+                                    com.sameerasw.essentials.utils.LiveWallpaperUtil.openLiveWallpaperPicker(context)
                                 }
                             },
                             modifier = Modifier.height(56.dp),
