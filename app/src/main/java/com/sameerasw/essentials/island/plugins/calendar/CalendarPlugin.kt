@@ -73,6 +73,7 @@ class CalendarPlugin : BaseIslandPlugin() {
             IslandItem(
                 key = ITEM_KEY,
                 priority = IslandPriority.CALENDAR,
+                priorityOverride = IslandPriority.CALENDAR_OVERRIDE.takeIf { e.startTimeMillis - now in 0..URGENT_MS },
                 placement = CompactPlacement.Dynamic,
                 compact = listOf(
                     CompactCell("cal.icon") { IslandIcon(R.drawable.rounded_calendar_today_24, size = 18.dp, tint = MaterialTheme.colorScheme.primary) },
@@ -118,5 +119,6 @@ class CalendarPlugin : BaseIslandPlugin() {
     companion object {
         const val ITEM_KEY = "calendar"
         private const val POLL_MS = 60_000L
+        private const val URGENT_MS = 5 * 60_000L
     }
 }
