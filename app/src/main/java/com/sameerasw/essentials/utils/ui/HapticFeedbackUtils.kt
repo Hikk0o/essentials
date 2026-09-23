@@ -11,6 +11,7 @@ package com.sameerasw.essentials.utils
 
 import android.Manifest
 import android.content.Context
+import android.media.AudioAttributes
 import android.os.Build
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
@@ -110,10 +111,10 @@ private fun vibrateWithTouchAttributes(vibrator: Vibrator, effect: VibrationEffe
             .setUsage(VibrationAttributes.USAGE_TOUCH)
             .build()
         vibrator.vibrate(effect, attrs)
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        val attrs = VibrationAttributes.createForUsage(VibrationAttributes.USAGE_TOUCH)
-        vibrator.vibrate(effect, attrs)
     } else {
-        vibrator.vibrate(effect)
+        val attrs = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .build()
+        vibrator.vibrate(effect, attrs)
     }
 }
