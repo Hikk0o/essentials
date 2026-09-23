@@ -149,7 +149,7 @@ class NotificationListener : NotificationListenerService() {
         }
 
         fun isScreenCaptureActive(): Boolean {
-            val activeNotifs = instance?.activeNotifications ?: return false
+            val activeNotifs = instance?.safeActiveNotifications() ?: return false
             for (sbn in activeNotifs) {
                 if (isOngoingScreenCaptureNotification(sbn)) {
                     return true
@@ -262,7 +262,7 @@ class NotificationListener : NotificationListenerService() {
     private fun populateActiveUnreadNotifications() {
         unreadNotifications.clear()
         try {
-            activeNotifications?.forEach { sbn ->
+            safeActiveNotifications()?.forEach { sbn ->
                 if (!sbn.isOngoing &&
                     sbn.packageName != packageName &&
                     !isMediaNotification(sbn) &&
@@ -300,13 +300,13 @@ class NotificationListener : NotificationListenerService() {
             }
 
             // Calls already in progress when the listener (re)connects.
-            activeNotifications?.filter { CallNotificationParser.isCall(it) && it.packageName != packageName }
+            safeActiveNotifications()?.filter { CallNotificationParser.isCall(it) && it.packageName != packageName }
                 ?.forEach { CallStateRepository.onCallNotificationPosted(applicationContext, it) }
-            activeNotifications?.filter { it.packageName != packageName && ChronometerRepository.isCandidate(it) }
+            safeActiveNotifications()?.filter { it.packageName != packageName && ChronometerRepository.isCandidate(it) }
                 ?.forEach { ChronometerRepository.onPosted(applicationContext, it) }
 
             // Initial discovery from active notifications
-            activeNotifications?.forEach { sbn ->
+            safeActiveNotifications()?.forEach { sbn ->
                 val pkg = sbn.packageName
                 val isSystem = pkg == "android" || pkg == "com.android.systemui"
                 val isMaps = pkg == "com.google.android.apps.maps"
@@ -595,7 +595,7 @@ class NotificationListener : NotificationListenerService() {
                 }
             }
 
-            val sbn = activeNotifications?.find { it.packageName == activeSession.packageName }
+            val sbn = safeActiveNotifications()?.find { it.packageName == activeSession.packageName }
             if (sbn != null) {
                 val actions = sbn.notification.actions
                 if (actions != null) {
@@ -679,7 +679,7 @@ class NotificationListener : NotificationListenerService() {
             }
 
             // 3. Check Notification Actions
-            val notifications = activeNotifications
+            val notifications = safeActiveNotifications()
             val sbn = notifications?.find { it.packageName == activeSession.packageName }
             if (sbn != null) {
                 val actions = sbn.notification.actions
@@ -768,7 +768,7 @@ class NotificationListener : NotificationListenerService() {
                     extractBitmap(
                         metadata,
                         sbn
-                            ?: activeNotifications?.find { it.packageName == activeSession.packageName },
+                            ?: safeActiveNotifications()?.find { it.packageName == activeSession.packageName },
                     )
 
                 if (bitmap != null) {
@@ -1800,8 +1800,15 @@ class NotificationListener : NotificationListenerService() {
         progressHandler.postDelayed(progressRefreshRunnable, PROGRESS_REFRESH_DEBOUNCE_MS)
     }
 
+    private fun safeActiveNotifications(): Array<StatusBarNotification>? =
+        try {
+            activeNotifications
+        } catch (_: SecurityException) {
+            null
+        }
+
     fun extractLatestProgressNotification(): ProgressNotificationData? {
-        val active = activeNotifications ?: return null
+        val active = safeActiveNotifications() ?: return null
         val progressNotifs = active.mapNotNull { sbn ->
             if (sbn.packageName == packageName || isMediaNotification(sbn)) return@mapNotNull null
             extractProgressNotification(sbn)
