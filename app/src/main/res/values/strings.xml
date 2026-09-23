@@ -2836,6 +2836,8 @@
     <string name="island_battery_charging">Charging</string>
     <string name="island_notif_keep_progress_title">Keep progress notifications</string>
     <string name="island_progress_open">Open</string>
+    <string name="island_travel_pause">Pause</string>
+    <string name="island_travel_resume">Resume</string>
     <string name="island_show_sound_mode_title">Sound mode</string>
     <string name="island_sound_mode_sound">Sound</string>
     <string name="island_sound_mode_vibrate">Vibrate</string>

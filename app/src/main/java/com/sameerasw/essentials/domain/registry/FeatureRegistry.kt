@@ -768,6 +768,11 @@ object FeatureRegistry {
                             "island_show_timers",
                         ),
                         SearchSetting(
+                            R.string.feat_location_reached_title,
+                            R.string.island_travel_pause,
+                            "island_show_travel",
+                        ),
+                        SearchSetting(
                             R.string.island_show_sound_mode_title,
                             R.string.island_sound_mode_vibrate,
                             "island_show_sound_mode",
