@@ -982,6 +982,7 @@ class NotificationListener : NotificationListenerService() {
         if (sbn.packageName == packageName) {
             return
         }
+        if (!hasReadableExtras(sbn)) return
 
         val isRepost = NotificationRepostFilter.isUnchangedRepost(sbn)
         if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationPosted(applicationContext, sbn)
@@ -1269,7 +1270,8 @@ class NotificationListener : NotificationListenerService() {
                                 }
                             if (PermissionUtils.isAccessibilityServiceEnabled(applicationContext)) {
                                 applicationContext.startService(intent)
-                            } else {
+                            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                                intent.putExtra("is_foreground_start", true)
                                 applicationContext.startForegroundService(intent)
                             }
                         }
@@ -1354,10 +1356,16 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         NotificationRepostFilter.forget(sbn.key)
-        if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationRemoved(sbn.key)
+        CallStateRepository.onCallNotificationRemoved(sbn.key)
         ChronometerRepository.onRemoved(sbn.key)
         unreadNotifications.remove(sbn.key)
         WatchNotificationSyncManager.onNotificationRemoved(applicationContext, sbn.key)
+        lastCallVibrateTime.remove(sbn.key)
+        notifyAlertRemoved(sbn.key)
+        if (!hasReadableExtras(sbn)) {
+            scheduleProgressRefresh()
+            return
+        }
 
         if (isOngoingScreenCaptureNotification(sbn) ||
             sbn.packageName.contains("screenrecord") ||
@@ -1367,7 +1375,6 @@ class NotificationListener : NotificationListenerService() {
         }
 
         scheduleProgressRefresh()
-        notifyAlertRemoved(sbn.key)
 
         // Trigger refresh if something is playing
         try {
@@ -1384,7 +1391,6 @@ class NotificationListener : NotificationListenerService() {
         } catch (_: Exception) {
         }
 
-        lastCallVibrateTime.remove(sbn.key)
         if (sbn.packageName == "com.google.android.apps.maps") {
             MapsState.hasNavigationNotification = false
         }
@@ -1799,6 +1805,15 @@ class NotificationListener : NotificationListenerService() {
         progressHandler.removeCallbacks(progressRefreshRunnable)
         progressHandler.postDelayed(progressRefreshRunnable, PROGRESS_REFRESH_DEBOUNCE_MS)
     }
+
+    private fun hasReadableExtras(sbn: StatusBarNotification): Boolean =
+        try {
+            sbn.notification.extras?.size()
+            true
+        } catch (e: RuntimeException) {
+            Log.w("NotificationListener", "Unreadable extras for ${sbn.key}", e)
+            false
+        }
 
     private fun safeActiveNotifications(): Array<StatusBarNotification>? =
         try {

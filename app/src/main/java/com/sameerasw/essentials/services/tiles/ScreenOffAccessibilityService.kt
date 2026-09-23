@@ -905,6 +905,8 @@ class ScreenOffAccessibilityService :
         return super.onStartCommand(intent, flags, startId)
     }
 
+    private var isInputEventListenerRequested = false
+
     private fun startInputEventListenerIfEnabled() {
         val prefs = getSharedPreferences("essentials_prefs", MODE_PRIVATE)
         val isEnabled = prefs.getBoolean("button_remap_enabled", false)
@@ -918,6 +920,7 @@ class ScreenOffAccessibilityService :
                 } else {
                     startService(intent)
                 }
+                isInputEventListenerRequested = true
             } catch (e: Exception) {
                 // Ignore
             }
@@ -925,10 +928,29 @@ class ScreenOffAccessibilityService :
     }
 
     private fun stopInputEventListener() {
+        if (!isInputEventListenerRequested) {
+            try {
+                stopService(Intent(this, InputEventListenerService::class.java))
+            } catch (_: Exception) {
+            }
+            return
+        }
+        isInputEventListenerRequested = false
         try {
-            stopService(Intent(this, InputEventListenerService::class.java))
+            val intent =
+                Intent(this, InputEventListenerService::class.java).apply {
+                    action = InputEventListenerService.ACTION_STOP
+                }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
         } catch (e: Exception) {
-            // Ignore
+            try {
+                stopService(Intent(this, InputEventListenerService::class.java))
+            } catch (_: Exception) {
+            }
         }
     }
 

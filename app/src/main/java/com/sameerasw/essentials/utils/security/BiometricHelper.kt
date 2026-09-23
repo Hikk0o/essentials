@@ -9,12 +9,21 @@
 
 package com.sameerasw.essentials.utils
 
+import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 
 object BiometricHelper {
+    val allowedAuthenticators: Int
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            } else {
+                BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            }
+
     fun showBiometricPrompt(
         activity: FragmentActivity,
         title: String = "Authentication Required",
@@ -53,9 +62,8 @@ object BiometricHelper {
                 .Builder()
                 .setTitle(title)
                 .setSubtitle(subtitle)
-                .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL,
-                ).setConfirmationRequired(false)
+                .setAllowedAuthenticators(allowedAuthenticators)
+                .setConfirmationRequired(false)
                 .build()
 
         biometricPrompt.authenticate(promptInfo)

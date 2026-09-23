@@ -107,10 +107,8 @@ class AppLockActivity : AppCompatActivity() {
                 .Builder()
                 .setTitle("App Lock")
                 .setSubtitle("Unlock to access $appLabel")
-                .setAllowedAuthenticators(
-                    androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                        androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL,
-                ).setConfirmationRequired(false)
+                .setAllowedAuthenticators(com.sameerasw.essentials.utils.BiometricHelper.allowedAuthenticators)
+                .setConfirmationRequired(false)
                 .build()
 
         biometricPrompt.authenticate(promptInfo)

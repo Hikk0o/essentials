@@ -128,6 +128,13 @@ class NotificationLightingService : Service() {
             return START_NOT_STICKY
         }
         Log.d("NotificationLightingSvc", "onStartCommand: action=${intent.action}")
+        val isForegroundStart = intent.getBooleanExtra("is_foreground_start", false)
+        if (isForegroundStart && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                startForeground(NOTIF_ID, buildNotification())
+            } catch (_: Exception) {
+            }
+        }
         // Accessibility service Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!canDrawOverlays() || !isAccessibilityServiceEnabled()) {
@@ -211,15 +218,6 @@ class NotificationLightingService : Service() {
             removeOverlay()
             stopSelf()
             return START_NOT_STICKY
-        }
-
-        val isForegroundStart = intent.getBooleanExtra("is_foreground_start", false)
-        if (isForegroundStart && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                startForeground(NOTIF_ID, buildNotification())
-            } catch (_: Exception) {
-                // ignore foreground start failures
-            }
         }
 
         // If accessibility service is enabled, delegate showing to it for higher elevation
