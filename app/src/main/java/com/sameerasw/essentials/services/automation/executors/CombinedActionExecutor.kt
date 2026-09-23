@@ -900,18 +900,7 @@ object CombinedActionExecutor {
         try {
             val telephonyManager =
                 context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            val result =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    org.lsposed.hiddenapibypass.HiddenApiBypass.invoke(
-                        TelephonyManager::class.java,
-                        telephonyManager,
-                        "isDataEnabled",
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    TelephonyManager::class.java.getMethod("isDataEnabled").invoke(telephonyManager)
-                }
-            result as? Boolean ?: false
+            telephonyManager.isDataEnabled
         } catch (e: Exception) {
             e.printStackTrace()
             false
