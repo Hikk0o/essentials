@@ -32,6 +32,7 @@ import com.sameerasw.essentials.services.tiles.MonoAudioTileService
 import com.sameerasw.essentials.services.tiles.NfcTileService
 import com.sameerasw.essentials.services.tiles.NotificationLightingTileService
 import com.sameerasw.essentials.services.tiles.PrivateDnsTileService
+import com.sameerasw.essentials.services.tiles.HeadsUpNotificationsTileService
 import com.sameerasw.essentials.services.tiles.PrivateNotificationsTileService
 import com.sameerasw.essentials.services.tiles.RefreshRateTileService
 import com.sameerasw.essentials.services.tiles.RestartSystemUiTileService
@@ -84,6 +85,14 @@ object QSTileRegistry {
                 listOf("WRITE_SECURE_SETTINGS"),
                 R.string.about_desc_sensitive_content,
                 R.string.cat_privacy,
+            ),
+            QSTileInfo(
+                R.string.tile_heads_up_notifications,
+                R.drawable.rounded_ad_units_24,
+                HeadsUpNotificationsTileService::class.java,
+                listOf("WRITE_SECURE_SETTINGS"),
+                R.string.about_desc_heads_up_notifications,
+                R.string.cat_utils,
             ),
             QSTileInfo(
                 R.string.tile_tap_to_wake,

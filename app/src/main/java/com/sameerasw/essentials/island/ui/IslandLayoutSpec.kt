@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 data class IslandLayoutSpec(
     val cameraDiameter: Dp = 28.dp,
     val cameraGap: Dp = 6.dp,
+    val verticalGap: Dp = 6.dp,
     val surfaceTop: Dp = 8.dp,
     val lineWidth: Dp = 360.dp,
     val expandedWidth: Dp = 360.dp,
@@ -20,7 +21,7 @@ data class IslandLayoutSpec(
     val expandedOutset: Dp = 0.dp,
     val cameraAnchor: CameraAnchor = CameraAnchor.Center,
 ) {
-    val compactHeight: Dp get() = cameraDiameter + cameraGap * 2
+    val compactHeight: Dp get() = cameraDiameter + verticalGap * 2
     val cameraSlotWidth: Dp get() = cameraDiameter + cameraGap * 2
     val cellSize: Dp get() = cameraDiameter
     val cellSpacing: Dp get() = cameraGap

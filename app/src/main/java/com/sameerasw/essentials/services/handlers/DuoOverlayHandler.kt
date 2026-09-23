@@ -335,6 +335,15 @@ class DuoOverlayHandler(
     var isFullscreen: Boolean = false
         private set
 
+    private var isIslandVisible = false
+
+    fun setIslandVisible(visible: Boolean) {
+        isIslandVisible = visible
+        mainHandler.post { overlayView?.isYieldingToIsland = shouldYieldToIsland() }
+    }
+
+    private fun shouldYieldToIsland(): Boolean = isIslandVisible && settingsRepository.isDuoIslandCombined()
+
     fun setFullscreen(fullscreen: Boolean) {
         if (isFullscreen != fullscreen) {
             isFullscreen = fullscreen
@@ -843,6 +852,7 @@ class DuoOverlayHandler(
                 this.isDarkTheme = isNightMode
                 this.isScreenOff = this@DuoOverlayHandler.isScreenOff
                 this.isFullscreen = this@DuoOverlayHandler.isFullscreen
+                this.isYieldingToIsland = shouldYieldToIsland()
                 val areUnsupportedFeaturesEnabled = settingsRepository.isEnableUnsupportedFeatures()
                 this.hideWhenScreenOff = if (areUnsupportedFeaturesEnabled) settingsRepository.isDuoHideWhenScreenOffEnabled() else true
                 this.hideWhenScreenOffOnlyIdle = if (areUnsupportedFeaturesEnabled) settingsRepository.isDuoHideWhenScreenOffOnlyIdleEnabled() else false

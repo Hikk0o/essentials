@@ -33,6 +33,12 @@ import com.sameerasw.essentials.island.model.IslandStage
 import com.sameerasw.essentials.island.plugins.calendar.CalendarPlugin
 import com.sameerasw.essentials.island.plugins.consciousgate.ConsciousGatePlugin
 import com.sameerasw.essentials.island.plugins.flashlight.FlashlightPlugin
+import com.sameerasw.essentials.island.plugins.network.NetworkPlugin
+import com.sameerasw.essentials.island.plugins.devices.DevicesPlugin
+import com.sameerasw.essentials.island.plugins.progress.ProgressPlugin
+import com.sameerasw.essentials.island.plugins.soundmode.SoundModePlugin
+import com.sameerasw.essentials.island.plugins.travel.TravelPlugin
+import com.sameerasw.essentials.island.plugins.caffeinate.CaffeinatePlugin
 import com.sameerasw.essentials.island.plugins.media.MediaPlugin
 import com.sameerasw.essentials.island.plugins.notifications.NotificationsPlugin
 import com.sameerasw.essentials.island.plugins.timebattery.TimeBatteryPlugin
@@ -76,11 +82,17 @@ class IslandCoordinator(
         CallPlugin(),
         TimeBatteryPlugin(),
         NotificationsPlugin(),
+        ProgressPlugin(),
         MediaPlugin(),
         CalendarPlugin(),
         ConsciousGatePlugin(),
         FlashlightPlugin(),
         TimerPlugin(),
+        SoundModePlugin(),
+        CaffeinatePlugin(),
+        TravelPlugin(),
+        NetworkPlugin(),
+        DevicesPlugin(),
     )
 
     private var scope: CoroutineScope? = null
@@ -92,6 +104,7 @@ class IslandCoordinator(
     private var isFullscreenApp = false
     private var running = false
     private var foregroundPackage: String? = null
+    private var textInputActive = false
 
     private val isWindowSuppressed get() = isLandscape || isFullscreenApp
     private val isContentSuppressed: Boolean
@@ -112,7 +125,10 @@ class IslandCoordinator(
             plugins.forEach { it.onUserInteraction(focused) }
         }
 
-        override fun onTextInputChanged(active: Boolean) = windowHost.setTextInput(active)
+        override fun onTextInputChanged(active: Boolean) {
+            textInputActive = active
+            windowHost.setTextInput(active)
+        }
 
         override fun onAdvance(): Boolean = controller.advanceFocused()
 
@@ -149,8 +165,19 @@ class IslandCoordinator(
             if (stage != IslandStage.Expanded) windowHost.setTextInput(false)
             windowHost.onStageChanged(stage)
             syncStatusBar(stage)
+            reportVisibility(stage != IslandStage.Hidden)
         }
         updateState()
+    }
+
+    // Fires with true while the island has anything on screen
+    var onVisibilityChanged: ((Boolean) -> Unit)? = null
+    private var lastVisible = false
+
+    private fun reportVisibility(visible: Boolean) {
+        if (visible == lastVisible) return
+        lastVisible = visible
+        onVisibilityChanged?.invoke(visible)
     }
 
     fun updateState() {
@@ -163,6 +190,14 @@ class IslandCoordinator(
                 plugins.forEach { it.refresh() }
             }
         }
+    }
+
+    // Anything the user touches outside the island collapses the expanded card, when enabled.
+    private fun onOutsideTouch() {
+        if (!running || !settings.isIslandDismissOnOutsideEnabled()) return
+        if (textInputActive) return
+        if (controller.state.value.stage != IslandStage.Expanded) return
+        mainHandler.post { controller.collapse() }
     }
 
     fun onForegroundPackage(packageName: String) {
@@ -211,6 +246,7 @@ class IslandCoordinator(
         scope = newScope
         applyConfig()
         val geo = geometry ?: return
+        windowHost.onOutsideTouch = ::onOutsideTouch
         val attached = windowHost.attach(geo) {
             val state by controller.state.collectAsState()
             val layoutSpec by spec.collectAsState()
@@ -258,6 +294,7 @@ class IslandCoordinator(
         scope?.cancel()
         scope = null
         windowHost.detach()
+        reportVisibility(false)
         IslandStatusBarHider.restore(service)
         if (settings.isIslandSuppressSystemHeadsUpEnabled()) settings.applyHeadsUpSuppression(false)
     }
@@ -279,6 +316,7 @@ class IslandCoordinator(
         spec.value = IslandLayoutSpec(
             cameraDiameter = (geo.diameter / density).dp,
             cameraGap = (geo.gap / density).dp,
+            verticalGap = (geo.verticalGap / density).dp,
             surfaceTop = (geo.surfaceTop / density).dp,
             lineWidth = lineWidth.dp,
             expandedWidth = expandedWidth.dp,

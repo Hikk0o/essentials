@@ -102,7 +102,14 @@ Rules worth knowing:
 - The surface stays centred on the camera; cells hug the outer ends with equal edge padding.
 - With an edge camera (`CameraAnchor.Start` / `End`) all cells go on the open side.
 
-Priorities are in `IslandPriority` (lower wins). Current order: Call, Time, Battery, Notification, Flashlight, Timer, Media, Conscious Gate, Calendar.
+Priorities are in `IslandPriority` (lower wins). Current order: Call, Time, Battery, Notification, Flashlight, Timer, Media, Conscious Gate, Caffeinate, Travel (Are we there yet), Calendar, Sound mode, Network, Devices.
+
+An item can temporarily outrank its base priority by setting `priorityOverride` (layout uses `IslandItem.effectivePriority`). Override values live in `IslandPriority` with an `_OVERRIDE` suffix and rank just after the pinned time/battery:
+
+| Override | When |
+|---|---|
+| `TIMER_OVERRIDE` | A running countdown has 1 minute or less left |
+| `CALENDAR_OVERRIDE` | The next event starts within 15 minutes |
 
 ### Line
 
@@ -217,6 +224,7 @@ If the plugin needs a runtime permission, request it through `PermissionsBottomS
 |---|---|
 | `key` | Stable id. Also the animation key; keep it constant for the same logical item. |
 | `priority` | See `IslandPriority`. Lower is more important. |
+| `priorityOverride` | Optional state-driven priority (an `*_OVERRIDE` value) that replaces `priority` while set. |
 | `placement` | `Pinned` for always-present status (time, battery), `Dynamic` for everything else. |
 | `compact` | 1–2 cells. Index 0 is the icon (outer edge), index 1 the value (inner). Cell keys must be unique across items. |
 | `line` | Optional. Without it the item cannot peek. |

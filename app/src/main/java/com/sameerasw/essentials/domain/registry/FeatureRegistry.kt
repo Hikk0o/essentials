@@ -768,6 +768,31 @@ object FeatureRegistry {
                             "island_show_timers",
                         ),
                         SearchSetting(
+                            R.string.feat_caffeinate_title,
+                            R.string.caffeinate_notification_desc,
+                            "island_show_caffeinate",
+                        ),
+                        SearchSetting(
+                            R.string.feat_location_reached_title,
+                            R.string.island_travel_pause,
+                            "island_show_travel",
+                        ),
+                        SearchSetting(
+                            R.string.island_show_sound_mode_title,
+                            R.string.island_sound_mode_vibrate,
+                            "island_show_sound_mode",
+                        ),
+                        SearchSetting(
+                            R.string.island_show_devices_title,
+                            R.string.island_devices_connected,
+                            "island_show_devices",
+                        ),
+                        SearchSetting(
+                            R.string.island_show_network_title,
+                            R.string.island_network_connected_to,
+                            "island_show_network",
+                        ),
+                        SearchSetting(
                             R.string.island_show_calls_title,
                             R.string.island_call_incoming,
                             "island_show_calls",

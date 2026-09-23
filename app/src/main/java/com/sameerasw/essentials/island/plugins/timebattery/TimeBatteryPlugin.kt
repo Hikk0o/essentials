@@ -10,11 +10,14 @@ import android.os.PowerManager
 import android.text.format.DateFormat
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.island.model.CompactCell
 import com.sameerasw.essentials.island.model.CompactPlacement
 import com.sameerasw.essentials.island.model.IslandItem
 import com.sameerasw.essentials.island.model.IslandPriority
+import com.sameerasw.essentials.island.model.LineContent
+import com.sameerasw.essentials.island.model.PluginRequest
 import com.sameerasw.essentials.island.plugins.BaseIslandPlugin
 import com.sameerasw.essentials.island.plugins.soften
 import com.sameerasw.essentials.island.ui.components.BatteryGlyph
@@ -32,6 +35,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         SettingsRepository.KEY_ISLAND_BATTERY_STYLE,
         SettingsRepository.KEY_ISLAND_BATTERY_PERCENTAGE,
         SettingsRepository.KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL,
+        SettingsRepository.KEY_ISLAND_BATTERY_ONLY_LOW,
         SettingsRepository.KEY_DUO_BATTERY_CHARGING_COLOR_ENABLED,
         SettingsRepository.KEY_DUO_BATTERY_CHARGING_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_POWER_SAVE_COLOR_ENABLED,
@@ -47,11 +51,21 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
     private var charging = false
     private var powerSave = false
     private var registered = false
+    private var chargePeekUntil = 0L
+    private val endChargePeek = Runnable { render() }
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(c: Context?, intent: Intent?) {
             when (intent?.action) {
-                Intent.ACTION_BATTERY_CHANGED -> readBattery(intent)
+                Intent.ACTION_BATTERY_CHANGED -> {
+                    val wasCharging = charging
+                    readBattery(intent)
+                    if (charging && !wasCharging && level >= 0) {
+                        render()
+                        peekCharging()
+                        return
+                    }
+                }
                 PowerManager.ACTION_POWER_SAVE_MODE_CHANGED -> readBattery(null)
                 else -> readTime()
             }
@@ -74,6 +88,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
     }
 
     override fun onStop() {
+        ctx?.mainHandler?.removeCallbacks(endChargePeek)
         if (registered) {
             try {
                 context.unregisterReceiver(receiver)
@@ -106,6 +121,18 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         powerSave = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isPowerSaveMode ?: false
     }
 
+    private fun peekCharging() {
+        val c = ctx ?: return
+        if (!settings.isIslandShowTimeBatteryEnabled()) return
+        val duration = settings.getIslandPeekDurationMs()
+        
+        chargePeekUntil = System.currentTimeMillis() + duration
+        render()
+        c.request(PluginRequest.Peek(BATTERY_KEY, duration))
+        c.mainHandler.removeCallbacks(endChargePeek)
+        c.mainHandler.postDelayed(endChargePeek, duration + 500L)
+    }
+
     private fun render() {
         ctx ?: return
         if (!settings.isIslandShowTimeBatteryEnabled()) {
@@ -128,7 +155,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
             ),
         )
         val batteryItem = IslandItem(
-            key = "battery",
+            key = BATTERY_KEY,
             priority = IslandPriority.BATTERY,
             placement = CompactPlacement.Pinned,
             compact = listOf(
@@ -139,8 +166,27 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
                     }
                 },
             ),
+            line = if (charging) {
+                LineContent(
+                    icon = {
+                        when {
+                            iconStyle -> BatteryGlyph(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = false)
+                            else -> BatteryRing(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = false)
+                        }
+                    },
+                    start = "$batteryLevel%",
+                    end = context.getString(R.string.island_battery_charging),
+                )
+            } else {
+                null
+            },
         )
-        publish(if (batteryLevel >= 0) listOf(timeItem, batteryItem) else listOf(timeItem))
+        val showBattery = batteryLevel >= 0 && (
+            !settings.isIslandBatteryOnlyLowEnabled() ||
+                batteryLevel <= SettingsRepository.ISLAND_BATTERY_LOW_LEVEL ||
+                System.currentTimeMillis() < chargePeekUntil
+            )
+        publish(if (showBattery) listOf(timeItem, batteryItem) else listOf(timeItem))
     }
 
     private fun stateColor(): Color? {
@@ -155,9 +201,9 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
                 if (charge.equals("auto", ignoreCase = true)) AUTO_CHARGING else parse(charge, AUTO_CHARGING)
             powerSave && settings.isDuoBatteryPowerSaveColorEnabled() ->
                 parse(settings.getDuoBatteryPowerSaveColor(), AndroidColor.rgb(255, 152, 0))
-            level in 0..CRITICAL_LEVEL && settings.isDuoBatteryCriticalColorEnabled() ->
+            level in 0..SettingsRepository.ISLAND_BATTERY_CRITICAL_LEVEL && settings.isDuoBatteryCriticalColorEnabled() ->
                 parse(settings.getDuoBatteryCriticalColor(), AndroidColor.rgb(244, 67, 54))
-            level in 0..LOW_LEVEL && settings.isDuoBatteryLowColorEnabled() ->
+            level in 0..SettingsRepository.ISLAND_BATTERY_LOW_LEVEL && settings.isDuoBatteryLowColorEnabled() ->
                 parse(settings.getDuoBatteryLowColor(), AndroidColor.rgb(255, 235, 59))
             else -> return null
         }
@@ -165,8 +211,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
     }
 
     private companion object {
-        const val LOW_LEVEL = 20
-        const val CRITICAL_LEVEL = 10
+        const val BATTERY_KEY = "battery"
         val AUTO_CHARGING = AndroidColor.rgb(0, 230, 118)
     }
 }

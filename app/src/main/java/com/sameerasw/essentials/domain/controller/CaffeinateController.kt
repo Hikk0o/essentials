@@ -31,6 +31,10 @@ object CaffeinateController {
     val startingTimeLeft = mutableStateOf(0)
     val selectedTimeout = mutableStateOf(5)
 
+    // 0 while running without a timeout
+    val endTime = mutableStateOf(0L)
+    val durationMillis = mutableStateOf(0L)
+
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var startingJob: Job? = null
     private var screenOffReceiver: android.content.BroadcastReceiver? = null

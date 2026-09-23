@@ -99,6 +99,9 @@ class TimerPlugin : BaseIslandPlugin() {
             ?: entries.maxByOrNull { it.postedAt }
     }
 
+    private fun isUrgent(entry: ChronometerEntry): Boolean =
+        entry.running && entry.countDown && entry.displayMillis() <= URGENT_MS
+
     private fun render() {
         val entry = primary()
         if (ctx == null || entry == null || !settings.isIslandShowTimersEnabled()) {
@@ -113,6 +116,7 @@ class TimerPlugin : BaseIslandPlugin() {
             IslandItem(
                 key = ITEM_KEY,
                 priority = IslandPriority.TIMER,
+                priorityOverride = IslandPriority.TIMER_OVERRIDE.takeIf { isUrgent(entry) },
                 placement = CompactPlacement.Dynamic,
                 compact = listOf(
                     CompactCell("timer.icon") {
@@ -180,5 +184,6 @@ class TimerPlugin : BaseIslandPlugin() {
 
     companion object {
         const val ITEM_KEY = "timer"
+        private const val URGENT_MS = 60_000L
     }
 }

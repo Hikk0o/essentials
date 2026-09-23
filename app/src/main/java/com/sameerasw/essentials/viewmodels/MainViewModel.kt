@@ -136,6 +136,7 @@ class MainViewModel : ViewModel() {
     val isSmartPixelsDisableOnCastEnabled = mutableStateOf(true)
 
     val isDuoEnabled = mutableStateOf(false)
+    val isDuoIslandCombined = mutableStateOf(false)
     val isDuoAutoDetect = mutableStateOf(true)
     val hasMultipleDuoDisplays = mutableStateOf(false)
     val duoCameraOffsetX = mutableFloatStateOf(50f)
@@ -185,10 +186,17 @@ class MainViewModel : ViewModel() {
     val islandExpandedRoundness = mutableFloatStateOf(24f)
     val islandFontScale = mutableFloatStateOf(1f)
     val isIslandHideInOwnerApp = mutableStateOf(false)
+    val isIslandDismissOnOutside = mutableStateOf(false)
     val islandExpandedScale = mutableFloatStateOf(1f)
     val islandCameraPosition = mutableStateOf(SettingsRepository.ISLAND_CAMERA_POSITION_CENTER)
     val isIslandShowCalls = mutableStateOf(true)
     val isIslandShowTimers = mutableStateOf(true)
+    val isIslandShowNetwork = mutableStateOf(true)
+    val isIslandShowSoundMode = mutableStateOf(true)
+    val isIslandShowTravel = mutableStateOf(true)
+    val isIslandShowCaffeinate = mutableStateOf(true)
+    val isIslandShowDevices = mutableStateOf(true)
+    val islandDevicesBatteryOrder = mutableStateOf<List<String>>(emptyList())
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
     val islandExpandedTimeoutMs = mutableLongStateOf(0L)
@@ -199,8 +207,9 @@ class MainViewModel : ViewModel() {
     val isIslandLineStageEnabled = mutableStateOf(true)
     val isIslandMediaPeekSongChange = mutableStateOf(true)
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
+    val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
-    val isIslandCatchUpEnabled = mutableStateOf(false)
+    val isIslandCatchUpEnabled = mutableStateOf(true)
     val islandCatchUpTimeoutMs = mutableLongStateOf(10000L)
     val isIslandShowGlow = mutableStateOf(true)
     val isIslandShowMedia = mutableStateOf(true)
@@ -211,6 +220,8 @@ class MainViewModel : ViewModel() {
     val islandBatteryStyle = mutableStateOf(SettingsRepository.ISLAND_BATTERY_STYLE_RING)
     val isIslandBatteryPercentageEnabled = mutableStateOf(false)
     val isIslandBatteryPercentageConditional = mutableStateOf(false)
+    val isIslandBatteryOnlyLow = mutableStateOf(false)
+    val isIslandDevicesBatteryOnlyLow = mutableStateOf(false)
     val islandLongPressAction = mutableStateOf<Action?>(null)
     val islandSlideMode = mutableStateOf("none")
     val isIslandSlideTrack = mutableStateOf(false)
@@ -2174,10 +2185,18 @@ class MainViewModel : ViewModel() {
         islandExpandedRoundness.floatValue = settingsRepository.getIslandExpandedRoundness()
         islandFontScale.floatValue = settingsRepository.getIslandFontScale()
         isIslandHideInOwnerApp.value = settingsRepository.isIslandHideInOwnerAppEnabled()
+        isIslandDismissOnOutside.value = settingsRepository.isIslandDismissOnOutsideEnabled()
         islandExpandedScale.floatValue = settingsRepository.getIslandExpandedScale()
         islandCameraPosition.value = settingsRepository.getIslandCameraPosition()
         isIslandShowCalls.value = settingsRepository.isIslandShowCallsEnabled()
         isIslandShowTimers.value = settingsRepository.isIslandShowTimersEnabled()
+        isIslandShowNetwork.value = settingsRepository.isIslandShowNetworkEnabled()
+        isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
+        isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
+        isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
+        isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
+        isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
+        islandDevicesBatteryOrder.value = settingsRepository.getIslandDevicesBatteryOrder()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
         islandExpandedTimeoutMs.longValue = settingsRepository.getIslandExpandedTimeoutMs()
@@ -2192,6 +2211,7 @@ class MainViewModel : ViewModel() {
         isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
+        isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
         islandCatchUpTimeoutMs.longValue = settingsRepository.getIslandCatchUpTimeoutMs()
@@ -2204,6 +2224,8 @@ class MainViewModel : ViewModel() {
         islandBatteryStyle.value = settingsRepository.getIslandBatteryStyle()
         isIslandBatteryPercentageEnabled.value = settingsRepository.isIslandBatteryPercentageEnabled()
         isIslandBatteryPercentageConditional.value = settingsRepository.isIslandBatteryPercentageConditional()
+        isIslandBatteryOnlyLow.value = settingsRepository.isIslandBatteryOnlyLowEnabled()
+        isIslandDevicesBatteryOnlyLow.value = settingsRepository.isIslandDevicesBatteryOnlyLowEnabled()
         islandLongPressAction.value = settingsRepository.getIslandLongPressAction()
         islandSlideMode.value = settingsRepository.getIslandSlideMode()
         isIslandSlideTrack.value = settingsRepository.isIslandSlideTrackEnabled()
@@ -5006,6 +5028,10 @@ class MainViewModel : ViewModel() {
     fun setDuoShowTime(enabled: Boolean) {
         isDuoShowTime.value = enabled
         settingsRepository.setDuoShowTimeEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandShowTimeBattery.value = false
+            settingsRepository.setIslandShowTimeBatteryEnabled(false)
+        }
         if (enabled) {
             isDuoShowNetworks.value = false
             settingsRepository.setDuoShowNetworksEnabled(false)
@@ -5015,6 +5041,10 @@ class MainViewModel : ViewModel() {
     fun setDuoShowMedia(enabled: Boolean) {
         isDuoShowMedia.value = enabled
         settingsRepository.setDuoShowMediaEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandShowMedia.value = false
+            settingsRepository.setIslandShowMediaEnabled(false)
+        }
     }
 
     fun setDuoRotateAlbumArt(enabled: Boolean) {
@@ -5025,11 +5055,40 @@ class MainViewModel : ViewModel() {
     fun setDuoShowProgress(enabled: Boolean) {
         isDuoShowProgress.value = enabled
         settingsRepository.setDuoShowProgressEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandNotifKeepProgress.value = false
+            settingsRepository.setIslandNotifKeepProgressEnabled(false)
+        }
     }
 
     fun setDuoShowFlashlight(enabled: Boolean) {
         isDuoShowFlashlight.value = enabled
         settingsRepository.setDuoShowFlashlightEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandShowFlashlight.value = false
+            settingsRepository.setIslandShowFlashlightEnabled(false)
+        }
+    }
+
+    private fun combinedActive(): Boolean = settingsRepository.isDuoIslandCombined()
+
+    fun setDuoIslandCombined(enabled: Boolean) {
+        isDuoIslandCombined.value = enabled
+        settingsRepository.setDuoIslandCombined(enabled)
+        if (!enabled) return
+        // Duo owns the idle state, Island owns everything with more info
+        setDuoShowBattery(true)
+        setDuoShowNetworks(true)
+        setIslandShowTimeBattery(false)
+        isDuoShowMedia.value = false
+        settingsRepository.setDuoShowMediaEnabled(false)
+        isDuoShowFlashlight.value = false
+        settingsRepository.setDuoShowFlashlightEnabled(false)
+        isDuoShowProgress.value = false
+        settingsRepository.setDuoShowProgressEnabled(false)
+        setIslandShowMedia(true)
+        setIslandShowFlashlight(true)
+        setIslandNotifKeepProgress(true)
     }
 
     fun setIslandEnabled(enabled: Boolean) {
@@ -5040,6 +5099,28 @@ class MainViewModel : ViewModel() {
     fun setIslandAutoDetect(enabled: Boolean) {
         isIslandAutoDetect.value = enabled
         settingsRepository.setIslandAutoDetectEnabled(enabled)
+    }
+
+    fun autoAlignIslandWithCamera(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return false
+        val metrics = wm.maximumWindowMetrics
+        val rect =
+            try {
+                metrics.windowInsets.displayCutout?.boundingRects
+                    ?.let { rects -> rects.find { it.top == 0 } ?: rects.firstOrNull() }
+            } catch (_: Exception) {
+                null
+            } ?: return false
+        val density = context.resources.displayMetrics.density
+        val screenWidth = metrics.bounds.width().toFloat()
+        val screenHeight = metrics.bounds.height().toFloat()
+        val radius = (minOf(rect.width(), rect.height()) / 2f).coerceAtLeast(12f * density)
+        setIslandCameraOffsetX((rect.exactCenterX() / screenWidth * 100f).coerceIn(0f, 100f))
+        setIslandCameraOffsetY((rect.exactCenterY() / screenHeight * 100f).coerceIn(0f, 20f))
+        setIslandCameraSize((radius / (16f * density)).coerceIn(0.05f, 2.0f))
+        setIslandAutoDetect(false)
+        return true
     }
 
     fun setIslandCameraOffsetX(value: Float) {
@@ -5072,6 +5153,36 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandExpandedWidth(value)
     }
 
+    fun setIslandDevicesBatteryOrder(addresses: List<String>) {
+        islandDevicesBatteryOrder.value = addresses
+        settingsRepository.setIslandDevicesBatteryOrder(addresses)
+    }
+
+    fun setIslandShowDevices(enabled: Boolean) {
+        isIslandShowDevices.value = enabled
+        settingsRepository.setIslandShowDevicesEnabled(enabled)
+    }
+
+    fun setIslandShowCaffeinate(enabled: Boolean) {
+        isIslandShowCaffeinate.value = enabled
+        settingsRepository.setIslandShowCaffeinateEnabled(enabled)
+    }
+
+    fun setIslandShowTravel(enabled: Boolean) {
+        isIslandShowTravel.value = enabled
+        settingsRepository.setIslandShowTravelEnabled(enabled)
+    }
+
+    fun setIslandShowSoundMode(enabled: Boolean) {
+        isIslandShowSoundMode.value = enabled
+        settingsRepository.setIslandShowSoundModeEnabled(enabled)
+    }
+
+    fun setIslandShowNetwork(enabled: Boolean) {
+        isIslandShowNetwork.value = enabled
+        settingsRepository.setIslandShowNetworkEnabled(enabled)
+    }
+
     fun setIslandShowTimers(enabled: Boolean) {
         isIslandShowTimers.value = enabled
         settingsRepository.setIslandShowTimersEnabled(enabled)
@@ -5090,6 +5201,11 @@ class MainViewModel : ViewModel() {
     fun setIslandExpandedScale(value: Float) {
         islandExpandedScale.floatValue = value
         settingsRepository.setIslandExpandedScale(value)
+    }
+
+    fun setIslandDismissOnOutside(enabled: Boolean) {
+        isIslandDismissOnOutside.value = enabled
+        settingsRepository.setIslandDismissOnOutsideEnabled(enabled)
     }
 
     fun setIslandHideInOwnerApp(enabled: Boolean) {
@@ -5166,6 +5282,15 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandNotifQueueEnabled(enabled)
     }
 
+    fun setIslandNotifKeepProgress(enabled: Boolean) {
+        isIslandNotifKeepProgress.value = enabled
+        settingsRepository.setIslandNotifKeepProgressEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowProgress.value = false
+            settingsRepository.setDuoShowProgressEnabled(false)
+        }
+    }
+
     fun setIslandNotifCompactHeadsUp(enabled: Boolean) {
         isIslandNotifCompactHeadsUp.value = enabled
         settingsRepository.setIslandNotifCompactHeadsUpEnabled(enabled)
@@ -5189,6 +5314,10 @@ class MainViewModel : ViewModel() {
     fun setIslandShowMedia(enabled: Boolean) {
         isIslandShowMedia.value = enabled
         settingsRepository.setIslandShowMediaEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowMedia.value = false
+            settingsRepository.setDuoShowMediaEnabled(false)
+        }
     }
 
     fun setIslandShowCalendar(enabled: Boolean) {
@@ -5204,11 +5333,19 @@ class MainViewModel : ViewModel() {
     fun setIslandShowFlashlight(enabled: Boolean) {
         isIslandShowFlashlight.value = enabled
         settingsRepository.setIslandShowFlashlightEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowFlashlight.value = false
+            settingsRepository.setDuoShowFlashlightEnabled(false)
+        }
     }
 
     fun setIslandShowTimeBattery(enabled: Boolean) {
         isIslandShowTimeBattery.value = enabled
         settingsRepository.setIslandShowTimeBatteryEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowTime.value = false
+            settingsRepository.setDuoShowTimeEnabled(false)
+        }
     }
 
     fun setIslandBatteryStyle(value: String) {
@@ -5219,6 +5356,16 @@ class MainViewModel : ViewModel() {
     fun setIslandBatteryPercentageEnabled(enabled: Boolean) {
         isIslandBatteryPercentageEnabled.value = enabled
         settingsRepository.setIslandBatteryPercentageEnabled(enabled)
+    }
+
+    fun setIslandDevicesBatteryOnlyLow(enabled: Boolean) {
+        isIslandDevicesBatteryOnlyLow.value = enabled
+        settingsRepository.setIslandDevicesBatteryOnlyLowEnabled(enabled)
+    }
+
+    fun setIslandBatteryOnlyLow(enabled: Boolean) {
+        isIslandBatteryOnlyLow.value = enabled
+        settingsRepository.setIslandBatteryOnlyLowEnabled(enabled)
     }
 
     fun setIslandBatteryPercentageConditional(enabled: Boolean) {

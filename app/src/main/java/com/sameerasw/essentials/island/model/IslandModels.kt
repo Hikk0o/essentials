@@ -14,12 +14,22 @@ object IslandPriority {
     const val CALL = -10
     const val TIME = 0
     const val BATTERY = 1
+
+    const val TIMER_OVERRIDE = 5
+    const val CALENDAR_OVERRIDE = 6
+
     const val NOTIFICATION = 10
+    const val PROGRESS = 15
     const val FLASHLIGHT = 20
     const val TIMER = 25
     const val MEDIA = 30
     const val CONSCIOUS_GATE = 40
+    const val CAFFEINATE = 44
+    const val TRAVEL = 45
     const val CALENDAR = 50
+    const val SOUND_MODE = 55
+    const val NETWORK = 60
+    const val DEVICES = 62
     const val DEFAULT = 100
 }
 
@@ -80,7 +90,11 @@ class IslandItem(
     val queue: QueueInfo? = null,
     // Owning app; used to hide the item while that app is in the foreground.
     val sourcePackage: String? = null,
+    // Temporary priority while the item's state is urgent; null falls back to `priority`.
+    val priorityOverride: Int? = null,
 ) {
+    val effectivePriority: Int get() = priorityOverride ?: priority
+
     init {
         require(compact.size in 1..2) { "IslandItem $key must have 1..2 compact cells" }
     }

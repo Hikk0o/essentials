@@ -188,7 +188,7 @@ class IslandController(
         state.arrangement.visibleItems
             .mapNotNull { state.items[it] }
             .filter { it.placement == CompactPlacement.Dynamic && it.expanded != null }
-            .minByOrNull { it.priority }
+            .minByOrNull { it.effectivePriority }
 
     private fun restartExpandedTimer() {
         expandedTimer?.cancel()
@@ -227,7 +227,7 @@ class IslandController(
 
         val arrangement = CompactLayoutEngine.arrange(
             items.values.map { item ->
-                CompactEntry(item.key, item.priority, item.placement == CompactPlacement.Pinned, item.compact.map { it.key })
+                CompactEntry(item.key, item.effectivePriority, item.placement == CompactPlacement.Pinned, item.compact.map { it.key })
             },
             anchorProvider(),
         )

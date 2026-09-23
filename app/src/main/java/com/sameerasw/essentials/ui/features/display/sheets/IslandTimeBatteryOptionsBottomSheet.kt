@@ -43,13 +43,6 @@ fun IslandTimeBatteryOptionsBottomSheet(
     viewModel: MainViewModel,
     onDismissRequest: () -> Unit,
 ) {
-    val view = LocalView.current
-    val styleLabel = if (viewModel.islandBatteryStyle.value == SettingsRepository.ISLAND_BATTERY_STYLE_ICON) {
-        stringResource(R.string.island_battery_style_icon)
-    } else {
-        stringResource(R.string.island_battery_style_ring)
-    }
-
     EssentialsBottomSheet(onDismissRequest = onDismissRequest) {
         Column(
             modifier = Modifier
@@ -59,55 +52,87 @@ fun IslandTimeBatteryOptionsBottomSheet(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            RoundedCardContainer {
-                ConfigPickerItem(
-                    title = stringResource(R.string.island_battery_style_title),
-                    selectedValue = styleLabel,
-                    iconRes = R.drawable.rounded_battery_android_frame_3_24,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    SegmentedDropdownMenuItem(
-                        text = { Text(stringResource(R.string.island_battery_style_ring)) },
-                        onClick = {
-                            HapticUtil.performVirtualKeyHaptic(view)
-                            viewModel.setIslandBatteryStyle(SettingsRepository.ISLAND_BATTERY_STYLE_RING)
-                        },
-                    )
-                    SegmentedDropdownMenuItem(
-                        text = { Text(stringResource(R.string.island_battery_style_icon)) },
-                        onClick = {
-                            HapticUtil.performVirtualKeyHaptic(view)
-                            viewModel.setIslandBatteryStyle(SettingsRepository.ISLAND_BATTERY_STYLE_ICON)
-                        },
-                    )
-                }
-                IconToggleItem(
-                    iconRes = R.drawable.rounded_percent_24,
-                    title = stringResource(R.string.island_battery_percentage_title),
-                    isChecked = viewModel.isIslandBatteryPercentageEnabled.value,
-                    onCheckedChange = { checked ->
+            IslandBatteryOptions(
+                viewModel = viewModel,
+                onlyLow = viewModel.isIslandBatteryOnlyLow.value,
+                onOnlyLowChange = viewModel::setIslandBatteryOnlyLow,
+            )
+        }
+    }
+}
+
+
+@Composable
+fun IslandBatteryOptions(
+    viewModel: MainViewModel,
+    onlyLow: Boolean,
+    onOnlyLowChange: (Boolean) -> Unit,
+) {
+    val view = LocalView.current
+    val styleLabel = if (viewModel.islandBatteryStyle.value == SettingsRepository.ISLAND_BATTERY_STYLE_ICON) {
+        stringResource(R.string.island_battery_style_icon)
+    } else {
+        stringResource(R.string.island_battery_style_ring)
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        RoundedCardContainer {
+            IconToggleItem(
+                iconRes = R.drawable.rounded_battery_android_frame_alert_24,
+                title = stringResource(R.string.island_battery_only_low_title),
+                isChecked = onlyLow,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    onOnlyLowChange(checked)
+                },
+            )
+            ConfigPickerItem(
+                title = stringResource(R.string.island_battery_style_title),
+                selectedValue = styleLabel,
+                iconRes = R.drawable.rounded_battery_android_frame_3_24,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                SegmentedDropdownMenuItem(
+                    text = { Text(stringResource(R.string.island_battery_style_ring)) },
+                    onClick = {
                         HapticUtil.performVirtualKeyHaptic(view)
-                        viewModel.setIslandBatteryPercentageEnabled(checked)
+                        viewModel.setIslandBatteryStyle(SettingsRepository.ISLAND_BATTERY_STYLE_RING)
                     },
                 )
-                AnimatedVisibility(
-                    visible = viewModel.isIslandBatteryPercentageEnabled.value,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut(),
-                ) {
-                    IconToggleItem(
-                        iconRes = R.drawable.rounded_filter_alt_24,
-                        title = stringResource(R.string.island_battery_percentage_conditional_title),
-                        isChecked = viewModel.isIslandBatteryPercentageConditional.value,
-                        onCheckedChange = { checked ->
-                            HapticUtil.performVirtualKeyHaptic(view)
-                            viewModel.setIslandBatteryPercentageConditional(checked)
-                        },
-                    )
-                }
+                SegmentedDropdownMenuItem(
+                    text = { Text(stringResource(R.string.island_battery_style_icon)) },
+                    onClick = {
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setIslandBatteryStyle(SettingsRepository.ISLAND_BATTERY_STYLE_ICON)
+                    },
+                )
             }
-
-            BatteryColorOptions(viewModel)
+            IconToggleItem(
+                iconRes = R.drawable.rounded_percent_24,
+                title = stringResource(R.string.island_battery_percentage_title),
+                isChecked = viewModel.isIslandBatteryPercentageEnabled.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandBatteryPercentageEnabled(checked)
+                },
+            )
+            AnimatedVisibility(
+                visible = viewModel.isIslandBatteryPercentageEnabled.value,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_filter_alt_24,
+                    title = stringResource(R.string.island_battery_percentage_conditional_title),
+                    isChecked = viewModel.isIslandBatteryPercentageConditional.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setIslandBatteryPercentageConditional(checked)
+                    },
+                )
+            }
         }
+
+        BatteryColorOptions(viewModel)
     }
 }

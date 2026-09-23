@@ -303,6 +303,7 @@ class ScreenOffAccessibilityService :
                 .SmartPixelsHandler(this)
         duoOverlayHandler = DuoOverlayHandler(this)
         islandOverlayHandler = IslandCoordinator(this)
+        islandOverlayHandler.onVisibilityChanged = { duoOverlayHandler.setIslandVisible(it) }
         statusGlanceHandler = StatusGlanceHandler(this)
 
         flashlightHandler.register()

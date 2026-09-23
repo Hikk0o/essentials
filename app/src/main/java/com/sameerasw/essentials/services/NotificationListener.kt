@@ -1758,6 +1758,14 @@ class NotificationListener : NotificationListenerService() {
             isIndeterminate = indeterminate,
             icon = bitmap,
             postTime = postTime,
+            title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString(),
+            text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString(),
+            appName = try {
+                packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
+            } catch (_: Exception) {
+                null
+            },
+            contentIntent = notif.contentIntent,
         )
     }
 

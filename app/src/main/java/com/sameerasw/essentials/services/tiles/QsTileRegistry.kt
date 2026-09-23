@@ -32,6 +32,10 @@ object QsTileRegistry {
                 PrivateNotificationsTileService::class.java,
             ),
             QsTileEntry(
+                R.drawable.rounded_notifications_unread_24,
+                HeadsUpNotificationsTileService::class.java,
+            ),
+            QsTileEntry(
                 R.drawable.rounded_touch_app_24,
                 TapToWakeTileService::class.java,
             ),
