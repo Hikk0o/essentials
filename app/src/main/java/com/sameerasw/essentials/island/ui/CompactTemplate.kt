@@ -137,4 +137,4 @@ fun CompactTemplate(
     }
 }
 
-private const val OPTICAL_INSET_RATIO = 0.15f
+internal const val OPTICAL_INSET_RATIO = 0.15f

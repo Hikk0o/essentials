@@ -342,6 +342,9 @@ class ScreenOffAccessibilityService :
 
                         Intent.ACTION_SCREEN_OFF -> {
                             isScreenOn = false
+                            statusGlanceHandler.setShadeExpanded(false)
+                            islandOverlayHandler.setShadeExpanded(false)
+                            duoOverlayHandler.setShadeExpanded(false)
                             appFlowHandler.clearAuthenticated()
                             appFlowHandler.clearConsciousGate()
                             scheduleFreeze()
@@ -550,6 +553,8 @@ class ScreenOffAccessibilityService :
         ) {
             checkFullscreenState()
             checkStatusBarExpansion()
+            freezeHandler.removeCallbacks(shadeRecheckRunnable)
+            freezeHandler.postDelayed(shadeRecheckRunnable, 300)
             checkVolumeDialogState()
         }
     }
@@ -573,27 +578,32 @@ class ScreenOffAccessibilityService :
         }
     }
 
-    private fun checkStatusBarExpansion() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                if (keyguardManager.isKeyguardLocked || !isScreenOn) {
-                    statusGlanceHandler.setShadeExpanded(false)
-                    return
-                }
-                val currentWindows = windows
-                if (currentWindows.isNullOrEmpty()) {
-                    statusGlanceHandler.setShadeExpanded(false)
-                    return
-                }
+    private val shadeRecheckRunnable = Runnable { checkStatusBarExpansion() }
 
-                val isShadeExpanded = currentWindows.any { window ->
-                    window.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM &&
-                        window.title?.contains("NotificationShade", ignoreCase = true) == true
-                }
-                statusGlanceHandler.setShadeExpanded(isShadeExpanded)
+    private fun checkStatusBarExpansion() {
+        val expanded =
+            try {
+                isScreenOn && !keyguardManager.isKeyguardLocked && isShadeWindowVisible()
             } catch (_: Exception) {
-                statusGlanceHandler.setShadeExpanded(false)
+                false
             }
+        statusGlanceHandler.setShadeExpanded(expanded)
+        islandOverlayHandler.setShadeExpanded(expanded)
+        duoOverlayHandler.setShadeExpanded(expanded)
+    }
+
+    private fun isShadeWindowVisible(): Boolean {
+        val currentWindows = windows
+        if (currentWindows.isNullOrEmpty()) return false
+        val screenHeight = resources.displayMetrics.heightPixels
+        val bounds = android.graphics.Rect()
+        return currentWindows.any { window ->
+            if (window.type != android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM) return@any false
+            val title = window.title?.toString().orEmpty()
+            if (title.contains("Volume", ignoreCase = true)) return@any false
+            if (SHADE_WINDOW_TITLES.any { title.contains(it, ignoreCase = true) }) return@any true
+            window.getBoundsInScreen(bounds)
+            bounds.height() >= screenHeight * 0.4f
         }
     }
 
@@ -955,6 +965,8 @@ class ScreenOffAccessibilityService :
     }
 
     companion object {
+        private val SHADE_WINDOW_TITLES = listOf("NotificationShade", "Notification shade", "Quick settings", "QuickSettings")
+
         var instance: ScreenOffAccessibilityService? = null
 
         fun updateSmartPixelsState() {

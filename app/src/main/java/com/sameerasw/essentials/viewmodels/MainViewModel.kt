@@ -137,6 +137,7 @@ class MainViewModel : ViewModel() {
 
     val isDuoEnabled = mutableStateOf(false)
     val isDuoIslandCombined = mutableStateOf(false)
+    val isDuoHideOnShade = mutableStateOf(false)
     val isDuoAutoDetect = mutableStateOf(true)
     val hasMultipleDuoDisplays = mutableStateOf(false)
     val duoCameraOffsetX = mutableFloatStateOf(50f)
@@ -186,6 +187,7 @@ class MainViewModel : ViewModel() {
     val islandExpandedRoundness = mutableFloatStateOf(24f)
     val islandFontScale = mutableFloatStateOf(1f)
     val isIslandHideInOwnerApp = mutableStateOf(false)
+    val isIslandHideOnShade = mutableStateOf(false)
     val isIslandDismissOnOutside = mutableStateOf(false)
     val islandExpandedScale = mutableFloatStateOf(1f)
     val islandCameraPosition = mutableStateOf(SettingsRepository.ISLAND_CAMERA_POSITION_CENTER)
@@ -2186,6 +2188,7 @@ class MainViewModel : ViewModel() {
         islandExpandedRoundness.floatValue = settingsRepository.getIslandExpandedRoundness()
         islandFontScale.floatValue = settingsRepository.getIslandFontScale()
         isIslandHideInOwnerApp.value = settingsRepository.isIslandHideInOwnerAppEnabled()
+        isIslandHideOnShade.value = settingsRepository.isIslandHideOnShadeEnabled()
         isIslandDismissOnOutside.value = settingsRepository.isIslandDismissOnOutsideEnabled()
         islandExpandedScale.floatValue = settingsRepository.getIslandExpandedScale()
         islandCameraPosition.value = settingsRepository.getIslandCameraPosition()
@@ -2195,6 +2198,7 @@ class MainViewModel : ViewModel() {
         isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
         isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
         isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
+        isDuoHideOnShade.value = settingsRepository.isDuoHideOnShadeEnabled()
         isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
         isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
         isIslandBriefEnabled.value = settingsRepository.isIslandBriefEnabled()
@@ -5074,6 +5078,11 @@ class MainViewModel : ViewModel() {
 
     private fun combinedActive(): Boolean = settingsRepository.isDuoIslandCombined()
 
+    fun setDuoHideOnShade(enabled: Boolean) {
+        isDuoHideOnShade.value = enabled
+        settingsRepository.setDuoHideOnShadeEnabled(enabled)
+    }
+
     fun setDuoIslandCombined(enabled: Boolean) {
         isDuoIslandCombined.value = enabled
         settingsRepository.setDuoIslandCombined(enabled)
@@ -5218,6 +5227,11 @@ class MainViewModel : ViewModel() {
     fun setIslandHideInOwnerApp(enabled: Boolean) {
         isIslandHideInOwnerApp.value = enabled
         settingsRepository.setIslandHideInOwnerAppEnabled(enabled)
+    }
+
+    fun setIslandHideOnShade(enabled: Boolean) {
+        isIslandHideOnShade.value = enabled
+        settingsRepository.setIslandHideOnShadeEnabled(enabled)
     }
 
     fun setIslandFontScale(value: Float) {

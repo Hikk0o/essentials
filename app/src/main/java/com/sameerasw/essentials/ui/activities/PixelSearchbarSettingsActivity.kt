@@ -56,6 +56,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -70,6 +74,7 @@ import com.sameerasw.essentials.R
 import com.sameerasw.essentials.domain.model.Feature
 import com.sameerasw.essentials.services.widgets.WidgetScraperService
 import com.sameerasw.essentials.ui.components.EssentialsFloatingToolbar
+import com.sameerasw.essentials.ui.components.animations.LottieFeatureAnimation
 import com.sameerasw.essentials.ui.components.menus.SegmentedDropdownMenuItem
 import com.sameerasw.essentials.ui.components.sliders.ConfigSliderItem
 import com.sameerasw.essentials.ui.core.cards.ConfigPickerItem
@@ -144,6 +149,55 @@ class PixelSearchbarSettingsActivity : ComponentActivity() {
 
                     val isMotionBlurEnabled by viewModel.isMotionBlurEnabled
                     val scrollState = rememberScrollState()
+                    val view = LocalView.current
+                    val minHeaderHeight = 200.dp
+                    val maxHeaderHeight = 400.dp
+                    var headerHeight by remember { mutableStateOf(minHeaderHeight) }
+
+                    val nestedScrollConnection =
+                        remember {
+                            object : NestedScrollConnection {
+                                override fun onPreScroll(
+                                    available: Offset,
+                                    source: NestedScrollSource,
+                                ): Offset {
+                                    val delta = available.y
+                                    if (delta < 0 && headerHeight > minHeaderHeight) {
+                                        val oldHeight = headerHeight
+                                        headerHeight =
+                                            with(density) {
+                                                (oldHeight.toPx() + delta).toDp()
+                                            }.coerceAtLeast(minHeaderHeight)
+                                        val consumed = oldHeight - headerHeight
+                                        return Offset(0f, with(density) { -consumed.toPx() })
+                                    }
+                                    return Offset.Zero
+                                }
+
+                                override fun onPostScroll(
+                                    consumed: Offset,
+                                    available: Offset,
+                                    source: NestedScrollSource,
+                                ): Offset {
+                                    val delta = available.y
+                                    if (delta > 0) {
+                                        val oldHeight = headerHeight
+                                        headerHeight =
+                                            with(density) {
+                                                (oldHeight.toPx() + delta).toDp()
+                                            }.coerceAtMost(maxHeaderHeight)
+
+                                        if (headerHeight == maxHeaderHeight && oldHeight < maxHeaderHeight) {
+                                            HapticUtil.performLightHaptic(view)
+                                        }
+
+                                        val produced = headerHeight - oldHeight
+                                        return Offset(0f, with(density) { produced.toPx() })
+                                    }
+                                    return Offset.Zero
+                                }
+                            }
+                        }
 
                     Box(
                         modifier =
@@ -165,6 +219,7 @@ class PixelSearchbarSettingsActivity : ComponentActivity() {
                                         direction = BlurDirection.BOTTOM,
                                     )
                                     .scrollMotionBlur(scrollState, enabled = isMotionBlurEnabled)
+                                    .nestedScroll(nestedScrollConnection)
                                     .verticalScroll(scrollState),
                         ) {
                             Spacer(
@@ -172,6 +227,12 @@ class PixelSearchbarSettingsActivity : ComponentActivity() {
                                     Modifier.height(
                                         WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
                                     ),
+                            )
+
+                            LottieFeatureAnimation(
+                                resId = R.raw.searchbar_motion,
+                                height = headerHeight,
+                                modifier = Modifier.padding(horizontal = 16.dp),
                             )
 
                             PixelSearchbarSettingsUI(
