@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.services.handlers.AppFlowHandler
@@ -108,11 +109,17 @@ class AppDetectionService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-        startForeground(
-            NOTIFICATION_ID,
-            createNotification(),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0,
-        )
+        try {
+            startForeground(
+                NOTIFICATION_ID,
+                createNotification(),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0,
+            )
+        } catch (e: Exception) {
+            Log.e("AppDetectionService", "Failed to start foreground", e)
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         if (!isPolling) {
             isPolling = true
