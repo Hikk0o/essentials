@@ -768,6 +768,11 @@ object FeatureRegistry {
                             "island_show_timers",
                         ),
                         SearchSetting(
+                            R.string.feat_caffeinate_title,
+                            R.string.caffeinate_notification_desc,
+                            "island_show_caffeinate",
+                        ),
+                        SearchSetting(
                             R.string.feat_location_reached_title,
                             R.string.island_travel_pause,
                             "island_show_travel",

@@ -37,6 +37,7 @@ import com.sameerasw.essentials.island.plugins.network.NetworkPlugin
 import com.sameerasw.essentials.island.plugins.progress.ProgressPlugin
 import com.sameerasw.essentials.island.plugins.soundmode.SoundModePlugin
 import com.sameerasw.essentials.island.plugins.travel.TravelPlugin
+import com.sameerasw.essentials.island.plugins.caffeinate.CaffeinatePlugin
 import com.sameerasw.essentials.island.plugins.media.MediaPlugin
 import com.sameerasw.essentials.island.plugins.notifications.NotificationsPlugin
 import com.sameerasw.essentials.island.plugins.timebattery.TimeBatteryPlugin
@@ -87,6 +88,7 @@ class IslandCoordinator(
         FlashlightPlugin(),
         TimerPlugin(),
         SoundModePlugin(),
+        CaffeinatePlugin(),
         TravelPlugin(),
         NetworkPlugin(),
     )

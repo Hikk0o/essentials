@@ -744,6 +744,17 @@ fun IslandSettingsUI(
             )
 
             IconToggleItem(
+                iconRes = R.drawable.rounded_coffee_24,
+                title = stringResource(R.string.feat_caffeinate_title),
+                isChecked = viewModel.isIslandShowCaffeinate.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandShowCaffeinate(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_show_caffeinate"),
+            )
+
+            IconToggleItem(
                 iconRes = R.drawable.round_navigation_24,
                 title = stringResource(R.string.feat_location_reached_title),
                 isChecked = viewModel.isIslandShowTravel.value,

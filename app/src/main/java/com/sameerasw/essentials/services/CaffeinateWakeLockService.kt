@@ -90,6 +90,8 @@ class CaffeinateWakeLockService : Service() {
 
     override fun onDestroy() {
         CaffeinateController.isActive.value = false
+        CaffeinateController.endTime.value = 0L
+        CaffeinateController.durationMillis.value = 0L
         handler.removeCallbacks(countdownRunnable)
         try {
             unregisterReceiver(screenOffReceiver)
@@ -122,11 +124,14 @@ class CaffeinateWakeLockService : Service() {
                 val newTimeout = intent?.getIntExtra("timeout_minutes", -1) ?: -1
                 if (newTimeout != timeoutMinutes) {
                     timeoutMinutes = newTimeout
+                    CaffeinateController.durationMillis.value = if (timeoutMinutes != -1) timeoutMinutes * 60 * 1000L else 0L
                     if (timeoutMinutes != -1) {
                         startTime = System.currentTimeMillis()
+                        CaffeinateController.endTime.value = startTime + timeoutMinutes * 60 * 1000L
                         handler.removeCallbacks(countdownRunnable)
                         handler.post(countdownRunnable)
                     } else {
+                        CaffeinateController.endTime.value = 0L
                         handler.removeCallbacks(countdownRunnable)
                         updateNotification()
                     }
