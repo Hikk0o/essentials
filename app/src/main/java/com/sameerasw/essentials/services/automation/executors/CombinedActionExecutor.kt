@@ -922,7 +922,7 @@ object CombinedActionExecutor {
             wifiManager.isWifiEnabled
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            null // Return null on failure instead of false
         }
 
     private fun setWifiEnabled(
