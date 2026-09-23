@@ -1210,7 +1210,9 @@ fun PixelSearchResultsScreen(
                                             HapticUtil.performVirtualKeyHaptic(view)
                                             val feature = FeatureRegistry.ALL_FEATURES.find { it.id == setting.featureKey }
                                             val targetFeatureKey =
-                                                if (feature != null && !feature.hasMoreSettings && feature.parentFeatureId != null) {
+                                                if (feature?.searchTargetFeatureId != null) {
+                                                    feature.searchTargetFeatureId
+                                                } else if (feature != null && !feature.hasMoreSettings && feature.parentFeatureId != null) {
                                                     feature.parentFeatureId
                                                 } else {
                                                     setting.featureKey
