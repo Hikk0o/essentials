@@ -9,6 +9,7 @@
 
 package com.sameerasw.essentials.domain.model
 
+import android.app.PendingIntent
 import android.graphics.Bitmap
 
 data class ProgressNotificationData(
@@ -18,4 +19,8 @@ data class ProgressNotificationData(
     val isIndeterminate: Boolean,
     val icon: Bitmap?,
     val postTime: Long,
+    val title: String? = null,
+    val text: String? = null,
+    val appName: String? = null,
+    val contentIntent: PendingIntent? = null,
 )

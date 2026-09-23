@@ -494,6 +494,7 @@ class SettingsRepository(
         const val KEY_ISLAND_PEEK_DURATION_MS = "island_peek_duration_ms"
         const val KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE = "island_media_peek_song_change"
         const val KEY_ISLAND_NOTIF_COMPACT_HEADS_UP = "island_notif_compact_heads_up"
+        const val KEY_ISLAND_NOTIF_KEEP_PROGRESS = "island_notif_keep_progress"
         const val KEY_ISLAND_NOTIF_QUEUE = "island_notif_queue"
 
         // Status Glance
@@ -3497,7 +3498,7 @@ class SettingsRepository(
     fun getIslandExpandedTimeoutMs(): Long = getLong(KEY_ISLAND_EXPANDED_TIMEOUT_MS, 0L)
     fun setIslandExpandedTimeoutMs(value: Long) = putLong(KEY_ISLAND_EXPANDED_TIMEOUT_MS, value)
 
-    fun isIslandCatchUpEnabled(): Boolean = getBoolean(KEY_ISLAND_CATCH_UP_ENABLED, false)
+    fun isIslandCatchUpEnabled(): Boolean = getBoolean(KEY_ISLAND_CATCH_UP_ENABLED, true)
     fun setIslandCatchUpEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_CATCH_UP_ENABLED, enabled)
 
     fun getIslandCatchUpTimeoutMs(): Long = getLong(KEY_ISLAND_CATCH_UP_TIMEOUT_MS, 10000L)
@@ -3590,6 +3591,9 @@ class SettingsRepository(
 
     fun isIslandNotifCompactHeadsUpEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_COMPACT_HEADS_UP, true)
     fun setIslandNotifCompactHeadsUpEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_COMPACT_HEADS_UP, enabled)
+
+    fun isIslandNotifKeepProgressEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_KEEP_PROGRESS, true)
+    fun setIslandNotifKeepProgressEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_KEEP_PROGRESS, enabled)
 
     fun applyHeadsUpSuppression(suppress: Boolean = isIslandSuppressSystemHeadsUpEnabled()) {
         val targetValue = if (suppress) 0 else 1

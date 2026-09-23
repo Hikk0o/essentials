@@ -202,8 +202,9 @@ class MainViewModel : ViewModel() {
     val isIslandLineStageEnabled = mutableStateOf(true)
     val isIslandMediaPeekSongChange = mutableStateOf(true)
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
+    val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
-    val isIslandCatchUpEnabled = mutableStateOf(false)
+    val isIslandCatchUpEnabled = mutableStateOf(true)
     val islandCatchUpTimeoutMs = mutableLongStateOf(10000L)
     val isIslandShowGlow = mutableStateOf(true)
     val isIslandShowMedia = mutableStateOf(true)
@@ -2198,6 +2199,7 @@ class MainViewModel : ViewModel() {
         isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
+        isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
         islandCatchUpTimeoutMs.longValue = settingsRepository.getIslandCatchUpTimeoutMs()
@@ -5207,6 +5209,11 @@ class MainViewModel : ViewModel() {
     fun setIslandNotifQueue(enabled: Boolean) {
         isIslandNotifQueue.value = enabled
         settingsRepository.setIslandNotifQueueEnabled(enabled)
+    }
+
+    fun setIslandNotifKeepProgress(enabled: Boolean) {
+        isIslandNotifKeepProgress.value = enabled
+        settingsRepository.setIslandNotifKeepProgressEnabled(enabled)
     }
 
     fun setIslandNotifCompactHeadsUp(enabled: Boolean) {

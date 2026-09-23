@@ -600,6 +600,17 @@ fun IslandSettingsUI(
             }
 
             IconToggleItem(
+                iconRes = R.drawable.rounded_downloading_24,
+                title = stringResource(R.string.island_notif_keep_progress_title),
+                isChecked = viewModel.isIslandNotifKeepProgress.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandNotifKeepProgress(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_notif_keep_progress"),
+            )
+
+            IconToggleItem(
                 iconRes = R.drawable.outline_circle_notifications_24,
                 title = stringResource(R.string.island_notif_queue_title),
                 isChecked = viewModel.isIslandNotifQueue.value,

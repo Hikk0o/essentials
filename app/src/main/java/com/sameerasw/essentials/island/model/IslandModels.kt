@@ -19,6 +19,7 @@ object IslandPriority {
     const val CALENDAR_OVERRIDE = 6
 
     const val NOTIFICATION = 10
+    const val PROGRESS = 15
     const val FLASHLIGHT = 20
     const val TIMER = 25
     const val MEDIA = 30
