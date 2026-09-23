@@ -1264,6 +1264,8 @@
     <string name="action_delete">Delete</string>
     <string name="action_enable">Enable</string>
     <string name="action_disable">Disable</string>
+    <string name="action_select">Select</string>
+    <string name="diy_selected_count">%1$d selected</string>
     <string name="action_test">Test action</string>
 
     <string name="automation_service_channel_name">Automation Service</string>

@@ -82,6 +82,20 @@ class DIYViewModel(
         }
     }
 
+    fun setAutomationsEnabled(ids: Set<String>, enabled: Boolean) {
+        ids.forEach { id ->
+            repository.getAutomation(id)?.let { automation ->
+                if (automation.isEnabled != enabled) {
+                    repository.updateAutomation(automation.copy(isEnabled = enabled))
+                }
+            }
+        }
+    }
+
+    fun deleteAutomations(ids: Set<String>) {
+        ids.forEach { repository.removeAutomation(it) }
+    }
+
     /**
      * Runs the automation's action(s) immediately, without waiting for its trigger/state.
      *
