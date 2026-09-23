@@ -1194,6 +1194,7 @@ fun NotificationLightingSettingsUI(
         if (showAppColorsSheet) {
             AppColorSelectionSheet(
                 onDismissRequest = { showAppColorsSheet = false },
+                onLoadAllowedApps = { viewModel.loadNotificationLightingSelectedApps(it) },
             )
         }
 

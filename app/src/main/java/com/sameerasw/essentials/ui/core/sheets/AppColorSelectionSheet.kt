@@ -61,6 +61,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.R
+import com.sameerasw.essentials.domain.model.AppSelection
 import com.sameerasw.essentials.domain.model.NotificationApp
 import com.sameerasw.essentials.ui.core.pickers.ColorSwatchPicker
 import com.sameerasw.essentials.utils.AppColorUtil
@@ -75,6 +76,7 @@ fun AppColorSelectionSheet(
     onDismissRequest: () -> Unit,
     title: String = stringResource(R.string.app_colors_title),
     onColorsChanged: (() -> Unit)? = null,
+    onLoadAllowedApps: (suspend (Context) -> List<AppSelection>)? = null,
     context: Context = LocalContext.current,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -84,6 +86,7 @@ fun AppColorSelectionSheet(
     var apps by remember { mutableStateOf<List<NotificationApp>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showSystemApps by remember { mutableStateOf(false) }
+    var isFiltered by remember { mutableStateOf(false) }
     var expandedPackage by remember { mutableStateOf<String?>(null) }
     var overrides by remember { mutableStateOf(AppColorUtil.getOverrides(context)) }
 
@@ -96,8 +99,16 @@ fun AppColorSelectionSheet(
                 } catch (_: Exception) {
                     emptyList()
                 }
+            val allowed =
+                onLoadAllowedApps
+                    ?.invoke(context)
+                    ?.takeIf { it.isNotEmpty() }
+                    ?.filter { it.isEnabled }
+                    ?.map { it.packageName }
+                    ?.toSet()
             withContext(Dispatchers.Main) {
-                apps = installed
+                apps = allowed?.let { set -> installed.filter { it.packageName in set } } ?: installed
+                isFiltered = allowed != null
                 isLoading = false
             }
         }
@@ -108,7 +119,7 @@ fun AppColorSelectionSheet(
             val matchesSearch =
                 searchQuery.isEmpty() || it.appName.contains(searchQuery, ignoreCase = true)
             val hasOverride = overrides.containsKey(it.packageName)
-            val isVisible = !it.isSystemApp || showSystemApps || hasOverride
+            val isVisible = isFiltered || !it.isSystemApp || showSystemApps || hasOverride
             matchesSearch && isVisible
         }
 
@@ -174,37 +185,39 @@ fun AppColorSelectionSheet(
                 shape = RoundedCornerShape(12.dp),
             )
 
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable {
+            if (!isFiltered) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable {
+                                HapticUtil.performVirtualKeyHaptic(view)
+                                showSystemApps = !showSystemApps
+                            }.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.rounded_settings_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = stringResource(R.string.toggle_show_system_apps),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Switch(
+                        checked = showSystemApps,
+                        onCheckedChange = {
                             HapticUtil.performVirtualKeyHaptic(view)
-                            showSystemApps = !showSystemApps
-                        }.padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.rounded_settings_24),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = stringResource(R.string.toggle_show_system_apps),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Switch(
-                    checked = showSystemApps,
-                    onCheckedChange = {
-                        HapticUtil.performVirtualKeyHaptic(view)
-                        showSystemApps = it
-                    },
-                )
+                            showSystemApps = it
+                        },
+                    )
+                }
             }
 
             if (isLoading) {
