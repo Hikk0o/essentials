@@ -527,6 +527,17 @@ fun IslandSettingsUI(
             )
 
             IconToggleItem(
+                iconRes = R.drawable.rounded_pinch_24,
+                title = stringResource(R.string.island_hide_on_shade_title),
+                isChecked = viewModel.isIslandHideOnShade.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandHideOnShade(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_hide_on_shade"),
+            )
+
+            IconToggleItem(
                 iconRes = R.drawable.rounded_touch_app_24,
                 title = stringResource(R.string.island_dismiss_on_outside_title),
                 isChecked = viewModel.isIslandDismissOnOutside.value,

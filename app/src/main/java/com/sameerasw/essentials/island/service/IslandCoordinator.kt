@@ -104,6 +104,7 @@ class IslandCoordinator(
     private var isScreenOff = false
     private var isLandscape = false
     private var isFullscreenApp = false
+    private var isShadeExpanded = false
     private var running = false
     private var foregroundPackage: String? = null
     private var textInputActive = false
@@ -111,7 +112,8 @@ class IslandCoordinator(
     private val isWindowSuppressed get() = isLandscape || isFullscreenApp
     private val isContentSuppressed: Boolean
         get() = isWindowSuppressed ||
-            (settings.isIslandHideWhenScreenOffEnabled() && (isScreenOff || keyguardManager?.isKeyguardLocked == true))
+            (settings.isIslandHideWhenScreenOffEnabled() && (isScreenOff || keyguardManager?.isKeyguardLocked == true)) ||
+            (settings.isIslandHideOnShadeEnabled() && isShadeExpanded)
 
     private val compactGestures = CompactGestureController(
         context = service,
@@ -226,6 +228,14 @@ class IslandCoordinator(
         if (isFullscreenApp == fullscreen) return
         isFullscreenApp = fullscreen
         updateState()
+    }
+
+    fun setShadeExpanded(expanded: Boolean) {
+        mainHandler.post {
+            if (isShadeExpanded == expanded) return@post
+            isShadeExpanded = expanded
+            if (running) applySuppression()
+        }
     }
 
     fun onConfigurationChanged() {
@@ -363,6 +373,7 @@ class IslandCoordinator(
             SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR -> syncStatusBar(controller.state.value.stage)
             SettingsRepository.KEY_ISLAND_HIDE_WHEN_SCREEN_OFF -> applySuppression()
             SettingsRepository.KEY_ISLAND_HIDE_IN_OWNER_APP -> applyOwnerAppHiding()
+            SettingsRepository.KEY_ISLAND_HIDE_ON_SHADE -> applySuppression()
             SettingsRepository.KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP ->
                 if (running) settings.applyHeadsUpSuppression(settings.isIslandSuppressSystemHeadsUpEnabled())
             in CONFIG_KEYS -> if (running) applyConfig()

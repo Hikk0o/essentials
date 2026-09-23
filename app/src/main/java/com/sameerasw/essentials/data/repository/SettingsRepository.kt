@@ -486,6 +486,7 @@ class SettingsRepository(
         const val KEY_ISLAND_EXPANDED_SCALE = "island_expanded_scale"
         const val KEY_ISLAND_FONT_SCALE = "island_font_scale"
         const val KEY_ISLAND_HIDE_IN_OWNER_APP = "island_hide_in_owner_app"
+        const val KEY_ISLAND_HIDE_ON_SHADE = "island_hide_on_shade"
         const val KEY_ISLAND_DISMISS_ON_OUTSIDE = "island_dismiss_on_outside"
         const val KEY_ISLAND_CAMERA_POSITION = "island_camera_position"
         const val KEY_ISLAND_SHOW_CALLS = "island_show_calls"
@@ -3612,6 +3613,10 @@ class SettingsRepository(
 
     fun isIslandHideInOwnerAppEnabled(): Boolean = getBoolean(KEY_ISLAND_HIDE_IN_OWNER_APP, false)
     fun setIslandHideInOwnerAppEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_HIDE_IN_OWNER_APP, enabled)
+
+    fun isIslandHideOnShadeEnabled(): Boolean = getBoolean(KEY_ISLAND_HIDE_ON_SHADE, false)
+
+    fun setIslandHideOnShadeEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_HIDE_ON_SHADE, enabled)
 
     fun getIslandFontScale(): Float = getFloat(KEY_ISLAND_FONT_SCALE, 1f)
     fun setIslandFontScale(value: Float) = putFloat(KEY_ISLAND_FONT_SCALE, value)
