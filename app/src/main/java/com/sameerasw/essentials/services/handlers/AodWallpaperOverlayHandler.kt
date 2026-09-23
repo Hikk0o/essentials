@@ -27,6 +27,7 @@ import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.hardware.display.DisplayManager
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSession
@@ -35,7 +36,9 @@ import android.media.session.PlaybackState
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
+import android.view.Display
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -73,6 +76,25 @@ class AodWallpaperOverlayHandler(
     private var activeMediaController: MediaController? = null
     private var isMediaListenerRegistered = false
     private var crossfadeAnimator: ValueAnimator? = null
+    private var fadeInAnimator: ObjectAnimator? = null
+
+    private val powerManager by lazy { service.getSystemService(Context.POWER_SERVICE) as? PowerManager }
+    private val displayManager by lazy { service.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager }
+    private var isDisplayListenerRegistered = false
+    private val displayListener =
+        object : DisplayManager.DisplayListener {
+            override fun onDisplayAdded(displayId: Int) {}
+
+            override fun onDisplayRemoved(displayId: Int) {}
+
+            override fun onDisplayChanged(displayId: Int) {
+                if (displayId != Display.DEFAULT_DISPLAY) return
+                val state = displayManager?.getDisplay(Display.DEFAULT_DISPLAY)?.state
+                if (state == Display.STATE_ON && isDeviceInteractive()) {
+                    onScreenOn()
+                }
+            }
+        }
 
     private val handler = Handler(Looper.getMainLooper())
     private val handlerScope = CoroutineScope(Dispatchers.Main + Job())
@@ -317,7 +339,29 @@ class AodWallpaperOverlayHandler(
         hideOverlay()
     }
 
+    private fun isDeviceInteractive(): Boolean = powerManager?.isInteractive == true
+
+    private fun registerDisplayListener() {
+        if (isDisplayListenerRegistered) return
+        try {
+            displayManager?.registerDisplayListener(displayListener, handler)
+            isDisplayListenerRegistered = true
+        } catch (e: Exception) {
+            Log.e("AodWallpaperOverlay", "Failed to register display listener", e)
+        }
+    }
+
+    private fun unregisterDisplayListener() {
+        if (!isDisplayListenerRegistered) return
+        try {
+            displayManager?.unregisterDisplayListener(displayListener)
+        } catch (_: Exception) {
+        }
+        isDisplayListenerRegistered = false
+    }
+
     fun updateState() {
+        if (isScreenOff && isDeviceInteractive()) isScreenOff = false
         val enabled = prefs.getBoolean(SettingsRepository.KEY_AOD_WALLPAPER_ENABLED, false)
         if (enabled && isScreenOff && !isSuppressedByPriorityMode()) {
             showOverlay()
@@ -438,6 +482,12 @@ class AodWallpaperOverlayHandler(
     }
 
     private fun showOverlay() {
+        if (isDeviceInteractive()) {
+            isScreenOff = false
+            hideOverlay()
+            return
+        }
+        registerDisplayListener()
         val opacity = prefs.getFloat(SettingsRepository.KEY_AOD_WALLPAPER_OPACITY, 0.3f)
         val blurRadius = prefs.getFloat(SettingsRepository.KEY_AOD_WALLPAPER_BLUR, 0f)
         val blackThreshold = prefs.getFloat(SettingsRepository.KEY_AOD_WALLPAPER_BLACK_THRESHOLD, 15f)
@@ -515,10 +565,12 @@ class AodWallpaperOverlayHandler(
                 windowManager?.addView(container, params)
                 isOverlayAdded = true
 
-                ObjectAnimator.ofFloat(container, "alpha", 0f, 1f).apply {
-                    duration = 2000
-                    start()
-                }
+                fadeInAnimator?.cancel()
+                fadeInAnimator =
+                    ObjectAnimator.ofFloat(container, "alpha", 0f, 1f).apply {
+                        duration = 2000
+                        start()
+                    }
 
                 handler.removeCallbacks(burnInShiftRunnable)
                 handler.postDelayed(burnInShiftRunnable, BURN_IN_INTERVAL_MS)
@@ -883,6 +935,9 @@ class AodWallpaperOverlayHandler(
         }
         crossfadeAnimator?.cancel()
         crossfadeAnimator = null
+        fadeInAnimator?.cancel()
+        fadeInAnimator = null
+        unregisterDisplayListener()
         currentDisplayedBitmap = null
         handler.removeCallbacks(burnInShiftRunnable)
         handler.removeCallbacks(timeoutRunnable)
