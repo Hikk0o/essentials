@@ -55,6 +55,10 @@ class FlashlightActionReceiver : BroadcastReceiver() {
                     putExtra(EXTRA_IS_PREVIEW, intent.getBooleanExtra(EXTRA_IS_PREVIEW, false))
                 }
             }
-        context.startService(serviceIntent)
+        try {
+            context.startService(serviceIntent)
+        } catch (e: IllegalStateException) {
+            Log.w("FlashlightAction", "Accessibility service not running, dropping $action", e)
+        }
     }
 }

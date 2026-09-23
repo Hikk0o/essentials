@@ -1602,7 +1602,9 @@ private fun RecentSearchesSection(
                         val feature = allFeatures.find { it.id == result.featureKey }
                         if (feature != null) {
                             val targetFeatureKey =
-                                if (!feature.hasMoreSettings && feature.parentFeatureId != null) {
+                                if (feature.searchTargetFeatureId != null) {
+                                    feature.searchTargetFeatureId
+                                } else if (!feature.hasMoreSettings && feature.parentFeatureId != null) {
                                     feature.parentFeatureId
                                 } else {
                                     feature.id
@@ -1747,7 +1749,9 @@ private fun SearchResultsSection(
                                 val feature = allFeatures.find { it.id == result.featureKey }
                                 if (feature != null) {
                                     val targetFeatureKey =
-                                        if (!feature.hasMoreSettings && feature.parentFeatureId != null) {
+                                        if (feature.searchTargetFeatureId != null) {
+                                            feature.searchTargetFeatureId
+                                        } else if (!feature.hasMoreSettings && feature.parentFeatureId != null) {
                                             feature.parentFeatureId
                                         } else {
                                             feature.id

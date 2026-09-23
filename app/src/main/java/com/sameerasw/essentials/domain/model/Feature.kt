@@ -43,6 +43,7 @@ abstract class Feature(
     val isBeta: Boolean = false,
     val isLegacy: Boolean = false,
     val parentFeatureId: String? = null,
+    val searchTargetFeatureId: String? = null,
     val isVisibleInMain: Boolean = true,
     @StringRes val authTitle: Int = 0,
     @StringRes val authSubtitle: Int = 0,

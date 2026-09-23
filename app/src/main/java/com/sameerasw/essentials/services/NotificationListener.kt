@@ -25,6 +25,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
@@ -65,6 +67,8 @@ class NotificationListener : NotificationListenerService() {
     }
 
     companion object {
+        private const val PROGRESS_REFRESH_DEBOUNCE_MS = 250L
+
         const val ACTION_LIKE_CURRENT_SONG = "com.sameerasw.essentials.ACTION_LIKE_CURRENT_SONG"
         const val ACTION_REQUEST_AMBIENT_GLANCE =
             "com.sameerasw.essentials.ACTION_REQUEST_AMBIENT_GLANCE"
@@ -145,7 +149,7 @@ class NotificationListener : NotificationListenerService() {
         }
 
         fun isScreenCaptureActive(): Boolean {
-            val activeNotifs = instance?.activeNotifications ?: return false
+            val activeNotifs = instance?.safeActiveNotifications() ?: return false
             for (sbn in activeNotifs) {
                 if (isOngoingScreenCaptureNotification(sbn)) {
                     return true
@@ -258,7 +262,7 @@ class NotificationListener : NotificationListenerService() {
     private fun populateActiveUnreadNotifications() {
         unreadNotifications.clear()
         try {
-            activeNotifications?.forEach { sbn ->
+            safeActiveNotifications()?.forEach { sbn ->
                 if (!sbn.isOngoing &&
                     sbn.packageName != packageName &&
                     !isMediaNotification(sbn) &&
@@ -296,13 +300,13 @@ class NotificationListener : NotificationListenerService() {
             }
 
             // Calls already in progress when the listener (re)connects.
-            activeNotifications?.filter { CallNotificationParser.isCall(it) && it.packageName != packageName }
+            safeActiveNotifications()?.filter { CallNotificationParser.isCall(it) && it.packageName != packageName }
                 ?.forEach { CallStateRepository.onCallNotificationPosted(applicationContext, it) }
-            activeNotifications?.filter { it.packageName != packageName && ChronometerRepository.isCandidate(it) }
+            safeActiveNotifications()?.filter { it.packageName != packageName && ChronometerRepository.isCandidate(it) }
                 ?.forEach { ChronometerRepository.onPosted(applicationContext, it) }
 
             // Initial discovery from active notifications
-            activeNotifications?.forEach { sbn ->
+            safeActiveNotifications()?.forEach { sbn ->
                 val pkg = sbn.packageName
                 val isSystem = pkg == "android" || pkg == "com.android.systemui"
                 val isMaps = pkg == "com.google.android.apps.maps"
@@ -497,6 +501,8 @@ class NotificationListener : NotificationListenerService() {
     override fun onDestroy() {
         super.onDestroy()
         instance = null
+        progressHandler.removeCallbacks(progressRefreshRunnable)
+        progressExecutor.shutdownNow()
         try {
             unregisterReceiver(likeActionReceiver)
         } catch (_: Exception) {
@@ -589,7 +595,7 @@ class NotificationListener : NotificationListenerService() {
                 }
             }
 
-            val sbn = activeNotifications?.find { it.packageName == activeSession.packageName }
+            val sbn = safeActiveNotifications()?.find { it.packageName == activeSession.packageName }
             if (sbn != null) {
                 val actions = sbn.notification.actions
                 if (actions != null) {
@@ -673,7 +679,7 @@ class NotificationListener : NotificationListenerService() {
             }
 
             // 3. Check Notification Actions
-            val notifications = activeNotifications
+            val notifications = safeActiveNotifications()
             val sbn = notifications?.find { it.packageName == activeSession.packageName }
             if (sbn != null) {
                 val actions = sbn.notification.actions
@@ -762,7 +768,7 @@ class NotificationListener : NotificationListenerService() {
                     extractBitmap(
                         metadata,
                         sbn
-                            ?: activeNotifications?.find { it.packageName == activeSession.packageName },
+                            ?: safeActiveNotifications()?.find { it.packageName == activeSession.packageName },
                     )
 
                 if (bitmap != null) {
@@ -874,16 +880,6 @@ class NotificationListener : NotificationListenerService() {
                             ?: metadata?.getBitmap(android.media.MediaMetadata.METADATA_KEY_DISPLAY_ICON)
 
                     val filesDirFile = File(filesDir, "music_artwork.png")
-                    if (artwork != null) {
-                        try {
-                            FileOutputStream(filesDirFile).use { out ->
-                                artwork.compress(Bitmap.CompressFormat.PNG, 100, out)
-                            }
-                        } catch (_: Exception) {
-                        }
-                    } else if (filesDirFile.exists()) {
-                        filesDirFile.delete()
-                    }
 
                     // Update settings and trigger the Glance widget only for new media content.
                     val settingsRepo = SettingsRepository(this)
@@ -893,6 +889,20 @@ class NotificationListener : NotificationListenerService() {
                     settingsRepo.incrementPixelSearchbarWidgetRevision()
 
                     kotlinx.coroutines.MainScope().launch {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            if (artwork != null) {
+                                try {
+                                    val tmpFile = File.createTempFile("music_artwork", ".tmp", filesDir)
+                                    FileOutputStream(tmpFile).use { out ->
+                                        artwork.compress(Bitmap.CompressFormat.PNG, 100, out)
+                                    }
+                                    if (!tmpFile.renameTo(filesDirFile)) tmpFile.delete()
+                                } catch (_: Exception) {
+                                }
+                            } else if (filesDirFile.exists()) {
+                                filesDirFile.delete()
+                            }
+                        }
                         try {
                             val managerGlance =
                                 androidx.glance.appwidget.GlanceAppWidgetManager(this@NotificationListener)
@@ -972,6 +982,7 @@ class NotificationListener : NotificationListenerService() {
         if (sbn.packageName == packageName) {
             return
         }
+        if (!hasReadableExtras(sbn)) return
 
         val isRepost = NotificationRepostFilter.isUnchangedRepost(sbn)
         if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationPosted(applicationContext, sbn)
@@ -984,7 +995,7 @@ class NotificationListener : NotificationListenerService() {
 
         val extras = sbn.notification.extras
         if (extras != null && (extras.getInt(Notification.EXTRA_PROGRESS_MAX, 0) > 0 || extras.containsKey(Notification.EXTRA_PROGRESS_INDETERMINATE))) {
-            notifyProgressListeners(extractLatestProgressNotification())
+            scheduleProgressRefresh()
         }
 
         if (!isRepost && isHeadsUpNotification(sbn, rankingMap)) {
@@ -1259,7 +1270,8 @@ class NotificationListener : NotificationListenerService() {
                                 }
                             if (PermissionUtils.isAccessibilityServiceEnabled(applicationContext)) {
                                 applicationContext.startService(intent)
-                            } else {
+                            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                                intent.putExtra("is_foreground_start", true)
                                 applicationContext.startForegroundService(intent)
                             }
                         }
@@ -1344,10 +1356,16 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         NotificationRepostFilter.forget(sbn.key)
-        if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationRemoved(sbn.key)
+        CallStateRepository.onCallNotificationRemoved(sbn.key)
         ChronometerRepository.onRemoved(sbn.key)
         unreadNotifications.remove(sbn.key)
         WatchNotificationSyncManager.onNotificationRemoved(applicationContext, sbn.key)
+        lastCallVibrateTime.remove(sbn.key)
+        notifyAlertRemoved(sbn.key)
+        if (!hasReadableExtras(sbn)) {
+            scheduleProgressRefresh()
+            return
+        }
 
         if (isOngoingScreenCaptureNotification(sbn) ||
             sbn.packageName.contains("screenrecord") ||
@@ -1356,8 +1374,7 @@ class NotificationListener : NotificationListenerService() {
             ScreenOffAccessibilityService.updateSmartPixelsState()
         }
 
-        notifyProgressListeners(extractLatestProgressNotification())
-        notifyAlertRemoved(sbn.key)
+        scheduleProgressRefresh()
 
         // Trigger refresh if something is playing
         try {
@@ -1374,7 +1391,6 @@ class NotificationListener : NotificationListenerService() {
         } catch (_: Exception) {
         }
 
-        lastCallVibrateTime.remove(sbn.key)
         if (sbn.packageName == "com.google.android.apps.maps") {
             MapsState.hasNavigationNotification = false
         }
@@ -1769,8 +1785,45 @@ class NotificationListener : NotificationListenerService() {
         )
     }
 
+    private val progressHandler = Handler(Looper.getMainLooper())
+    private val progressExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val progressRefreshRunnable =
+        Runnable {
+            progressExecutor.execute {
+                val data =
+                    try {
+                        extractLatestProgressNotification()
+                    } catch (e: Exception) {
+                        Log.e("NotificationListener", "Failed to extract progress notification", e)
+                        return@execute
+                    }
+                progressHandler.post { notifyProgressListeners(data) }
+            }
+        }
+
+    private fun scheduleProgressRefresh() {
+        progressHandler.removeCallbacks(progressRefreshRunnable)
+        progressHandler.postDelayed(progressRefreshRunnable, PROGRESS_REFRESH_DEBOUNCE_MS)
+    }
+
+    private fun hasReadableExtras(sbn: StatusBarNotification): Boolean =
+        try {
+            sbn.notification.extras?.size()
+            true
+        } catch (e: RuntimeException) {
+            Log.w("NotificationListener", "Unreadable extras for ${sbn.key}", e)
+            false
+        }
+
+    private fun safeActiveNotifications(): Array<StatusBarNotification>? =
+        try {
+            activeNotifications
+        } catch (_: SecurityException) {
+            null
+        }
+
     fun extractLatestProgressNotification(): ProgressNotificationData? {
-        val active = activeNotifications ?: return null
+        val active = safeActiveNotifications() ?: return null
         val progressNotifs = active.mapNotNull { sbn ->
             if (sbn.packageName == packageName || isMediaNotification(sbn)) return@mapNotNull null
             extractProgressNotification(sbn)

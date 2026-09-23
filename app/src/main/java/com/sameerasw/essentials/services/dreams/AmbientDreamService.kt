@@ -201,6 +201,7 @@ class AmbientDreamService : DreamService() {
         }
 
     private var volumeReceiver: BroadcastReceiver? = null
+    private var isReceiverRegistered = false
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -217,6 +218,7 @@ class AmbientDreamService : DreamService() {
         // Register receiver
         val filter = IntentFilter("SHOW_AMBIENT_GLANCE")
         registerReceiver(receiver, filter, RECEIVER_EXPORTED)
+        isReceiverRegistered = true
 
         // Register Media Session Listener
         try {
@@ -639,8 +641,12 @@ class AmbientDreamService : DreamService() {
         super.onDetachedFromWindow()
         isDetached = true
         isDreaming = false
-        unregisterReceiver(receiver)
-        if (volumeReceiver != null) unregisterReceiver(volumeReceiver)
+        if (isReceiverRegistered) {
+            runCatching { unregisterReceiver(receiver) }
+            isReceiverRegistered = false
+        }
+        volumeReceiver?.let { runCatching { unregisterReceiver(it) } }
+        volumeReceiver = null
 
         // Clear active unread notifications from the screensaver on dismissal
         NotificationListener.clearUnreadNotifications()

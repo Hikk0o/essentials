@@ -37,7 +37,6 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.services.NotificationListener
-import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
 import java.io.File
 import java.util.Random
 
@@ -74,8 +73,13 @@ class AmbientGlanceHandler(
                 val mediaSessionManager =
                     service.getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
                 val componentName =
-                    android.content.ComponentName(service, ScreenOffAccessibilityService::class.java)
-                val sessions = mediaSessionManager.getActiveSessions(componentName)
+                    android.content.ComponentName(service, NotificationListener::class.java)
+                val sessions =
+                    try {
+                        mediaSessionManager.getActiveSessions(componentName)
+                    } catch (_: SecurityException) {
+                        emptyList()
+                    }
                 val isPlaying =
                     sessions.any { it.playbackState?.state == android.media.session.PlaybackState.STATE_PLAYING }
 
@@ -204,8 +208,13 @@ class AmbientGlanceHandler(
                 val mediaSessionManager =
                     service.getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
                 val componentName =
-                    android.content.ComponentName(service, ScreenOffAccessibilityService::class.java)
-                val sessions = mediaSessionManager.getActiveSessions(componentName)
+                    android.content.ComponentName(service, NotificationListener::class.java)
+                val sessions =
+                    try {
+                        mediaSessionManager.getActiveSessions(componentName)
+                    } catch (_: SecurityException) {
+                        emptyList()
+                    }
                 val anyPlaying =
                     sessions.any { it.playbackState?.state == android.media.session.PlaybackState.STATE_PLAYING }
 

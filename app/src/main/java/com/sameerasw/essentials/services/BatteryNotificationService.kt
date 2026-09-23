@@ -21,6 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
@@ -53,16 +54,15 @@ class BatteryNotificationService : Service() {
             }
         }
 
+    private var isForegroundFailed = false
+
     override fun onCreate() {
         super.onCreate()
         settingsRepository = SettingsRepository(this)
         createNotificationChannel()
         settingsRepository.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
 
-        startForeground(
-            NOTIF_ID,
-            buildBaseNotification(getString(R.string.feat_batteries_title), ""),
-        )
+        if (!safeStartForeground(buildBaseNotification(getString(R.string.feat_batteries_title), ""))) return
 
         updateNotification()
     }
@@ -72,11 +72,8 @@ class BatteryNotificationService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(
-                NOTIF_ID,
-                buildBaseNotification(getString(R.string.feat_batteries_title), ""),
-            )
+        if (!safeStartForeground(buildBaseNotification(getString(R.string.feat_batteries_title), ""))) {
+            return START_NOT_STICKY
         }
         updateNotification()
         return START_STICKY
@@ -121,7 +118,19 @@ class BatteryNotificationService : Service() {
         return PendingIntent.getActivity(this, 0, intent, flags)
     }
 
+    private fun safeStartForeground(notification: Notification): Boolean =
+        try {
+            startForeground(NOTIF_ID, notification)
+            true
+        } catch (e: Exception) {
+            Log.e("BatteryNotificationSvc", "Failed to start foreground", e)
+            isForegroundFailed = true
+            stopSelf()
+            false
+        }
+
     private fun updateNotification() {
+        if (isForegroundFailed) return
         val batteryItems = fetchBatteryData()
 
         val notification =
@@ -149,7 +158,7 @@ class BatteryNotificationService : Service() {
                     .build()
             }
 
-        startForeground(NOTIF_ID, notification)
+        safeStartForeground(notification)
     }
 
     private fun buildBaseNotification(

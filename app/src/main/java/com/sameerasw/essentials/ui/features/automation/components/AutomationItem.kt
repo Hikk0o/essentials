@@ -9,6 +9,11 @@
 
 package com.sameerasw.essentials.ui.components.diy
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -29,6 +34,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -67,6 +73,9 @@ fun AutomationItem(
     onDelete: () -> Unit = {},
     onToggle: () -> Unit = {},
     onTest: () -> Unit = {},
+    selectionMode: Boolean = false,
+    selected: Boolean = false,
+    onSelectedChange: (Boolean) -> Unit = {},
 ) {
     val view = LocalView.current
     var showMenu by remember { mutableStateOf(false) }
@@ -82,17 +91,15 @@ fun AutomationItem(
                 .combinedClickable(
                     onClick = {
                         HapticUtil.performVirtualKeyHaptic(view)
-                        onClick()
+                        if (selectionMode) onSelectedChange(!selected) else onClick()
                     },
                     onLongClick = {
                         HapticUtil.performVirtualKeyHaptic(view)
-                        showMenu = true
+                        if (selectionMode) onSelectedChange(!selected) else showMenu = true
                     },
                 ).alpha(if (automation.isEnabled) 1f else 0.5f),
     ) {
         Box {
-            // Dropdown Menu
-            // Dropdown Menu
             SegmentedDropdownMenu(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false },
@@ -149,6 +156,19 @@ fun AutomationItem(
                     },
                 )
                 SegmentedDropdownMenuItem(
+                    text = { Text(stringResource(R.string.action_select)) },
+                    onClick = {
+                        showMenu = false
+                        onSelectedChange(true)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.rounded_check_circle_24),
+                            contentDescription = null,
+                        )
+                    },
+                )
+                SegmentedDropdownMenuItem(
                     text = { Text(stringResource(R.string.action_delete)) },
                     onClick = {
                         showMenu = false
@@ -171,6 +191,19 @@ fun AutomationItem(
                         .height(IntrinsicSize.Min),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                AnimatedVisibility(
+                    visible = selectionMode,
+                    enter = expandHorizontally() + fadeIn(),
+                    exit = shrinkHorizontally() + fadeOut(),
+                ) {
+                    Checkbox(
+                        checked = selected,
+                        onCheckedChange = {
+                            HapticUtil.performVirtualKeyHaptic(view)
+                            onSelectedChange(it)
+                        },
+                    )
+                }
                 RoundedCardContainer(
                     cornerRadius = 18.dp,
                     modifier =

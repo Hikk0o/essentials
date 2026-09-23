@@ -745,6 +745,7 @@
     <string name="label_wallpaper_by">Photo by</string>
     <string name="label_wallpaper_applied">Wallpaper applied successfully</string>
     <string name="label_wallpaper_apply_failed">Failed to apply wallpaper</string>
+    <string name="label_live_wallpaper_unsupported">Live wallpapers are not supported on this device</string>
     <string name="label_wallpaper_applying">Applying new wallpaper</string>
     <string name="label_wallpaper_auto_update">Auto-update</string>
     <string name="label_wallpaper_auto_update_desc">Checks twice a day for a new wallpaper on a background schedule</string>
@@ -1167,6 +1168,17 @@
     <string name="diy_use_current_network">Use Current Network</string>
     <string name="diy_saved_networks_via_shizuku">Saved networks (via Shizuku)</string>
     <string name="diy_state_time_period">Time Period</string>
+    <string name="diy_state_calendar_event">During calendar event</string>
+    <string name="diy_category_calendar">Calendar</string>
+    <string name="diy_calendar_state_title">Calendar event</string>
+    <string name="diy_calendar_state_desc">Active while an event from the selected calendars is in progress. Select none to use all calendars.</string>
+    <string name="diy_calendar_include_all_day">Include all-day events</string>
+    <string name="diy_calendar_include_declined">Include declined events</string>
+    <string name="diy_calendar_include_tentative">Include tentative events</string>
+    <string name="diy_calendar_include_free">Include events shown as free</string>
+    <string name="diy_calendar_filters">Filters</string>
+    <string name="diy_calendar_calendars">Calendars</string>
+    <string name="diy_calendar_permission">Calendar access is needed to pick calendars</string>
     <string name="diy_time_selection_title">Select Time</string>
     <string name="diy_time_range_selection_title">Select Time Range</string>
     <string name="diy_start_time_label">Start Time</string>
@@ -1253,6 +1265,8 @@
     <string name="action_delete">Delete</string>
     <string name="action_enable">Enable</string>
     <string name="action_disable">Disable</string>
+    <string name="action_select">Select</string>
+    <string name="diy_selected_count">%1$d selected</string>
     <string name="action_test">Test action</string>
 
     <string name="automation_service_channel_name">Automation Service</string>
@@ -2833,6 +2847,17 @@
     <string name="island_show_calls_title">Calls</string>
     <string name="island_show_timers_title">Timers and stopwatches</string>
     <string name="island_show_network_title">Network activity</string>
+    <string name="island_section_brief">Brief</string>
+    <string name="island_brief_title">Brief</string>
+    <string name="island_brief_desc">Get a brief of what\'s going on</string>
+    <string name="island_brief_no_events">Nothing scheduled</string>
+    <string name="island_brief_all_day">All day</string>
+    <string name="island_brief_in_minutes">in %1$dm</string>
+    <string name="island_brief_in_hours">in %1$dh</string>
+    <string name="island_brief_in_hours_minutes">in %1$dh %2$dm</string>
+    <string name="island_brief_today">Today %1$s</string>
+    <string name="island_brief_tomorrow">Tomorrow %1$s</string>
+    <string name="island_brief_now_until">Now · until %1$s</string>
     <string name="duo_combine_with_island">Combine with Island</string>
     <string name="island_combine_with_duo">Combine with Duo</string>
     <string name="island_show_devices_title">Devices</string>
@@ -2840,6 +2865,9 @@
     <string name="island_devices_disconnected">Disconnected</string>
     <string name="island_devices_unknown">Bluetooth device</string>
     <string name="island_devices_battery_title">Device battery</string>
+    <string name="btn_grant_all_permissions">Grant all permissions</string>
+    <string name="toast_granting_permissions">Granting permissions…</string>
+    <string name="toast_permissions_granted">Granted all available permissions</string>
     <string name="island_battery_only_low_title">Only show when low</string>
     <string name="island_devices_battery_desc">Pick devices to show battery for. Only one is shown at a time: the highest one in this list that is connected.</string>
     <string name="island_devices_battery_empty">No paired devices</string>

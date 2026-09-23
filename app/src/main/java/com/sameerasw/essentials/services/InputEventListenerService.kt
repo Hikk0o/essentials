@@ -36,7 +36,24 @@ class InputEventListenerService : Service() {
         const val ACTION_VOLUME_LONG_PRESSED = "com.sameerasw.essentials.VOLUME_LONG_PRESSED"
         const val EXTRA_DIRECTION = "direction"
         const val EXTRA_DURATION_MS = "duration_ms"
+        const val ACTION_STOP = "com.sameerasw.essentials.STOP_INPUT_LISTENER"
         private const val NOTIFICATION_ID = 4242
+    }
+
+    private fun startForegroundSafely(notification: android.app.Notification) {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+        } catch (e: Exception) {
+            Log.e("InputEventListener", "Failed to start foreground", e)
+        }
     }
 
     private var scope: CoroutineScope? = null
@@ -80,6 +97,7 @@ class InputEventListenerService : Service() {
                 .setSmallIcon(android.R.drawable.star_on)
                 .setPriority(NotificationCompat.PRIORITY_MIN)
                 .build()
+        startForegroundSafely(notification)
 
         val cameraManager =
             getSystemService(CAMERA_SERVICE) as android.hardware.camera2.CameraManager
@@ -96,16 +114,6 @@ class InputEventListenerService : Service() {
             },
             null,
         )
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(
-                NOTIFICATION_ID,
-                notification,
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
-            )
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
-        }
 
         Shizuku.addBinderReceivedListener(binderReceivedListener)
         Shizuku.addBinderDeadListener(binderDeadListener)
@@ -278,14 +286,11 @@ class InputEventListenerService : Service() {
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setOngoing(true)
                 .build()
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(
-                NOTIFICATION_ID,
-                notification,
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
-            )
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
+        startForegroundSafely(notification)
+        if (intent?.action == ACTION_STOP) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
         }
         return START_STICKY
     }

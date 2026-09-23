@@ -10,6 +10,7 @@
 package com.sameerasw.essentials.utils
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.os.Build
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
@@ -286,11 +287,11 @@ object HapticUtil {
                 .setUsage(VibrationAttributes.USAGE_TOUCH)
                 .build()
             vibrator.vibrate(effect, attrs)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val attrs = VibrationAttributes.createForUsage(VibrationAttributes.USAGE_TOUCH)
-            vibrator.vibrate(effect, attrs)
         } else {
-            vibrator.vibrate(effect)
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .build()
+            vibrator.vibrate(effect, attrs)
         }
     }
 
@@ -325,6 +326,58 @@ object HapticUtil {
                 val effect = android.os.VibrationEffect.createWaveform(timings, amplitudes, -1)
                 vibrator.vibrate(effect)
             }
+        }
+    }
+
+    fun startTickRampHaptic(
+        context: Context,
+        durationMs: Long,
+    ) {
+        if (!isAppHapticsEnabled.value) return
+        val vibrator = getVibrator(context)
+        if (!vibrator.hasVibrator()) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && vibrator.areEnvelopeEffectsSupported()) {
+            val effect = VibrationEffect.BasicEnvelopeBuilder()
+                .setInitialSharpness(0.1f)
+                .addControlPoint(0.08f, 0.2f, (durationMs * 0.35f).toLong().coerceAtLeast(1L))
+                .addControlPoint(0.35f, 0.5f, (durationMs * 0.4f).toLong().coerceAtLeast(1L))
+                .addControlPoint(0.75f, 0.85f, (durationMs * 0.25f).toLong().coerceAtLeast(1L))
+                .build()
+            runCatching { vibrator.vibrate(effect) }
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            vibrator.areAllPrimitivesSupported(VibrationEffect.Composition.PRIMITIVE_SLOW_RISE)
+        ) {
+            runCatching {
+                vibrator.vibrate(
+                    VibrationEffect.startComposition()
+                        .addPrimitive(VibrationEffect.Composition.PRIMITIVE_SLOW_RISE, 0.8f)
+                        .compose(),
+                )
+            }
+            return
+        }
+        startRampingHoldHaptic(context, durationMs)
+    }
+
+    fun performOpenClickHaptic(context: Context) {
+        if (!isAppHapticsEnabled.value) return
+        val vibrator = getVibrator(context)
+        if (!vibrator.hasVibrator()) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            vibrator.areAllPrimitivesSupported(VibrationEffect.Composition.PRIMITIVE_CLICK)
+        ) {
+            runCatching {
+                vibrator.cancel()
+                vibrator.vibrate(
+                    VibrationEffect.startComposition()
+                        .addPrimitive(VibrationEffect.Composition.PRIMITIVE_CLICK, 1f)
+                        .compose(),
+                )
+            }
+        } else {
+            performStrongTickHaptic(context)
         }
     }
 
