@@ -25,6 +25,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
@@ -65,6 +67,8 @@ class NotificationListener : NotificationListenerService() {
     }
 
     companion object {
+        private const val PROGRESS_REFRESH_DEBOUNCE_MS = 250L
+
         const val ACTION_LIKE_CURRENT_SONG = "com.sameerasw.essentials.ACTION_LIKE_CURRENT_SONG"
         const val ACTION_REQUEST_AMBIENT_GLANCE =
             "com.sameerasw.essentials.ACTION_REQUEST_AMBIENT_GLANCE"
@@ -497,6 +501,8 @@ class NotificationListener : NotificationListenerService() {
     override fun onDestroy() {
         super.onDestroy()
         instance = null
+        progressHandler.removeCallbacks(progressRefreshRunnable)
+        progressExecutor.shutdownNow()
         try {
             unregisterReceiver(likeActionReceiver)
         } catch (_: Exception) {
@@ -984,7 +990,7 @@ class NotificationListener : NotificationListenerService() {
 
         val extras = sbn.notification.extras
         if (extras != null && (extras.getInt(Notification.EXTRA_PROGRESS_MAX, 0) > 0 || extras.containsKey(Notification.EXTRA_PROGRESS_INDETERMINATE))) {
-            notifyProgressListeners(extractLatestProgressNotification())
+            scheduleProgressRefresh()
         }
 
         if (!isRepost && isHeadsUpNotification(sbn, rankingMap)) {
@@ -1356,7 +1362,7 @@ class NotificationListener : NotificationListenerService() {
             ScreenOffAccessibilityService.updateSmartPixelsState()
         }
 
-        notifyProgressListeners(extractLatestProgressNotification())
+        scheduleProgressRefresh()
         notifyAlertRemoved(sbn.key)
 
         // Trigger refresh if something is playing
@@ -1767,6 +1773,27 @@ class NotificationListener : NotificationListenerService() {
             },
             contentIntent = notif.contentIntent,
         )
+    }
+
+    private val progressHandler = Handler(Looper.getMainLooper())
+    private val progressExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val progressRefreshRunnable =
+        Runnable {
+            progressExecutor.execute {
+                val data =
+                    try {
+                        extractLatestProgressNotification()
+                    } catch (e: Exception) {
+                        Log.e("NotificationListener", "Failed to extract progress notification", e)
+                        return@execute
+                    }
+                progressHandler.post { notifyProgressListeners(data) }
+            }
+        }
+
+    private fun scheduleProgressRefresh() {
+        progressHandler.removeCallbacks(progressRefreshRunnable)
+        progressHandler.postDelayed(progressRefreshRunnable, PROGRESS_REFRESH_DEBOUNCE_MS)
     }
 
     fun extractLatestProgressNotification(): ProgressNotificationData? {
