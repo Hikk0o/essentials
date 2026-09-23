@@ -595,6 +595,7 @@ object FeatureRegistry {
                 hasMoreSettings = true,
                 isBeta = true,
                 parentFeatureId = "Widgets",
+                animationRes = R.raw.searchbar_motion,
             ) {
                 override fun isEnabled(viewModel: MainViewModel) = viewModel.isPixelSearchbarEnabled.value
 
