@@ -50,6 +50,7 @@ object CombinedActionExecutor {
                 is Action.SetChargingMode ->
                     com.sameerasw.essentials.utils.battery.ChargingModeUtil
                         .setMode(context, action.mode)
+
                 is Action.HapticVibration -> {
                     HapticUtil.performCustomHaptic(context, 0.6f)
                 }
@@ -360,7 +361,8 @@ object CombinedActionExecutor {
 
                 is Action.ToggleMute -> {
                     val am = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                    val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                    val nm =
+                        context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
                     if (nm.isNotificationPolicyAccessGranted) {
                         try {
                             am.ringerMode =
@@ -377,7 +379,8 @@ object CombinedActionExecutor {
 
                 is Action.ToggleVibrate -> {
                     val am = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                    val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                    val nm =
+                        context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
                     if (nm.isNotificationPolicyAccessGranted) {
                         try {
                             am.ringerMode =
@@ -643,7 +646,10 @@ object CombinedActionExecutor {
                                 )
                             } else {
                                 val asInterfaceMethod =
-                                    stubClass.getMethod("asInterface", android.os.IBinder::class.java)
+                                    stubClass.getMethod(
+                                        "asInterface",
+                                        android.os.IBinder::class.java
+                                    )
                                 asInterfaceMethod.invoke(null, ShizukuBinderWrapper(binder))
                             }
 
@@ -683,7 +689,10 @@ object CombinedActionExecutor {
                             val taskInfo = task as? ActivityManager.RunningTaskInfo ?: continue
                             val topActivity = taskInfo.topActivity
                             if (topActivity != null && topActivity.packageName != context.packageName) {
-                                targetTaskId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) taskInfo.taskId else @Suppress("DEPRECATION") taskInfo.id
+                                targetTaskId =
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) taskInfo.taskId else @Suppress(
+                                        "DEPRECATION"
+                                    ) taskInfo.id
                                 break
                             }
                         }
@@ -691,7 +700,10 @@ object CombinedActionExecutor {
                         if (targetTaskId == -1 && tasks.isNotEmpty()) {
                             val firstTask = tasks.firstOrNull() as? ActivityManager.RunningTaskInfo
                             if (firstTask != null) {
-                                targetTaskId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) firstTask.taskId else @Suppress("DEPRECATION") firstTask.id
+                                targetTaskId =
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) firstTask.taskId else @Suppress(
+                                        "DEPRECATION"
+                                    ) firstTask.id
                             }
                         }
 
@@ -729,12 +741,25 @@ object CombinedActionExecutor {
                             ).show()
                     }
                 }
+
                 is Action.TurnOnWifi -> setWifiEnabled(context, true)
                 is Action.TurnOffWifi -> setWifiEnabled(context, false)
-                is Action.ToggleWifi -> setWifiEnabled(context, !isWifiEnabled(context))
+                is Action.ToggleWifi -> {
+                    val isEnabled = isWifiEnabled(context)
+                    if (isEnabled != null) {
+                        setWifiEnabled(context, !isEnabled)
+                    }
+                }
+
                 is Action.TurnOnCellularData -> setCellularDataEnabled(context, true)
                 is Action.TurnOffCellularData -> setCellularDataEnabled(context, false)
-                is Action.ToggleCellularData -> setCellularDataEnabled(context, !isCellularDataEnabled(context))
+                is Action.ToggleCellularData -> {
+                    val isEnabled = isCellularDataEnabled(context)
+                    if (isEnabled != null) {
+                        setCellularDataEnabled(context, !isEnabled)
+                    }
+                }
+
                 is Action.TurnOnAutoBrightness -> setAutoBrightnessEnabled(context, true)
                 is Action.TurnOffAutoBrightness -> setAutoBrightnessEnabled(context, false)
                 is Action.ToggleAutoBrightness -> setAutoBrightnessEnabled(context, !isAutoBrightnessEnabled(context))
@@ -744,6 +769,7 @@ object CombinedActionExecutor {
                             .freezeApp(context, pkg)
                     }
                 }
+
                 is Action.UnfreezeApps -> {
                     action.packageNames.forEach { pkg ->
                         com.sameerasw.essentials.utils.FreezeManager
@@ -788,9 +814,23 @@ object CombinedActionExecutor {
                         val success =
                             try {
                                 when (entry.table) {
-                                    Action.SettingsTable.SYSTEM -> Settings.System.putString(resolver, entry.key, entry.value)
-                                    Action.SettingsTable.SECURE -> Settings.Secure.putString(resolver, entry.key, entry.value)
-                                    Action.SettingsTable.GLOBAL -> Settings.Global.putString(resolver, entry.key, entry.value)
+                                    Action.SettingsTable.SYSTEM -> Settings.System.putString(
+                                        resolver,
+                                        entry.key,
+                                        entry.value
+                                    )
+
+                                    Action.SettingsTable.SECURE -> Settings.Secure.putString(
+                                        resolver,
+                                        entry.key,
+                                        entry.value
+                                    )
+
+                                    Action.SettingsTable.GLOBAL -> Settings.Global.putString(
+                                        resolver,
+                                        entry.key,
+                                        entry.value
+                                    )
                                 }
                             } catch (e: Exception) {
                                 false
@@ -802,7 +842,8 @@ object CombinedActionExecutor {
                                     Action.SettingsTable.SECURE -> "secure"
                                     Action.SettingsTable.GLOBAL -> "global"
                                 }
-                            val safeValue = if (entry.value.contains(" ")) "\"${entry.value}\"" else entry.value
+                            val safeValue =
+                                if (entry.value.contains(" ")) "\"${entry.value}\"" else entry.value
                             ShellUtils.runCommand(
                                 context,
                                 "settings put $tableArg ${entry.key} $safeValue",
@@ -874,14 +915,14 @@ object CombinedActionExecutor {
         }
     }
 
-    private fun isWifiEnabled(context: Context): Boolean =
+    private fun isWifiEnabled(context: Context): Boolean? =
         try {
             val wifiManager =
                 context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             wifiManager.isWifiEnabled
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            null
         }
 
     private fun setWifiEnabled(
@@ -897,15 +938,22 @@ object CombinedActionExecutor {
     }
 
     @Suppress("MissingPermission")
-    private fun isCellularDataEnabled(context: Context): Boolean =
+    private fun isCellularDataEnabled(context: Context): Boolean? {
         try {
             val telephonyManager =
                 context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            telephonyManager.isDataEnabled
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
+            return telephonyManager.isDataEnabled
+        } catch (_: Exception) {
+            // Fallback to Settings.Global check if READ_PHONE_STATE permission is missing
         }
+
+        return try {
+            val mode = android.provider.Settings.Global.getInt(context.contentResolver, "mobile_data", -1)
+            if (mode == 1) true else if (mode == 0) false else null
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     private fun setCellularDataEnabled(
         context: Context,
