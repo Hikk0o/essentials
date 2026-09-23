@@ -720,6 +720,7 @@ object FeatureRegistry {
                 hasMoreSettings = true,
                 showToggle = true,
                 parentFeatureId = "Display",
+                animationRes = R.raw.duo_motion,
             ) {
                 override fun isEnabled(viewModel: MainViewModel) = viewModel.isDuoEnabled.value
 
