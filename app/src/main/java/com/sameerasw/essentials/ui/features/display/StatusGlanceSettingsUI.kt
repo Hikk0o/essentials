@@ -473,8 +473,7 @@ fun StatusGlanceSettingsUI(
 
                     IconToggleItem(
                         title = stringResource(R.string.status_glance_hide_in_quick_settings_title),
-                        description = stringResource(R.string.status_glance_hide_in_quick_settings_desc),
-                        iconRes = R.drawable.rounded_top_panel_close_24,
+                        iconRes = R.drawable.rounded_pinch_24,
                         isChecked = viewModel.isStatusGlanceHideInQuickSettings.value,
                         onCheckedChange = {
                             HapticUtil.performUIHaptic(view)

@@ -132,6 +132,14 @@ class DuoOverlayView(context: Context) : View(context) {
             }
         }
 
+    var isShadeHidden: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                updateVisibilityAnimation()
+            }
+        }
+
     // Combined mode: Island takes over while it has content
     var isYieldingToIsland: Boolean = false
         set(value) {
@@ -273,7 +281,7 @@ class DuoOverlayView(context: Context) : View(context) {
             false
         }
         val isNoActivityHiding = !showBattery && !isCustomProgressActive()
-        val shouldHide = isFullscreen || isYieldingToIsland || (isScreenOff && isScreenOffHiding) || isNoActivityHiding
+        val shouldHide = isFullscreen || isYieldingToIsland || isShadeHidden || (isScreenOff && isScreenOffHiding) || isNoActivityHiding
         if (shouldHide) {
             animateScreenOffVisibility(false)
         } else {

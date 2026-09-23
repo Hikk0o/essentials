@@ -137,6 +137,7 @@ class MainViewModel : ViewModel() {
 
     val isDuoEnabled = mutableStateOf(false)
     val isDuoIslandCombined = mutableStateOf(false)
+    val isDuoHideOnShade = mutableStateOf(false)
     val isDuoAutoDetect = mutableStateOf(true)
     val hasMultipleDuoDisplays = mutableStateOf(false)
     val duoCameraOffsetX = mutableFloatStateOf(50f)
@@ -2197,6 +2198,7 @@ class MainViewModel : ViewModel() {
         isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
         isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
         isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
+        isDuoHideOnShade.value = settingsRepository.isDuoHideOnShadeEnabled()
         isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
         isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
         isIslandBriefEnabled.value = settingsRepository.isIslandBriefEnabled()
@@ -5075,6 +5077,11 @@ class MainViewModel : ViewModel() {
     }
 
     private fun combinedActive(): Boolean = settingsRepository.isDuoIslandCombined()
+
+    fun setDuoHideOnShade(enabled: Boolean) {
+        isDuoHideOnShade.value = enabled
+        settingsRepository.setDuoHideOnShadeEnabled(enabled)
+    }
 
     fun setDuoIslandCombined(enabled: Boolean) {
         isDuoIslandCombined.value = enabled

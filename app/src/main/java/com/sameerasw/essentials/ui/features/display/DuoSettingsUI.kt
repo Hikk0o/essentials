@@ -481,6 +481,16 @@ fun DuoSettingsUI(
                     },
                 )
             }
+            IconToggleItem(
+                iconRes = R.drawable.rounded_pinch_24,
+                title = stringResource(R.string.island_hide_on_shade_title),
+                isChecked = viewModel.isDuoHideOnShade.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setDuoHideOnShade(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "duo_hide_on_shade"),
+            )
             val areUnsupportedFeaturesEnabled = viewModel.isEnableUnsupportedFeatures.value
             IconToggleItem(
                 iconRes = R.drawable.rounded_mobile_off_24,

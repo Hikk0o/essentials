@@ -344,6 +344,7 @@ class ScreenOffAccessibilityService :
                             isScreenOn = false
                             statusGlanceHandler.setShadeExpanded(false)
                             islandOverlayHandler.setShadeExpanded(false)
+                            duoOverlayHandler.setShadeExpanded(false)
                             appFlowHandler.clearAuthenticated()
                             appFlowHandler.clearConsciousGate()
                             scheduleFreeze()
@@ -588,6 +589,7 @@ class ScreenOffAccessibilityService :
             }
         statusGlanceHandler.setShadeExpanded(expanded)
         islandOverlayHandler.setShadeExpanded(expanded)
+        duoOverlayHandler.setShadeExpanded(expanded)
     }
 
     private fun isShadeWindowVisible(): Boolean {

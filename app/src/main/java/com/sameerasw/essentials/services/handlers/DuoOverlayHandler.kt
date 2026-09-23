@@ -336,6 +336,16 @@ class DuoOverlayHandler(
         private set
 
     private var isIslandVisible = false
+    private var isShadeExpanded = false
+
+    fun setShadeExpanded(expanded: Boolean) {
+        mainHandler.post {
+            isShadeExpanded = expanded
+            overlayView?.isShadeHidden = shouldHideForShade()
+        }
+    }
+
+    private fun shouldHideForShade(): Boolean = isShadeExpanded && settingsRepository.isDuoHideOnShadeEnabled()
 
     fun setIslandVisible(visible: Boolean) {
         isIslandVisible = visible
@@ -853,6 +863,7 @@ class DuoOverlayHandler(
                 this.isScreenOff = this@DuoOverlayHandler.isScreenOff
                 this.isFullscreen = this@DuoOverlayHandler.isFullscreen
                 this.isYieldingToIsland = shouldYieldToIsland()
+                this.isShadeHidden = shouldHideForShade()
                 val areUnsupportedFeaturesEnabled = settingsRepository.isEnableUnsupportedFeatures()
                 this.hideWhenScreenOff = if (areUnsupportedFeaturesEnabled) settingsRepository.isDuoHideWhenScreenOffEnabled() else true
                 this.hideWhenScreenOffOnlyIdle = if (areUnsupportedFeaturesEnabled) settingsRepository.isDuoHideWhenScreenOffOnlyIdleEnabled() else false

@@ -405,6 +405,7 @@ class SettingsRepository(
         // Duo
         const val KEY_DUO_ENABLED = "duo_enabled"
         const val KEY_DUO_ISLAND_COMBINED = "duo_island_combined"
+        const val KEY_DUO_HIDE_ON_SHADE = "duo_hide_on_shade"
         const val KEY_DUO_USE_AUTO_DETECT = "duo_use_auto_detect"
         const val KEY_DUO_CAMERA_OFFSET_X = "duo_camera_offset_x"
         const val KEY_DUO_CAMERA_OFFSET_Y = "duo_camera_offset_y"
@@ -3320,6 +3321,10 @@ class SettingsRepository(
     fun setDuoEnabled(enabled: Boolean) = putBoolean(KEY_DUO_ENABLED, enabled)
 
     fun isDuoIslandCombinedSetting(): Boolean = getBoolean(KEY_DUO_ISLAND_COMBINED, false)
+
+    fun isDuoHideOnShadeEnabled(): Boolean = getBoolean(KEY_DUO_HIDE_ON_SHADE, false)
+
+    fun setDuoHideOnShadeEnabled(enabled: Boolean) = putBoolean(KEY_DUO_HIDE_ON_SHADE, enabled)
     fun setDuoIslandCombined(enabled: Boolean) = putBoolean(KEY_DUO_ISLAND_COMBINED, enabled)
 
     // Only effective while both features are on
