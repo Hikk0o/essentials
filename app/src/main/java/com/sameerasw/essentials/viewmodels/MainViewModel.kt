@@ -136,6 +136,7 @@ class MainViewModel : ViewModel() {
     val isSmartPixelsDisableOnCastEnabled = mutableStateOf(true)
 
     val isDuoEnabled = mutableStateOf(false)
+    val isDuoIslandCombined = mutableStateOf(false)
     val isDuoAutoDetect = mutableStateOf(true)
     val hasMultipleDuoDisplays = mutableStateOf(false)
     val duoCameraOffsetX = mutableFloatStateOf(50f)
@@ -2189,6 +2190,7 @@ class MainViewModel : ViewModel() {
         isIslandShowNetwork.value = settingsRepository.isIslandShowNetworkEnabled()
         isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
         isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
+        isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
         isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
         isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
@@ -5020,6 +5022,10 @@ class MainViewModel : ViewModel() {
     fun setDuoShowTime(enabled: Boolean) {
         isDuoShowTime.value = enabled
         settingsRepository.setDuoShowTimeEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandShowTimeBattery.value = false
+            settingsRepository.setIslandShowTimeBatteryEnabled(false)
+        }
         if (enabled) {
             isDuoShowNetworks.value = false
             settingsRepository.setDuoShowNetworksEnabled(false)
@@ -5029,6 +5035,10 @@ class MainViewModel : ViewModel() {
     fun setDuoShowMedia(enabled: Boolean) {
         isDuoShowMedia.value = enabled
         settingsRepository.setDuoShowMediaEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandShowMedia.value = false
+            settingsRepository.setIslandShowMediaEnabled(false)
+        }
     }
 
     fun setDuoRotateAlbumArt(enabled: Boolean) {
@@ -5039,11 +5049,40 @@ class MainViewModel : ViewModel() {
     fun setDuoShowProgress(enabled: Boolean) {
         isDuoShowProgress.value = enabled
         settingsRepository.setDuoShowProgressEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandNotifKeepProgress.value = false
+            settingsRepository.setIslandNotifKeepProgressEnabled(false)
+        }
     }
 
     fun setDuoShowFlashlight(enabled: Boolean) {
         isDuoShowFlashlight.value = enabled
         settingsRepository.setDuoShowFlashlightEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isIslandShowFlashlight.value = false
+            settingsRepository.setIslandShowFlashlightEnabled(false)
+        }
+    }
+
+    private fun combinedActive(): Boolean = settingsRepository.isDuoIslandCombined()
+
+    fun setDuoIslandCombined(enabled: Boolean) {
+        isDuoIslandCombined.value = enabled
+        settingsRepository.setDuoIslandCombined(enabled)
+        if (!enabled) return
+        // Duo owns the idle state, Island owns everything with more info
+        setDuoShowBattery(true)
+        setDuoShowNetworks(true)
+        setIslandShowTimeBattery(false)
+        isDuoShowMedia.value = false
+        settingsRepository.setDuoShowMediaEnabled(false)
+        isDuoShowFlashlight.value = false
+        settingsRepository.setDuoShowFlashlightEnabled(false)
+        isDuoShowProgress.value = false
+        settingsRepository.setDuoShowProgressEnabled(false)
+        setIslandShowMedia(true)
+        setIslandShowFlashlight(true)
+        setIslandNotifKeepProgress(true)
     }
 
     fun setIslandEnabled(enabled: Boolean) {
@@ -5235,6 +5274,10 @@ class MainViewModel : ViewModel() {
     fun setIslandNotifKeepProgress(enabled: Boolean) {
         isIslandNotifKeepProgress.value = enabled
         settingsRepository.setIslandNotifKeepProgressEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowProgress.value = false
+            settingsRepository.setDuoShowProgressEnabled(false)
+        }
     }
 
     fun setIslandNotifCompactHeadsUp(enabled: Boolean) {
@@ -5260,6 +5303,10 @@ class MainViewModel : ViewModel() {
     fun setIslandShowMedia(enabled: Boolean) {
         isIslandShowMedia.value = enabled
         settingsRepository.setIslandShowMediaEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowMedia.value = false
+            settingsRepository.setDuoShowMediaEnabled(false)
+        }
     }
 
     fun setIslandShowCalendar(enabled: Boolean) {
@@ -5275,11 +5322,19 @@ class MainViewModel : ViewModel() {
     fun setIslandShowFlashlight(enabled: Boolean) {
         isIslandShowFlashlight.value = enabled
         settingsRepository.setIslandShowFlashlightEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowFlashlight.value = false
+            settingsRepository.setDuoShowFlashlightEnabled(false)
+        }
     }
 
     fun setIslandShowTimeBattery(enabled: Boolean) {
         isIslandShowTimeBattery.value = enabled
         settingsRepository.setIslandShowTimeBatteryEnabled(enabled)
+        if (enabled && combinedActive()) {
+            isDuoShowTime.value = false
+            settingsRepository.setDuoShowTimeEnabled(false)
+        }
     }
 
     fun setIslandBatteryStyle(value: String) {

@@ -165,8 +165,19 @@ class IslandCoordinator(
             if (stage != IslandStage.Expanded) windowHost.setTextInput(false)
             windowHost.onStageChanged(stage)
             syncStatusBar(stage)
+            reportVisibility(stage != IslandStage.Hidden)
         }
         updateState()
+    }
+
+    // Fires with true while the island has anything on screen
+    var onVisibilityChanged: ((Boolean) -> Unit)? = null
+    private var lastVisible = false
+
+    private fun reportVisibility(visible: Boolean) {
+        if (visible == lastVisible) return
+        lastVisible = visible
+        onVisibilityChanged?.invoke(visible)
     }
 
     fun updateState() {
@@ -283,6 +294,7 @@ class IslandCoordinator(
         scope?.cancel()
         scope = null
         windowHost.detach()
+        reportVisibility(false)
         IslandStatusBarHider.restore(service)
         if (settings.isIslandSuppressSystemHeadsUpEnabled()) settings.applyHeadsUpSuppression(false)
     }

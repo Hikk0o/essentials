@@ -914,6 +914,28 @@ fun IslandSettingsUI(
             )
         }
 
+        AnimatedVisibility(
+            visible = viewModel.isDuoEnabled.value && viewModel.isIslandEnabled.value,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            RoundedCardContainer(
+                spacing = 2.dp,
+                cornerRadius = 24.dp,
+            ) {
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_link_24,
+                    title = stringResource(R.string.island_combine_with_duo),
+                    isChecked = viewModel.isDuoIslandCombined.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setDuoIslandCombined(checked)
+                    },
+                    modifier = Modifier.highlight(highlightSetting == "duo_island_combined"),
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
     }
 
