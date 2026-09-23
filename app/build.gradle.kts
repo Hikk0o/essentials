@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -10,7 +11,7 @@ plugins {
 
 val sentryAuthToken: String? =
     rootProject.file("sentry.properties").takeIf { it.exists() }?.let { file ->
-        java.util.Properties().apply { file.inputStream().use { load(it) } }
+        Properties().apply { file.inputStream().use { load(it) } }
             .getProperty("auth.token")
             ?.takeIf { it.isNotBlank() }
     } ?: System.getenv("SENTRY_AUTH_TOKEN")
