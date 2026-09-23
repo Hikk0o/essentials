@@ -880,16 +880,6 @@ class NotificationListener : NotificationListenerService() {
                             ?: metadata?.getBitmap(android.media.MediaMetadata.METADATA_KEY_DISPLAY_ICON)
 
                     val filesDirFile = File(filesDir, "music_artwork.png")
-                    if (artwork != null) {
-                        try {
-                            FileOutputStream(filesDirFile).use { out ->
-                                artwork.compress(Bitmap.CompressFormat.PNG, 100, out)
-                            }
-                        } catch (_: Exception) {
-                        }
-                    } else if (filesDirFile.exists()) {
-                        filesDirFile.delete()
-                    }
 
                     // Update settings and trigger the Glance widget only for new media content.
                     val settingsRepo = SettingsRepository(this)
@@ -899,6 +889,20 @@ class NotificationListener : NotificationListenerService() {
                     settingsRepo.incrementPixelSearchbarWidgetRevision()
 
                     kotlinx.coroutines.MainScope().launch {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            if (artwork != null) {
+                                try {
+                                    val tmpFile = File.createTempFile("music_artwork", ".tmp", filesDir)
+                                    FileOutputStream(tmpFile).use { out ->
+                                        artwork.compress(Bitmap.CompressFormat.PNG, 100, out)
+                                    }
+                                    if (!tmpFile.renameTo(filesDirFile)) tmpFile.delete()
+                                } catch (_: Exception) {
+                                }
+                            } else if (filesDirFile.exists()) {
+                                filesDirFile.delete()
+                            }
+                        }
                         try {
                             val managerGlance =
                                 androidx.glance.appwidget.GlanceAppWidgetManager(this@NotificationListener)
