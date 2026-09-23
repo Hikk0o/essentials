@@ -71,6 +71,7 @@ fun AppSelectionSheet(
     title: String = stringResource(R.string.action_select_apps),
     excludePackages: List<String> = emptyList(),
     context: Context = LocalContext.current,
+    headerContent: (@Composable () -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val view = LocalView.current
@@ -182,6 +183,8 @@ fun AppSelectionSheet(
             }
 
             // Search Bar
+            headerContent?.invoke()
+
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
