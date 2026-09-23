@@ -89,7 +89,7 @@ fun MediaExpanded(
     liked: Boolean,
     actions: MediaActions,
     scope: IslandExpandedScope,
-    
+    likable: Boolean = true,
     drawBackground: Boolean = true,
 ) {
     val spec = scope.spec
@@ -162,10 +162,11 @@ fun MediaExpanded(
             ConnectedButtonRow(
                 height = 52.dp,
                 items = listOf(
-                    ConnectedItem(actions.like) {
+
+                    ConnectedItem(actions.like, enabled = likable) {
                         IslandIcon(
                             if (liked) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-                            tint = if (liked) accent else Color.White,
+                            tint = if (!likable) Color.LightGray else {if (liked) accent else Color.White},
                             size = 24.dp,
                         )
                     },
