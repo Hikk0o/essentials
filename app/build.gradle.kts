@@ -5,6 +5,31 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.sentry.android.gradle)
+}
+
+val sentryAuthToken: String? =
+    rootProject.file("sentry.properties").takeIf { it.exists() }?.let { file ->
+        java.util.Properties().apply { file.inputStream().use { load(it) } }
+            .getProperty("auth.token")
+            ?.takeIf { it.isNotBlank() }
+    } ?: System.getenv("SENTRY_AUTH_TOKEN")
+
+sentry {
+    org.set("sameeraswcom")
+    projectName.set("android")
+    authToken.set(sentryAuthToken)
+
+    includeProguardMapping.set(true)
+    autoUploadProguardMapping.set(sentryAuthToken != null)
+    includeSourceContext.set(false)
+    includeNativeSources.set(false)
+    uploadNativeSymbols.set(false)
+
+    autoInstallation.enabled.set(false)
+    tracingInstrumentation.enabled.set(false)
+    includeDependenciesReport.set(false)
+    telemetry.set(false)
 }
 
 kotlin {

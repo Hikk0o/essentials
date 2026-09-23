@@ -39,3 +39,5 @@ local.properties
 *build.gradle.kts.bak
 
 /docs/working/
+# Sentry auth token for mapping uploads
+sentry.properties
