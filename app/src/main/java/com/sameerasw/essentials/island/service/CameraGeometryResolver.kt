@@ -22,6 +22,7 @@ object CameraGeometryResolver {
         }
         val sizeScale = settings.getIslandCameraSize()
         val gap = settings.getIslandCutoutGap() * density
+        val verticalGap = 6f * density
 
         if (settings.isIslandAutoDetectEnabled() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val rect = try {
@@ -37,6 +38,7 @@ object CameraGeometryResolver {
                     centerY = rect.exactCenterY(),
                     radius = base * sizeScale,
                     gap = gap,
+                    verticalGap = verticalGap,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     anchor = anchorFor(settings),
@@ -50,6 +52,7 @@ object CameraGeometryResolver {
             centerY = settings.getIslandCameraOffsetY() / 100f * screenHeight,
             radius = 16f * density * sizeScale,
             gap = gap,
+            verticalGap = verticalGap,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             anchor = anchorFor(settings),

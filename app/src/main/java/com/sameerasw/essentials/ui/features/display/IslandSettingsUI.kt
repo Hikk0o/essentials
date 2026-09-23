@@ -47,6 +47,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import android.content.Intent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.Button
+import android.widget.Toast
 import com.sameerasw.essentials.FeatureSettingsActivity
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.ui.components.sliders.ConfigSliderItem
@@ -246,49 +249,55 @@ fun IslandSettingsUI(
                 )
             }
 
-            IconToggleItem(
-                iconRes = R.drawable.rounded_center_focus_strong_24,
-                title = stringResource(R.string.island_auto_detect_title),
-                description = stringResource(R.string.island_auto_detect_desc),
-                isChecked = viewModel.isIslandAutoDetect.value,
-                onCheckedChange = { checked ->
-                    HapticUtil.performVirtualKeyHaptic(view)
-                    viewModel.setIslandAutoDetect(checked)
-                },
-                modifier = Modifier.highlight(highlightSetting == "island_use_auto_detect"),
-            )
+            LaunchedEffect(Unit) {
+                if (viewModel.isIslandAutoDetect.value) viewModel.autoAlignIslandWithCamera(context)
+            }
 
-            AnimatedVisibility(
-                visible = !viewModel.isIslandAutoDetect.value,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically(),
+            Button(
+                onClick = {
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.autoAlignIslandWithCamera(context)
+                    Toast.makeText(context, R.string.island_auto_align_toast, Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .highlight(highlightSetting == "island_use_auto_detect"),
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    ConfigSliderItem(
-                        title = stringResource(R.string.island_camera_offset_x_title),
-                        value = viewModel.islandCameraOffsetX.floatValue,
-                        onValueChange = {
-                            HapticUtil.performUIHaptic(view)
-                            viewModel.setIslandCameraOffsetX(it)
-                        },
-                        valueRange = 0f..100f,
-                        increment = 1f,
-                        iconRes = R.drawable.rounded_border_left_24,
-                        valueFormatter = { "${it.toInt()}%" },
-                    )
-                    ConfigSliderItem(
-                        title = stringResource(R.string.island_camera_offset_y_title),
-                        value = viewModel.islandCameraOffsetY.floatValue,
-                        onValueChange = {
-                            HapticUtil.performUIHaptic(view)
-                            viewModel.setIslandCameraOffsetY(it)
-                        },
-                        valueRange = 0f..20f,
-                        increment = 0.5f,
-                        iconRes = R.drawable.rounded_border_top_24,
-                        valueFormatter = { "%.1f%%".format(it) },
-                    )
-                }
+                Icon(
+                    painter = painterResource(R.drawable.rounded_center_focus_strong_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(text = stringResource(R.string.island_auto_align_camera))
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                ConfigSliderItem(
+                    title = stringResource(R.string.island_camera_offset_x_title),
+                    value = viewModel.islandCameraOffsetX.floatValue,
+                    onValueChange = {
+                        HapticUtil.performUIHaptic(view)
+                        viewModel.setIslandCameraOffsetX(it)
+                    },
+                    valueRange = 0f..100f,
+                    increment = 1f,
+                    iconRes = R.drawable.rounded_border_left_24,
+                    valueFormatter = { "${it.toInt()}%" },
+                )
+                ConfigSliderItem(
+                    title = stringResource(R.string.island_camera_offset_y_title),
+                    value = viewModel.islandCameraOffsetY.floatValue,
+                    onValueChange = {
+                        HapticUtil.performUIHaptic(view)
+                        viewModel.setIslandCameraOffsetY(it)
+                    },
+                    valueRange = 0f..20f,
+                    increment = 0.5f,
+                    iconRes = R.drawable.rounded_border_top_24,
+                    valueFormatter = { "%.1f%%".format(it) },
+                )
             }
 
             ConfigSliderItem(

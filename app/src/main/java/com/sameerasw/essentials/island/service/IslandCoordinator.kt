@@ -292,6 +292,7 @@ class IslandCoordinator(
         spec.value = IslandLayoutSpec(
             cameraDiameter = (geo.diameter / density).dp,
             cameraGap = (geo.gap / density).dp,
+            verticalGap = (geo.verticalGap / density).dp,
             surfaceTop = (geo.surfaceTop / density).dp,
             lineWidth = lineWidth.dp,
             expandedWidth = expandedWidth.dp,
