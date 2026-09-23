@@ -745,6 +745,7 @@ object FeatureRegistry {
                 hasMoreSettings = true,
                 showToggle = true,
                 isBeta = true,
+                animationRes = R.raw.island_motion,
                 searchableSettings =
                     listOf(
                         SearchSetting(
