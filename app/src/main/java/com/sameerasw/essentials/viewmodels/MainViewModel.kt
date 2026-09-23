@@ -191,6 +191,7 @@ class MainViewModel : ViewModel() {
     val isIslandShowCalls = mutableStateOf(true)
     val isIslandShowTimers = mutableStateOf(true)
     val isIslandShowNetwork = mutableStateOf(true)
+    val isIslandShowSoundMode = mutableStateOf(true)
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
     val islandExpandedTimeoutMs = mutableLongStateOf(0L)
@@ -2182,6 +2183,7 @@ class MainViewModel : ViewModel() {
         isIslandShowCalls.value = settingsRepository.isIslandShowCallsEnabled()
         isIslandShowTimers.value = settingsRepository.isIslandShowTimersEnabled()
         isIslandShowNetwork.value = settingsRepository.isIslandShowNetworkEnabled()
+        isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
         islandExpandedTimeoutMs.longValue = settingsRepository.getIslandExpandedTimeoutMs()
@@ -5096,6 +5098,11 @@ class MainViewModel : ViewModel() {
     fun setIslandExpandedWidth(value: Float) {
         islandExpandedWidth.floatValue = value
         settingsRepository.setIslandExpandedWidth(value)
+    }
+
+    fun setIslandShowSoundMode(enabled: Boolean) {
+        isIslandShowSoundMode.value = enabled
+        settingsRepository.setIslandShowSoundModeEnabled(enabled)
     }
 
     fun setIslandShowNetwork(enabled: Boolean) {

@@ -768,6 +768,11 @@ object FeatureRegistry {
                             "island_show_timers",
                         ),
                         SearchSetting(
+                            R.string.island_show_sound_mode_title,
+                            R.string.island_sound_mode_vibrate,
+                            "island_show_sound_mode",
+                        ),
+                        SearchSetting(
                             R.string.island_show_network_title,
                             R.string.island_network_connected_to,
                             "island_show_network",

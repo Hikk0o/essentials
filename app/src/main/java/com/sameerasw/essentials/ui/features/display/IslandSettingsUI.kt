@@ -749,6 +749,17 @@ fun IslandSettingsUI(
             )
 
             IconToggleItem(
+                iconRes = R.drawable.rounded_volume_up_24,
+                title = stringResource(R.string.island_show_sound_mode_title),
+                isChecked = viewModel.isIslandShowSoundMode.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandShowSoundMode(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_show_sound_mode"),
+            )
+
+            IconToggleItem(
                 iconRes = R.drawable.rounded_android_wifi_3_bar_24,
                 title = stringResource(R.string.island_show_network_title),
                 isChecked = viewModel.isIslandShowNetwork.value,

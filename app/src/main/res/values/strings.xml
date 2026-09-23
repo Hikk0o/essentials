@@ -2834,6 +2834,10 @@
     <string name="island_show_timers_title">Timers and stopwatches</string>
     <string name="island_show_network_title">Network activity</string>
     <string name="island_battery_charging">Charging</string>
+    <string name="island_show_sound_mode_title">Sound mode</string>
+    <string name="island_sound_mode_sound">Sound</string>
+    <string name="island_sound_mode_vibrate">Vibrate</string>
+    <string name="island_sound_mode_silent">Silent</string>
     <string name="island_network_wifi">Wi-Fi</string>
     <string name="island_network_connected_to">Connected to</string>
     <string name="island_network_disconnected_from">Disconnected from</string>
