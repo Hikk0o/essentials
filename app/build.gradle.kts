@@ -18,7 +18,7 @@ val sentryAuthToken: String? =
 
 sentry {
     org.set("sameeraswcom")
-    projectName.set("android")
+    projectName.set("essentials")
     authToken.set(sentryAuthToken)
 
     includeProguardMapping.set(true)
