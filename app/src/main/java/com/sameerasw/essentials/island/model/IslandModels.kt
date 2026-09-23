@@ -29,6 +29,7 @@ object IslandPriority {
     const val CALENDAR = 50
     const val SOUND_MODE = 55
     const val NETWORK = 60
+    const val DEVICES = 62
     const val DEFAULT = 100
 }
 

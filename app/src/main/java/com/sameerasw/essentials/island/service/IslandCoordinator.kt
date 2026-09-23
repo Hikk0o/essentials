@@ -34,6 +34,7 @@ import com.sameerasw.essentials.island.plugins.calendar.CalendarPlugin
 import com.sameerasw.essentials.island.plugins.consciousgate.ConsciousGatePlugin
 import com.sameerasw.essentials.island.plugins.flashlight.FlashlightPlugin
 import com.sameerasw.essentials.island.plugins.network.NetworkPlugin
+import com.sameerasw.essentials.island.plugins.devices.DevicesPlugin
 import com.sameerasw.essentials.island.plugins.progress.ProgressPlugin
 import com.sameerasw.essentials.island.plugins.soundmode.SoundModePlugin
 import com.sameerasw.essentials.island.plugins.travel.TravelPlugin
@@ -91,6 +92,7 @@ class IslandCoordinator(
         CaffeinatePlugin(),
         TravelPlugin(),
         NetworkPlugin(),
+        DevicesPlugin(),
     )
 
     private var scope: CoroutineScope? = null

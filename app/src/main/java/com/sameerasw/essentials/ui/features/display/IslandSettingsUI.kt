@@ -802,6 +802,21 @@ fun IslandSettingsUI(
                 },
                 modifier = Modifier.highlight(highlightSetting == "island_show_network"),
             )
+
+            IconToggleItem(
+                iconRes = R.drawable.rounded_bluetooth_24,
+                title = stringResource(R.string.island_show_devices_title),
+                isChecked = viewModel.isIslandShowDevices.value && PermissionUtils.hasBluetoothPermission(context),
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    if (checked && !PermissionUtils.hasBluetoothPermission(context)) {
+                        requestingPermissionsFor = Pair(R.string.island_title, listOf("BLUETOOTH_CONNECT", "BLUETOOTH_SCAN"))
+                    } else {
+                        viewModel.setIslandShowDevices(checked)
+                    }
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_show_devices"),
+            )
         }
 
         Text(

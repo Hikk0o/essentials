@@ -489,6 +489,7 @@ class SettingsRepository(
         const val KEY_ISLAND_SHOW_SOUND_MODE = "island_show_sound_mode"
         const val KEY_ISLAND_SHOW_TRAVEL = "island_show_travel"
         const val KEY_ISLAND_SHOW_CAFFEINATE = "island_show_caffeinate"
+        const val KEY_ISLAND_SHOW_DEVICES = "island_show_devices"
         const val ISLAND_CAMERA_POSITION_LEFT = "left"
         const val ISLAND_CAMERA_POSITION_CENTER = "center"
         const val ISLAND_CAMERA_POSITION_RIGHT = "right"
@@ -3565,6 +3566,9 @@ class SettingsRepository(
 
     fun isIslandShowCaffeinateEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_CAFFEINATE, true)
     fun setIslandShowCaffeinateEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_CAFFEINATE, enabled)
+
+    fun isIslandShowDevicesEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_DEVICES, true)
+    fun setIslandShowDevicesEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_DEVICES, enabled)
 
     fun isIslandShowCallsEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_CALLS, true)
     fun setIslandShowCallsEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_CALLS, enabled)
