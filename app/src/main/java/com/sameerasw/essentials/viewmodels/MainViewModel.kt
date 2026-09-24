@@ -5384,6 +5384,11 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandMediaKeepWhenPausedEnabled(enabled)
     }
 
+    fun setIslandMediaShowPrevious(enabled: Boolean) {
+        isIslandMediaShowPrevious.value = enabled
+        settingsRepository.setIslandMediaShowPreviousEnabled(enabled)
+    }
+
     fun setIslandShowNotifications(enabled: Boolean) {
         isIslandShowNotifications.value = enabled
         settingsRepository.setIslandShowNotificationsEnabled(enabled)

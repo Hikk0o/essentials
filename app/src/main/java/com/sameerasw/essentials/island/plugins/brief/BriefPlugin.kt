@@ -243,6 +243,8 @@ private fun BriefExpanded(
                         WeatherExpanded(
                             unit = weather.unit,
                             scope = scope,
+                            effects = false,
+                            haptics = false,
                             onRefresh = { coroutineScope.launch { WeatherRepository.refresh(context, force = true) } },
                         )
                     }
