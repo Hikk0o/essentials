@@ -17,7 +17,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,13 +26,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,6 +54,7 @@ import com.sameerasw.essentials.island.ui.IslandTextStyles
 import com.sameerasw.essentials.island.ui.components.ConnectedButtonRow
 import com.sameerasw.essentials.island.ui.components.ConnectedItem
 import com.sameerasw.essentials.island.ui.components.IslandIcon
+import com.sameerasw.essentials.island.ui.components.IslandSeekBar
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -106,9 +103,7 @@ fun MediaExpanded(
     val spec = scope.spec
     val context = LocalContext.current
     var progress by remember { mutableFloatStateOf(actions.progress()) }
-    var dragValue by remember { mutableStateOf<Float?>(null) }
     var pendingSeek by remember { mutableStateOf<Pair<Float, Long>?>(null) }
-    var lastStep by remember { mutableIntStateOf(-1) }
     val canSeek = remember(playing, title) { actions.canSeek() }
     LaunchedEffect(playing) {
         while (true) {
@@ -174,50 +169,16 @@ fun MediaExpanded(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             )
             Spacer(Modifier.height(4.dp))
-            val interactionSource = remember { MutableInteractionSource() }
-            val dragging = dragValue != null
-            Slider(
-                value = dragValue ?: progress,
-                onValueChange = { value ->
-                    if (dragValue == null) {
-                        IslandHaptics.touchDown(context)
-                        lastStep = (value * 20).toInt()
-                    }
-                    val step = (value * 20).toInt()
-                    if (step != lastStep) {
-                        lastStep = step
-                        IslandHaptics.dragStep(context)
-                    }
-                    dragValue = value
-                },
-                onValueChangeFinished = {
-                    dragValue?.let { target ->
-                        IslandHaptics.commit(context)
-                        actions.seekTo(target)
-                        pendingSeek = target to SystemClock.elapsedRealtime()
-                        progress = target
-                    }
-                    dragValue = null
-                },
+            IslandSeekBar(
+                value = progress,
+                color = accent,
                 enabled = canSeek,
-                interactionSource = interactionSource,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                thumb = {
-                    Box(
-                        Modifier
-                            .size(width = 4.dp, height = if (dragging) 20.dp else 0.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(Color.White),
-                    )
-                },
-                track = { state ->
-                    LinearWavyProgressIndicator(
-                        progress = { state.value },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = accent,
-                        trackColor = Color.White.copy(alpha = 0.2f),
-                        amplitude = { if (playing && !dragging) 1f else 0f },
-                    )
+                wavy = playing,
+                modifier = Modifier.padding(horizontal = 4.dp),
+                onValueChangeFinished = { target ->
+                    actions.seekTo(target)
+                    pendingSeek = target to SystemClock.elapsedRealtime()
+                    progress = target
                 },
             )
             Spacer(Modifier.height(4.dp))
