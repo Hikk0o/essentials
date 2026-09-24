@@ -403,6 +403,13 @@ sealed interface Action {
     }
 
     @Keep
+    data object ToggleAutoBrightness : Action {
+        override val title: Int = R.string.diy_action_auto_brightness_toggle
+        override val icon: Int = R.drawable.rounded_brightness_auto_24
+        override val permissions: List<String> = listOf("WRITE_SETTINGS")
+    }
+
+    @Keep
     data class FreezeApps(
         @SerializedName("packageNames") val packageNames: List<String> = emptyList(),
     ) : Action {

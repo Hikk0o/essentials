@@ -1218,6 +1218,7 @@
     <string name="diy_action_cellular_off">Turn Off Cellular Data</string>
     <string name="diy_action_auto_brightness_on">Turn On Auto Brightness</string>
     <string name="diy_action_auto_brightness_off">Turn Off Auto Brightness</string>
+    <string name="diy_action_auto_brightness_toggle">Toggle Auto Brightness</string>
     <string name="diy_action_freeze_apps">Freeze Apps</string>
     <string name="diy_action_unfreeze_apps">Unfreeze Apps</string>
     <string name="diy_freeze_apps_desc">This action requires Shizuku or Root to freeze specific applications.</string>

@@ -734,6 +734,7 @@ object CombinedActionExecutor {
                 is Action.TurnOffCellularData -> setCellularDataEnabled(context, false)
                 is Action.TurnOnAutoBrightness -> setAutoBrightnessEnabled(context, true)
                 is Action.TurnOffAutoBrightness -> setAutoBrightnessEnabled(context, false)
+                is Action.ToggleAutoBrightness -> setAutoBrightnessEnabled(context, !isAutoBrightnessEnabled(context))
                 is Action.FreezeApps -> {
                     action.packageNames.forEach { pkg ->
                         com.sameerasw.essentials.utils.FreezeManager
@@ -893,6 +894,13 @@ object CombinedActionExecutor {
             featureName = context.getString(if (enabled) R.string.diy_action_cellular_on else R.string.diy_action_cellular_off),
         )
     }
+
+    private fun isAutoBrightnessEnabled(context: Context): Boolean =
+        android.provider.Settings.System.getInt(
+            context.contentResolver,
+            android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE,
+            android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL,
+        ) == android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
 
     private fun setAutoBrightnessEnabled(
         context: Context,
