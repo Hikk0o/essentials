@@ -375,6 +375,13 @@ sealed interface Action {
     }
 
     @Keep
+    data object ToggleWifi : Action {
+        override val title: Int = R.string.diy_action_wifi_toggle
+        override val icon: Int = R.drawable.rounded_android_wifi_4_bar_plus_24
+        override val permissions: List<String> = listOf("SHIZUKU", "ROOT")
+    }
+
+    @Keep
     data object TurnOnCellularData : Action {
         override val title: Int = R.string.diy_action_cellular_on
         override val icon: Int = R.drawable.rounded_signal_cellular_alt_24
@@ -384,6 +391,13 @@ sealed interface Action {
     @Keep
     data object TurnOffCellularData : Action {
         override val title: Int = R.string.diy_action_cellular_off
+        override val icon: Int = R.drawable.rounded_signal_cellular_alt_24
+        override val permissions: List<String> = listOf("SHIZUKU", "ROOT")
+    }
+
+    @Keep
+    data object ToggleCellularData : Action {
+        override val title: Int = R.string.diy_action_cellular_toggle
         override val icon: Int = R.drawable.rounded_signal_cellular_alt_24
         override val permissions: List<String> = listOf("SHIZUKU", "ROOT")
     }
