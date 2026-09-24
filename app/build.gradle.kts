@@ -115,8 +115,8 @@ android {
         applicationId = "com.sameerasw.essentials"
         minSdk = 26
         targetSdk = 37
-        versionCode = 65
-        versionName = "18.2"
+        versionCode = 66
+        versionName = "18.3"
 
         val whatsNewCounter = 4
         buildConfigField("int", "WHATS_NEW_COUNTER", whatsNewCounter.toString())
