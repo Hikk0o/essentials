@@ -211,7 +211,7 @@ private fun BriefExpanded(
                     }
                     BriefPage.Player -> SwipeBackPage(scope, onBack = { page = BriefPage.Overview }) {
                         media?.let { m ->
-                            MediaExpanded(m.title, m.artist, m.artwork, m.accent, m.playing, m.liked, m.actions, scope, drawBackground = false)
+                            MediaExpanded(m.title, m.artist, m.artwork, m.accent, m.playing, m.liked, m.actions, scope, drawBackground = false, likable = m.likable)
                         }
                     }
                 }
@@ -510,9 +510,9 @@ private fun BriefPlayer(media: MediaSnapshot, artwork: ImageBitmap?, onClick: ()
         }
         BriefPlayerButton(
             icon = if (media.liked) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-            tint = if (media.liked) media.accent else Color.White,
+            tint = if (media.likable) {if (media.liked) media.accent else Color.White} else {Color.Gray},
         ) {
-            IslandHaptics.button(context)
+            if (media.likable) IslandHaptics.button(context) else IslandHaptics.wiggle(context)
             media.actions.like()
         }
         BriefPlayerButton(

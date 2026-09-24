@@ -2781,7 +2781,7 @@
     <string name="island_title">Island</string>
     <string name="island_desc">Dynamic island</string>
     <string name="island_enable_title">Enable Island</string>
-    <string name="island_enable_desc">Display dynaic island</string>
+    <string name="island_enable_desc">Display dynamic island</string>
     <string name="island_section_position">Position and dimensions</string>
     <string name="island_section_placement">Placement</string>
     <string name="island_section_visuals">Visuals</string>

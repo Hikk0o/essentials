@@ -57,6 +57,7 @@ class MediaPlugin : BaseIslandPlugin() {
     private var track: Track? = null
     private var playing = false
     private var liked = false
+    private var likable = false;
 
     private var lastController: MediaController? = null
     private var lastTrack: Track? = null
@@ -100,6 +101,7 @@ class MediaPlugin : BaseIslandPlugin() {
 
         if (playingController != null) {
             c.mainHandler.removeCallbacks(pausedGrace)
+            likable = playingController.ratingType !=0
             active = playingController
             lastController = playingController
             playing = true
@@ -194,7 +196,7 @@ class MediaPlugin : BaseIslandPlugin() {
                     endSlot = { EqualizerBars(isPlaying, accent) },
                 ),
                 expanded = ExpandedContent { scope ->
-                    MediaExpanded(t.title, t.artist, t.artwork, accent, isPlaying, isLiked, actions, scope)
+                    MediaExpanded(t.title, t.artist, t.artwork, accent, isPlaying, isLiked, actions, scope, likable = likable)
                 },
                 accent = accent,
                 onOpen = { openPlayer() },
@@ -239,6 +241,7 @@ class MediaPlugin : BaseIslandPlugin() {
             open = {
                 if (!sendPendingIntent(context, controller.sessionActivity)) launchPackage(context, controller.packageName)
             },
+            likable = likable
         )
     }
 
