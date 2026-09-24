@@ -1075,6 +1075,16 @@ fun IslandSettingsUI(
                             },
                             modifier = Modifier.highlight(highlightSetting == "island_media_keep_when_paused"),
                         )
+                        IconToggleItem(
+                            iconRes = R.drawable.rounded_skip_previous_24,
+                            title = stringResource(R.string.island_media_show_previous_title),
+                            isChecked = viewModel.isIslandMediaShowPrevious.value,
+                            onCheckedChange = { checked ->
+                                HapticUtil.performVirtualKeyHaptic(view)
+                                viewModel.setIslandMediaShowPrevious(checked)
+                            },
+                            modifier = Modifier.highlight(highlightSetting == "island_media_show_previous"),
+                        )
                     }
                     Text(
                         text = stringResource(R.string.duo_media_skip_apps_title),

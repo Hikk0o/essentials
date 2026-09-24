@@ -216,6 +216,7 @@ class MainViewModel : ViewModel() {
     val isIslandLineStageEnabled = mutableStateOf(true)
     val isIslandMediaPeekSongChange = mutableStateOf(true)
     val isIslandMediaKeepWhenPaused = mutableStateOf(true)
+    val isIslandMediaShowPrevious = mutableStateOf(false)
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
     val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
@@ -829,6 +830,9 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED ->
                         isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
+
+                    SettingsRepository.KEY_ISLAND_MEDIA_SHOW_PREVIOUS ->
+                        isIslandMediaShowPrevious.value = settingsRepository.isIslandMediaShowPreviousEnabled()
 
                     SettingsRepository.KEY_ISLAND_NOTIF_COMPACT_HEADS_UP ->
                         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
@@ -2247,6 +2251,7 @@ class MainViewModel : ViewModel() {
         isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
         isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
+        isIslandMediaShowPrevious.value = settingsRepository.isIslandMediaShowPreviousEnabled()
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
         isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
@@ -5372,6 +5377,11 @@ class MainViewModel : ViewModel() {
     fun setIslandMediaKeepWhenPaused(enabled: Boolean) {
         isIslandMediaKeepWhenPaused.value = enabled
         settingsRepository.setIslandMediaKeepWhenPausedEnabled(enabled)
+    }
+
+    fun setIslandMediaShowPrevious(enabled: Boolean) {
+        isIslandMediaShowPrevious.value = enabled
+        settingsRepository.setIslandMediaShowPreviousEnabled(enabled)
     }
 
     fun setIslandNotifQueue(enabled: Boolean) {
