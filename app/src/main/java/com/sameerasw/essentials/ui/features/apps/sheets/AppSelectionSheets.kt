@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -140,152 +141,162 @@ fun AppSelectionSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
     ) {
-        Column(
+        LazyColumn(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            item(key = "title") {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(bottom = 16.dp),
                 )
+            }
 
-                androidx.compose.material3.IconButton(
-                    onClick = {
-                        HapticUtil.performVirtualKeyHaptic(view)
-                        val updatedList =
-                            selectedApps.map { app ->
-                                val isVisible = !app.isSystemApp || showSystemApps || app.isEnabled
-                                if (isVisible) app.copy(isEnabled = !app.isEnabled) else app
-                            }
-                        selectedApps = updatedList
-                        scope.launch(Dispatchers.IO) {
-                            onSaveApps(
-                                context,
-                                updatedList.map { AppSelection(it.packageName, it.isEnabled) },
-                            )
-                        }
-                    },
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.rounded_invert_colors_24),
-                        contentDescription = stringResource(R.string.action_invert_selection),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
+            if (headerContent != null) {
+                item(key = "header") {
+                    Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                        headerContent()
+                    }
                 }
             }
 
-            // Search Bar
-            headerContent?.invoke()
-
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(R.string.label_search)) },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.rounded_search_24),
-                        contentDescription = stringResource(R.string.action_search),
+            item(key = "search") {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text(stringResource(R.string.label_search)) },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.rounded_search_24),
+                                contentDescription = stringResource(R.string.action_search),
+                            )
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
                     )
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-            )
-
-            // System Apps Toggle
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable {
+                    androidx.compose.material3.IconButton(
+                        onClick = {
                             HapticUtil.performVirtualKeyHaptic(view)
-                            showSystemApps = !showSystemApps
-                        }.padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.rounded_settings_24),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = stringResource(R.string.toggle_show_system_apps),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Switch(
-                    checked = showSystemApps,
-                    onCheckedChange = {
-                        HapticUtil.performVirtualKeyHaptic(view)
-                        showSystemApps = it
-                    },
-                )
+                            val updatedList =
+                                selectedApps.map { app ->
+                                    val isVisible = !app.isSystemApp || showSystemApps || app.isEnabled
+                                    if (isVisible) app.copy(isEnabled = !app.isEnabled) else app
+                                }
+                            selectedApps = updatedList
+                            scope.launch(Dispatchers.IO) {
+                                onSaveApps(
+                                    context,
+                                    updatedList.map { AppSelection(it.packageName, it.isEnabled) },
+                                )
+                            }
+                        },
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.rounded_invert_colors_24),
+                            contentDescription = stringResource(R.string.action_invert_selection),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
             }
 
-            if (isLoadingApps) {
+            item(key = "system_toggle") {
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 32.dp),
-                    horizontalArrangement = Arrangement.Center,
+                            .padding(bottom = 16.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable {
+                                HapticUtil.performVirtualKeyHaptic(view)
+                                showSystemApps = !showSystemApps
+                            }.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    LoadingIndicator()
+                    Icon(
+                        painter = painterResource(id = R.drawable.rounded_settings_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = stringResource(R.string.toggle_show_system_apps),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Switch(
+                        checked = showSystemApps,
+                        onCheckedChange = {
+                            HapticUtil.performVirtualKeyHaptic(view)
+                            showSystemApps = it
+                        },
+                    )
+                }
+            }
+
+            if (isLoadingApps) {
+                item(key = "loading") {
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        LoadingIndicator()
+                    }
                 }
             } else {
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(24.dp)),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    items(filteredApps, key = { it.packageName }) { app ->
-                        AppToggleItem(
-                            icon = app.icon,
-                            title = app.appName,
-                            packageName = app.packageName,
-                            isSystemApp = app.isSystemApp,
-                            isChecked = app.isEnabled,
-                            onCheckedChange = { isChecked ->
-                                val updatedList =
-                                    selectedApps.map {
-                                        if (it.packageName == app.packageName) it.copy(isEnabled = isChecked) else it
-                                    }
-
-                                // If toggled via switch, update specific app then save all
-                                updatedList.find { it.packageName == app.packageName }?.let {
-                                    onAppToggle?.invoke(context, it.packageName, it.isEnabled)
+                itemsIndexed(filteredApps, key = { _, app -> app.packageName }) { index, app ->
+                    val top = if (index == 0) 24.dp else 0.dp
+                    val bottom = if (index == filteredApps.lastIndex) 24.dp else 0.dp
+                    AppToggleItem(
+                        icon = app.icon,
+                        title = app.appName,
+                        packageName = app.packageName,
+                        isSystemApp = app.isSystemApp,
+                        isChecked = app.isEnabled,
+                        modifier =
+                            Modifier
+                                .padding(bottom = if (index == filteredApps.lastIndex) 16.dp else 2.dp)
+                                .clip(RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)),
+                        onCheckedChange = { isChecked ->
+                            val updatedList =
+                                selectedApps.map {
+                                    if (it.packageName == app.packageName) it.copy(isEnabled = isChecked) else it
                                 }
 
-                                selectedApps = updatedList
-                                scope.launch(Dispatchers.IO) {
-                                    // Use updatedList here to ensure we save the new state
-                                    onSaveApps(
-                                        context,
-                                        updatedList.map {
-                                            AppSelection(
-                                                it.packageName,
-                                                it.isEnabled,
-                                            )
-                                        },
-                                    )
-                                }
-                            },
-                        )
-                    }
+                            // If toggled via switch, update specific app then save all
+                            updatedList.find { it.packageName == app.packageName }?.let {
+                                onAppToggle?.invoke(context, it.packageName, it.isEnabled)
+                            }
+
+                            selectedApps = updatedList
+                            scope.launch(Dispatchers.IO) {
+                                // Use updatedList here to ensure we save the new state
+                                onSaveApps(
+                                    context,
+                                    updatedList.map {
+                                        AppSelection(
+                                            it.packageName,
+                                            it.isEnabled,
+                                        )
+                                    },
+                                )
+                            }
+                        },
+                    )
                 }
             }
         }
