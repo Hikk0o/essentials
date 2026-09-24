@@ -41,6 +41,8 @@ class DevicesPlugin : BaseIslandPlugin() {
         SettingsRepository.KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL,
         SettingsRepository.KEY_ISLAND_DEVICES_BATTERY_ONLY_LOW,
         SettingsRepository.KEY_DUO_BATTERY_LOW_COLOR_ENABLED,
+        SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED,
+        SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_LOW_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED,
         SettingsRepository.KEY_DUO_BATTERY_CRITICAL_COLOR,
@@ -197,7 +199,7 @@ class DevicesPlugin : BaseIslandPlugin() {
                 priority = IslandPriority.DEVICES,
                 placement = CompactPlacement.Dynamic,
                 compact = listOf(
-                    CompactCell("devices.battery.level") { DeviceBattery(d.level, iconStyle, showLevel, color) },
+                    CompactCell("devices.battery.level") { DeviceBattery(d.level, iconStyle, showLevel, color ?: idleColor()) },
                     CompactCell("devices.battery.icon") { IslandIcon(d.iconRes, size = 18.dp, tint = MaterialTheme.colorScheme.primary) },
                 ),
                 line = LineContent(
@@ -222,7 +224,7 @@ class DevicesPlugin : BaseIslandPlugin() {
                     start = e.name,
                     end = context.getString(if (e.connected) R.string.island_devices_connected else R.string.island_devices_disconnected),
                     endSlot = if (battery >= 0) {
-                        { DeviceBattery(battery, iconStyle, showLevel = true, color = levelColor(battery)) }
+                        { DeviceBattery(battery, iconStyle, showLevel = true, color = levelColor(battery) ?: idleColor()) }
                     } else {
                         null
                     },
@@ -230,6 +232,16 @@ class DevicesPlugin : BaseIslandPlugin() {
             )
         }
         publish(items)
+    }
+
+    private fun idleColor(): Color? {
+        if (!settings.isIslandBatteryIdleColorEnabled()) return null
+        val raw = try {
+            android.graphics.Color.parseColor(settings.getIslandBatteryIdleColor())
+        } catch (_: Exception) {
+            android.graphics.Color.WHITE
+        }
+        return Color(soften(raw))
     }
 
     private fun levelColor(level: Int): Color? {

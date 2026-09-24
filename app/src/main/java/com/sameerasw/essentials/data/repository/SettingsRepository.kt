@@ -424,6 +424,8 @@ class SettingsRepository(
         const val KEY_DUO_BATTERY_POWER_SAVE_COLOR = "duo_battery_power_save_color"
         const val KEY_DUO_BATTERY_LOW_COLOR_ENABLED = "duo_battery_low_color_enabled"
         const val KEY_DUO_BATTERY_LOW_COLOR = "duo_battery_low_color"
+        const val KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED = "island_battery_idle_color_enabled"
+        const val KEY_ISLAND_BATTERY_IDLE_COLOR = "island_battery_idle_color"
         const val KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED = "duo_battery_critical_color_enabled"
         const val KEY_DUO_BATTERY_CRITICAL_COLOR = "duo_battery_critical_color"
         const val KEY_DUO_SHOW_NETWORKS = "duo_show_networks"
@@ -3412,6 +3414,12 @@ class SettingsRepository(
 
     fun getDuoBatteryLowColor(): String = getString(KEY_DUO_BATTERY_LOW_COLOR, "#FFEB3B") ?: "#FFEB3B"
     fun setDuoBatteryLowColor(colorHex: String) = putString(KEY_DUO_BATTERY_LOW_COLOR, colorHex)
+
+    fun isIslandBatteryIdleColorEnabled(): Boolean = getBoolean(KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED, false)
+    fun setIslandBatteryIdleColorEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED, enabled)
+
+    fun getIslandBatteryIdleColor(): String = getString(KEY_ISLAND_BATTERY_IDLE_COLOR, "#FFFFFF") ?: "#FFFFFF"
+    fun setIslandBatteryIdleColor(colorHex: String) = putString(KEY_ISLAND_BATTERY_IDLE_COLOR, colorHex)
 
     fun isDuoBatteryCriticalColorEnabled(): Boolean = getBoolean(KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED, true)
     fun setDuoBatteryCriticalColorEnabled(enabled: Boolean) = putBoolean(KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED, enabled)

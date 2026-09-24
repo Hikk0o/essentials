@@ -41,6 +41,8 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         SettingsRepository.KEY_DUO_BATTERY_POWER_SAVE_COLOR_ENABLED,
         SettingsRepository.KEY_DUO_BATTERY_POWER_SAVE_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_LOW_COLOR_ENABLED,
+        SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED,
+        SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_LOW_COLOR,
         SettingsRepository.KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED,
         SettingsRepository.KEY_DUO_BATTERY_CRITICAL_COLOR,
@@ -142,6 +144,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         val timeText = time
         val batteryLevel = level
         val stateColor = stateColor()
+        val displayColor = stateColor ?: idleColor()
         val iconStyle = settings.getIslandBatteryStyle() == SettingsRepository.ISLAND_BATTERY_STYLE_ICON
         val showLevel = settings.isIslandBatteryPercentageEnabled() &&
             (!settings.isIslandBatteryPercentageConditional() || stateColor != null)
@@ -161,8 +164,8 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
             compact = listOf(
                 CompactCell("battery") {
                     when {
-                        iconStyle -> BatteryGlyph(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
-                        else -> BatteryRing(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
+                        iconStyle -> BatteryGlyph(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
+                        else -> BatteryRing(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
                     }
                 },
             ),
@@ -170,8 +173,8 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
                 LineContent(
                     icon = {
                         when {
-                            iconStyle -> BatteryGlyph(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = false)
-                            else -> BatteryRing(batteryLevel, stateColor ?: MaterialTheme.colorScheme.primary, showLevel = false)
+                            iconStyle -> BatteryGlyph(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = false)
+                            else -> BatteryRing(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = false)
                         }
                     },
                     start = "$batteryLevel%",
@@ -187,6 +190,16 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
                 System.currentTimeMillis() < chargePeekUntil
             )
         publish(if (showBattery) listOf(timeItem, batteryItem) else listOf(timeItem))
+    }
+
+    private fun idleColor(): Color? {
+        if (!settings.isIslandBatteryIdleColorEnabled()) return null
+        val raw = try {
+            AndroidColor.parseColor(settings.getIslandBatteryIdleColor())
+        } catch (_: Exception) {
+            AndroidColor.WHITE
+        }
+        return Color(soften(raw))
     }
 
     private fun stateColor(): Color? {

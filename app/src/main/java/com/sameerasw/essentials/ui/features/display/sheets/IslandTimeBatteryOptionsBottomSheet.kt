@@ -133,6 +133,6 @@ fun IslandBatteryOptions(
             }
         }
 
-        BatteryColorOptions(viewModel)
+        BatteryColorOptions(viewModel, showIdleColor = true)
     }
 }

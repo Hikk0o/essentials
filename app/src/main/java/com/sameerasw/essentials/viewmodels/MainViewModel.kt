@@ -156,6 +156,8 @@ class MainViewModel : ViewModel() {
     val duoBatteryPowerSaveColor = mutableStateOf("#FF9800")
     val isDuoBatteryLowColorEnabled = mutableStateOf(true)
     val duoBatteryLowColor = mutableStateOf("#FFEB3B")
+    val isIslandBatteryIdleColorEnabled = mutableStateOf(false)
+    val islandBatteryIdleColor = mutableStateOf("#FFFFFF")
     val isDuoBatteryCriticalColorEnabled = mutableStateOf(true)
     val duoBatteryCriticalColor = mutableStateOf("#F44336")
     val isDuoShowNetworks = mutableStateOf(true)
@@ -709,6 +711,12 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_DUO_BATTERY_LOW_COLOR ->
                         duoBatteryLowColor.value = settingsRepository.getDuoBatteryLowColor()
+
+                    SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED ->
+                        isIslandBatteryIdleColorEnabled.value = settingsRepository.isIslandBatteryIdleColorEnabled()
+
+                    SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR ->
+                        islandBatteryIdleColor.value = settingsRepository.getIslandBatteryIdleColor()
 
                     SettingsRepository.KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED ->
                         isDuoBatteryCriticalColorEnabled.value = settingsRepository.isDuoBatteryCriticalColorEnabled()
@@ -2162,6 +2170,8 @@ class MainViewModel : ViewModel() {
         duoBatteryPowerSaveColor.value = settingsRepository.getDuoBatteryPowerSaveColor()
         isDuoBatteryLowColorEnabled.value = settingsRepository.isDuoBatteryLowColorEnabled()
         duoBatteryLowColor.value = settingsRepository.getDuoBatteryLowColor()
+        isIslandBatteryIdleColorEnabled.value = settingsRepository.isIslandBatteryIdleColorEnabled()
+        islandBatteryIdleColor.value = settingsRepository.getIslandBatteryIdleColor()
         isDuoBatteryCriticalColorEnabled.value = settingsRepository.isDuoBatteryCriticalColorEnabled()
         duoBatteryCriticalColor.value = settingsRepository.getDuoBatteryCriticalColor()
         isDuoShowNetworks.value = settingsRepository.isDuoShowNetworksEnabled()
@@ -5015,6 +5025,16 @@ class MainViewModel : ViewModel() {
     fun setDuoBatteryLowColor(colorHex: String) {
         duoBatteryLowColor.value = colorHex
         settingsRepository.setDuoBatteryLowColor(colorHex)
+    }
+
+    fun setIslandBatteryIdleColorEnabled(enabled: Boolean) {
+        isIslandBatteryIdleColorEnabled.value = enabled
+        settingsRepository.setIslandBatteryIdleColorEnabled(enabled)
+    }
+
+    fun setIslandBatteryIdleColor(colorHex: String) {
+        islandBatteryIdleColor.value = colorHex
+        settingsRepository.setIslandBatteryIdleColor(colorHex)
     }
 
     fun setDuoBatteryCriticalColorEnabled(enabled: Boolean) {
