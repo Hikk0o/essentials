@@ -160,6 +160,20 @@ fun IslandRoot(
     val jelly = rememberCompactJellyState()
     val jellyRangePx = with(density) { 90.dp.toPx() }
     var compactLongPressed by remember { mutableStateOf(false) }
+    var compactSettled by remember { mutableStateOf(false) }
+    var sizeFromStage by remember { mutableStateOf(stage) }
+
+    LaunchedEffect(stage) {
+        compactSettled = false
+        if (stage == IslandStage.Compact) {
+            if (sizeFromStage == IslandStage.Hidden) compactSettled = true
+            sizeFromStage = stage
+            delay(IslandMotion.COLLAPSE_MS.toLong())
+            compactSettled = true
+        } else {
+            sizeFromStage = stage
+        }
+    }
 
     LaunchedEffect(key) {
         if (stage != IslandStage.Hidden) visible = true
@@ -325,7 +339,11 @@ fun IslandRoot(
                 }
                 .onSizeChanged { surfaceSize = it }
                 .animateContentSize(
-                    animationSpec = if (stage == IslandStage.Expanded || stage == IslandStage.Line) IslandMotion.size else IslandMotion.collapseSize,
+                    animationSpec = when {
+                        stage == IslandStage.Expanded || stage == IslandStage.Line -> IslandMotion.size
+                        stage == IslandStage.Compact && compactSettled -> IslandMotion.compactSize
+                        else -> IslandMotion.collapseSize
+                    },
                     alignment = Alignment.TopCenter,
                     finishedListener = { _, _ ->
                         if (currentState.stage == IslandStage.Hidden) visible = false
