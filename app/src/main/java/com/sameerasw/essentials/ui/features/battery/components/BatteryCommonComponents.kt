@@ -10,7 +10,6 @@
 package com.sameerasw.essentials.ui.components.battery
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -57,7 +56,6 @@ import androidx.core.graphics.drawable.toBitmap
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.ui.theme.Shapes
 import com.sameerasw.essentials.utils.HapticUtil
-import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -364,121 +362,4 @@ fun TopAppsBreakdownHeader(usageApps: List<com.sameerasw.essentials.utils.Batter
             }
         }
     }
-}
-
-@Composable
-fun BatteryUsageBreakdownHeader(
-    appsPct: Float,
-    systemPct: Float,
-    otherPct: Float,
-    activeTab: Int, // 1: Apps, 2: System
-) {
-    val safeApps = appsPct.coerceIn(0f, 100f)
-    val safeSystem = systemPct.coerceIn(0f, 100f)
-    val safeOther = otherPct.coerceIn(0f, 100f)
-
-    val animatedAppsWeight by animateFloatAsState(
-        targetValue = safeApps.coerceAtLeast(1f),
-        label = "apps_weight",
-    )
-    val animatedSystemWeight by animateFloatAsState(
-        targetValue = safeSystem.coerceAtLeast(1f),
-        label = "system_weight",
-    )
-    val animatedOtherWeight by animateFloatAsState(
-        targetValue = safeOther.coerceAtLeast(1f),
-        label = "other_weight",
-    )
-
-    // Colors: Only selected tab gets Primary accent color, all unselected sections use outlineVariant
-    val appsColor =
-        if (activeTab == 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-    val systemColor =
-        if (activeTab == 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-    val otherColor = MaterialTheme.colorScheme.outlineVariant
-
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(88.dp)
-                .padding(vertical = 4.dp),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            // Multi-segment progress bar (Fully rounded outer ends, connected extraSmall inner joints)
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .clip(CircleShape),
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .weight(animatedAppsWeight)
-                            .fillMaxHeight()
-                            .clip(ButtonGroupDefaults.connectedLeadingButtonShapes().shape)
-                            .background(appsColor),
-                )
-                Box(
-                    modifier =
-                        Modifier
-                            .weight(animatedSystemWeight)
-                            .fillMaxHeight()
-                            .clip(ButtonGroupDefaults.connectedMiddleButtonShapes().shape)
-                            .background(systemColor),
-                )
-                Box(
-                    modifier =
-                        Modifier
-                            .weight(animatedOtherWeight)
-                            .fillMaxHeight()
-                            .clip(ButtonGroupDefaults.connectedTrailingButtonShapes().shape)
-                            .background(otherColor),
-                )
-            }
-
-            // Legend row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                BreakdownLegendItem(
-                    label = stringResource(R.string.label_battery_tab_apps),
-                    percentage = safeApps,
-                    isSelected = activeTab == 1,
-                )
-                BreakdownLegendItem(
-                    label = stringResource(R.string.label_battery_tab_system),
-                    percentage = safeSystem,
-                    isSelected = activeTab == 2,
-                )
-                BreakdownLegendItem(
-                    label = stringResource(R.string.label_battery_other),
-                    percentage = safeOther,
-                    isSelected = false,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BreakdownLegendItem(
-    label: String,
-    percentage: Float,
-    isSelected: Boolean,
-) {
-    Text(
-        text = "$label ${String.format(Locale.getDefault(), "%.0f%%", percentage)}",
-        style = MaterialTheme.typography.labelLarge,
-        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-    )
 }

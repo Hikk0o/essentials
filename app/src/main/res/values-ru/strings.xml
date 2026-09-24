@@ -1633,12 +1633,6 @@
     <string name="label_charging_mode_limited">Ограниченная</string>
     <string name="diy_category_apps">Приложения</string>
     <string name="label_battery_tab_info">Информация</string>
-    <string name="label_audio_drain">Расход Аудио</string>
-    <string name="label_video_drain">Расход Видео</string>
-    <string name="label_camera_drain">Расход Камеры</string>
-    <string name="label_flashlight_drain">Расход Фонарика</string>
-    <string name="label_cpu_active_drain">Активный расход ЦП</string>
-    <string name="label_cpu_idle_drain">Потребление ЦП в спокойствие</string>
     <string name="settings_genai_automation_title">Включить GenAI</string>
     <string name="settings_genai_automation_desc">Использовать Gemini Nano на устройстве для создания сценариев автоматизации на основе задач</string>
     <string name="icon_no_sim">Нет SIM-карты</string>

@@ -1563,10 +1563,6 @@
     <string name="label_battery_status">状態</string>
     <string name="label_auto_reset_battery_stats_title">自動リセット</string>
     <string name="label_auto_reset_battery_stats_desc">充電量が90%を超えている状態でデバイスの電源ケーブルを抜いた際、バッテリーの統計情報を自動的にリセットします。</string>
-    <string name="label_audio_drain">音声による消費電力</string>
-    <string name="label_camera_drain">カメラによる消費電力</string>
-    <string name="label_cpu_idle_drain">CPUアイドル時の消費電力</string>
-    <string name="label_cpu_suspend_drain">CPUサスペンド時の消費電力</string>
     <string name="label_device_battery">バッテリー</string>
     <string name="label_battery_tab_info">情報</string>
     <string name="label_battery_section_health">状態</string>
@@ -1586,10 +1582,6 @@
     <string name="label_battery_current_now">電流</string>
     <string name="label_thermal_system_thermals">システム温度</string>
     <string name="label_thermal_throttling_status">スロットリング状態</string>
-    <string name="label_screen_on_drain">画面オン中の消費電力</string>
-    <string name="label_screen_max_drain">画面の最大消費電力</string>
-    <string name="label_flashlight_drain">ライトの消費電力</string>
-    <string name="label_cpu_active_drain">CPU動作中の消費電力</string>
     <string name="cat_navigation">ナビゲーション</string>
     <string name="icon_glove_mode">手袋モード</string>
     <string name="icon_frame_rate">リフレッシュレート</string>
