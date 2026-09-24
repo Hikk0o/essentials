@@ -1674,4 +1674,11 @@
     <string name="island_like_while_playing_title">Лайкнуть музыку если проигрываться</string>
     <string name="duo_action_horizontal_slide_track">Переключить трек</string>
     <string name="island_combine_with_duo">Совместить с Duo</string>
+    <string name="feat_aod_wallpaper_desc">Использовать как оверлей</string>
+    <string name="island_timeout_title">Продолжительность показа</string>
+    <string name="island_expanded_timeout_title">Тайм-аут раскрытости</string>
+    <string name="island_expanded_timeout_desc">Длительность после второго всё сворачиваться в капсулу (от 0 до бесконечности)</string>
+    <string name="island_suppress_system_heads_up_title">Скрыть системные уведомления </string>
+    <string name="island_dynamic_hide_status_bar_title">Динамично скрывать элементы статус бара</string>
+    <string name="island_notif_compact_heads_up_title">Компактные напоминания</string>
 </resources>
