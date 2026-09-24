@@ -63,7 +63,7 @@ private const val SEEK_SETTLE_MS = 1500L
 class MediaActions(
     val playPause: () -> Unit,
     val next: () -> Unit,
-    val previous: () -> Unit,
+    val previous: (() -> Unit)?,
     val like: () -> Unit,
     val progress: () -> Float,
     val canSeek: () -> Boolean = { false },
@@ -185,8 +185,7 @@ fun MediaExpanded(
             Spacer(Modifier.height(4.dp))
             ConnectedButtonRow(
                 height = 52.dp,
-                items = listOf(
-
+                items = listOfNotNull(
                     ConnectedItem(actions.like, enabled = likable) {
                         IslandIcon(
                             if (liked) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
@@ -194,8 +193,10 @@ fun MediaExpanded(
                             size = 24.dp,
                         )
                     },
-                    ConnectedItem(actions.previous) {
-                        IslandIcon(R.drawable.rounded_skip_previous_24, size = 24.dp)
+                    actions.previous?.let {
+                        ConnectedItem(it) {
+                            IslandIcon(R.drawable.rounded_skip_previous_24, size = 24.dp)
+                        }
                     },
                     ConnectedItem(actions.playPause) {
                         AnimatedContent(
