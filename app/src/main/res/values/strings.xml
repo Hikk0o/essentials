@@ -2839,6 +2839,8 @@
     <string name="island_camera_position_right">Right</string>
     <string name="island_show_calls_title">Calls</string>
     <string name="island_show_timers_title">Timers and stopwatches</string>
+    <string name="island_timer_options_title">Timer options</string>
+    <string name="island_timers_show_screen_recorder_title">Show screen recorder</string>
     <string name="island_show_network_title">Network activity</string>
     <string name="island_section_brief">Brief</string>
     <string name="island_brief_title">Brief</string>

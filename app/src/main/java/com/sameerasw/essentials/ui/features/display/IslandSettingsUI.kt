@@ -63,6 +63,7 @@ import com.sameerasw.essentials.ui.features.display.actions.HorizontalSlideModeS
 import com.sameerasw.essentials.ui.features.display.actions.horizontalSlideDescription
 import com.sameerasw.essentials.ui.features.display.sheets.IslandDevicesBatteryBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandTimeBatteryOptionsBottomSheet
+import com.sameerasw.essentials.ui.features.display.sheets.IslandTimerOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.StatusGlanceCalendarOptionsBottomSheet
 import com.sameerasw.essentials.ui.modifiers.highlight
 import com.sameerasw.essentials.utils.HapticUtil
@@ -151,6 +152,7 @@ fun IslandSettingsUI(
     var showCalendarOptionsSheet by remember { mutableStateOf(false) }
     var showDevicesBatterySheet by remember { mutableStateOf(false) }
     var showTimeBatteryOptionsSheet by remember { mutableStateOf(false) }
+    var showTimerOptionsSheet by remember { mutableStateOf(false) }
     var pickingGesture by remember { mutableStateOf<String?>(null) }
     var showSlideModeSheet by remember { mutableStateOf(false) }
 
@@ -724,6 +726,7 @@ fun IslandSettingsUI(
                     HapticUtil.performVirtualKeyHaptic(view)
                     viewModel.setIslandShowTimers(checked)
                 },
+                onSettingsClick = { showTimerOptionsSheet = true },
                 modifier = Modifier.highlight(highlightSetting == "island_show_timers"),
             )
 
@@ -1041,6 +1044,13 @@ fun IslandSettingsUI(
                     )
                 }
             },
+        )
+    }
+
+    if (showTimerOptionsSheet) {
+        IslandTimerOptionsBottomSheet(
+            viewModel = viewModel,
+            onDismissRequest = { showTimerOptionsSheet = false },
         )
     }
 
