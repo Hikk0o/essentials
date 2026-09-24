@@ -1717,8 +1717,8 @@
     <string name="duo_action_horizontal_slide_title">水平スライド</string>
     <string name="duo_hide_when_screen_off_only_idle_title">アイドル時のみAODで非表示にする</string>
     <string name="duo_hide_when_screen_off_title">画面オフ時に非表示にする</string>
-    <string name="feat_status_glance_title">Glanceステータス</string>
-    <string name="feat_status_glance_desc">ひと目でわかるオーバーレイ</string>
+    <string name="feat_status_glance_title">クイックステータス</string>
+    <string name="feat_status_glance_desc">一目で分かるオーバーレイ</string>
     <string name="status_glance_enable_title">ステータス・グランスを有効にする</string>
     <string name="status_glance_enable_desc">ステータスをひと目で確認</string>
     <string name="status_glance_auto_detect_button_title">カメラ位置を検出する</string>
@@ -1777,4 +1777,8 @@
     <string name="island_catch_up_title">追いつく</string>
     <string name="island_catch_up_desc">最後の通知をアイランドに長時間表示する</string>
     <string name="island_show_time_battery_title">時刻とバッテリー</string>
+    <string name="diy_action_media_play_pause">メディアの一時停止または再生</string>
+    <string name="diy_action_open_now_playing_app">再生中のアプリを開く</string>
+    <string name="diy_action_wifi_on">Wi-Fiをオンにする</string>
+    <string name="diy_action_wifi_off">Wi-Fiをオフにする</string>
 </resources>
