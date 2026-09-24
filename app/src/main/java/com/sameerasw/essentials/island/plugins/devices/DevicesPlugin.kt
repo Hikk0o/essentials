@@ -148,6 +148,7 @@ class DevicesPlugin : BaseIslandPlugin() {
     private fun announce(device: BluetoothDevice, connected: Boolean) {
         val c = ctx ?: return
         if (!settings.isIslandShowDevicesEnabled() || !settings.isIslandLineStageEnabled() || !hasPermission()) return
+        if (isComputer(device)) return
         val name = nameOf(device)
         val battery = if (connected) batteryOf(device) else -1
         event = DeviceEvent(device.address, connected, name, iconFor(device, name), battery)
@@ -165,6 +166,13 @@ class DevicesPlugin : BaseIslandPlugin() {
     }
 
     @SuppressLint("MissingPermission")
+    private fun isComputer(device: BluetoothDevice): Boolean =
+        try {
+            device.bluetoothClass?.majorDeviceClass == BluetoothClass.Device.Major.COMPUTER
+        } catch (_: SecurityException) {
+            false
+        }
+
     private fun iconFor(device: BluetoothDevice, name: String): Int {
         val major = try {
             device.bluetoothClass?.majorDeviceClass
