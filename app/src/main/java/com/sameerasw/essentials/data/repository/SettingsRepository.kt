@@ -3511,7 +3511,10 @@ class SettingsRepository(
 
     // Island
     fun isIslandEnabled(): Boolean = getBoolean(KEY_ISLAND_ENABLED, false)
-    fun setIslandEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_ENABLED, enabled)
+    fun setIslandEnabled(enabled: Boolean) {
+        putBoolean(KEY_ISLAND_ENABLED, enabled)
+        if (isIslandSuppressSystemHeadsUpEnabled()) applyHeadsUpSuppression(enabled)
+    }
 
     fun isIslandAutoDetectEnabled(): Boolean = getBoolean(KEY_ISLAND_USE_AUTO_DETECT, true)
     fun setIslandAutoDetectEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_USE_AUTO_DETECT, enabled)
@@ -3534,7 +3537,7 @@ class SettingsRepository(
     fun isIslandSuppressSystemHeadsUpEnabled(): Boolean = getBoolean(KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP, false)
     fun setIslandSuppressSystemHeadsUpEnabled(enabled: Boolean) {
         putBoolean(KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP, enabled)
-        applyHeadsUpSuppression(enabled)
+        applyHeadsUpSuppression(enabled && isIslandEnabled())
     }
 
     fun isIslandHideWhenScreenOffEnabled(): Boolean = getBoolean(KEY_ISLAND_HIDE_WHEN_SCREEN_OFF, true)
@@ -3760,7 +3763,7 @@ class SettingsRepository(
     fun isIslandNotifKeepProgressEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_KEEP_PROGRESS, true)
     fun setIslandNotifKeepProgressEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_KEEP_PROGRESS, enabled)
 
-    fun applyHeadsUpSuppression(suppress: Boolean = isIslandSuppressSystemHeadsUpEnabled()) {
+    fun applyHeadsUpSuppression(suppress: Boolean = isIslandEnabled() && isIslandSuppressSystemHeadsUpEnabled()) {
         val targetValue = if (suppress) 0 else 1
         try {
             android.provider.Settings.Global.putInt(
