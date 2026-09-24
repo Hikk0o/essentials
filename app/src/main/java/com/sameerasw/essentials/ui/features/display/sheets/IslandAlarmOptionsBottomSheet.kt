@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.R
+import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.ui.components.menus.SegmentedDropdownMenuItem
 import com.sameerasw.essentials.ui.core.cards.ConfigPickerItem
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
@@ -78,6 +79,8 @@ fun IslandAlarmOptionsBottomSheet(
                     }
                 }
             }
+
+            IslandLauncherOnlyToggle(SettingsRepository.KEY_ISLAND_ALARM_LAUNCHER_ONLY)
         }
     }
 }
