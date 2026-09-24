@@ -1,5 +1,8 @@
 package com.sameerasw.essentials.island.ui.components
 
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -54,24 +57,27 @@ fun IslandBitmap(
     circle: Boolean = false,
     fallbackRes: Int? = null,
 ) {
-    val shape = if (circle) CircleShape else RoundedCornerShape(size * 0.28f)
+    val shape = if (circle) CircleShape else RoundedCornerShape(percent = 28)
     AnimatedContent(
         targetState = bitmap,
         transitionSpec = { fadeIn(IslandMotion.contentIn()) togetherWith fadeOut(IslandMotion.contentOut()) },
         label = "islandBitmap",
-        modifier = modifier.size(size).clip(shape),
+        modifier = modifier
+            .sizeIn(maxWidth = size, maxHeight = size)
+            .aspectRatio(1f, matchHeightConstraintsFirst = true)
+            .clip(shape),
     ) { bmp ->
         when {
             bmp != null -> Image(
                 bitmap = remember(bmp) { bmp.asImageBitmap() },
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(size),
+                modifier = Modifier.fillMaxSize(),
             )
-            fallbackRes != null -> Box(Modifier.size(size), contentAlignment = Alignment.Center) {
-                Icon(painterResource(fallbackRes), null, tint = Color.White, modifier = Modifier.size(size * 0.8f))
+            fallbackRes != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Icon(painterResource(fallbackRes), null, tint = Color.White, modifier = Modifier.fillMaxSize(0.8f))
             }
-            else -> Box(Modifier.size(size))
+            else -> Box(Modifier.fillMaxSize())
         }
     }
 }

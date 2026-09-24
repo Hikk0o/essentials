@@ -115,7 +115,7 @@ fun CalendarExpanded(
                     container = Color.White.copy(alpha = 0.2f),
                     items = listOf(ConnectedItem(onView) { ConnectedTextLabel(stringResource(R.string.island_calendar_view_event)) }),
                 )
-                Spacer(Modifier.height(spec.expandedPadding * 0.7f))
+                Spacer(Modifier.height(spec.expandedBottomPadding))
             }
         }
     }

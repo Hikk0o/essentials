@@ -70,7 +70,9 @@ fun NotificationExpanded(
     onAction: (NotificationActionItem) -> Unit,
     onReply: (NotificationActionItem, String) -> Unit,
     scope: IslandExpandedScope,
+    tapToOpen: Boolean = false,
 ) {
+    val context = LocalContext.current
     var replyAction by remember(alert.key) { mutableStateOf<NotificationActionItem?>(null) }
     val spec = scope.spec
     val sidePadding = spec.expandedPadding + spec.expandedCorner * 0.35f
@@ -81,7 +83,16 @@ fun NotificationExpanded(
             modifier = Modifier.fillMaxWidth().padding(spec.expandedOutset),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column {
+            Column(
+                modifier = if (tapToOpen) {
+                    Modifier.clickable(interactionSource = null, indication = null) {
+                        IslandHaptics.button(context)
+                        scope.openApp()
+                    }
+                } else {
+                    Modifier
+                },
+            ) {
                 Spacer(Modifier.height(spec.expandedTopPadding))
                 scope.CameraRow(
                     horizontalPadding = spec.cameraGap + spec.expandedCorner * 0.35f,
@@ -131,7 +142,7 @@ fun NotificationExpanded(
                         },
                     )
                 }
-                Spacer(Modifier.height(if (alert.actions.isEmpty()) spec.expandedPadding * 0.9f else spec.expandedPadding * 0.7f))
+                Spacer(Modifier.height(spec.expandedBottomPadding))
             }
         }
     }

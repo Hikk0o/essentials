@@ -62,7 +62,7 @@ fun WeatherExpanded(
     val snapshot = state.snapshot
     val accent = MaterialTheme.colorScheme.primary
 
-    Column(Modifier.fillMaxWidth().padding(spec.expandedOutset).padding(bottom = spec.expandedPadding)) {
+    Column(Modifier.fillMaxWidth().padding(spec.expandedOutset).padding(bottom = spec.expandedBottomPadding)) {
         Spacer(Modifier.height(spec.expandedTopPadding))
         scope.CameraRow(
             horizontalPadding = spec.cameraGap + spec.expandedCorner * 0.35f,

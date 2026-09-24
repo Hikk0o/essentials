@@ -156,6 +156,7 @@ class IslandCoordinator(
                 Intent.ACTION_SCREEN_ON, Intent.ACTION_USER_PRESENT -> isScreenOff = false
                 else -> return
             }
+            if (!running) return
             applySuppression()
             plugins.forEach { it.onScreenStateChanged() }
         }
@@ -343,6 +344,7 @@ class IslandCoordinator(
             expandedCorner = settings.getIslandExpandedRoundness().dp,
             expandedPadding = settings.getIslandExpandedPadding().dp,
             expandedTopPadding = settings.getIslandExpandedTopPadding().dp,
+            expandedBottomPadding = settings.getIslandExpandedBottomPadding().dp,
             expandedScale = settings.getIslandExpandedScale().coerceIn(1f, 1.3f),
             fontScale = settings.getIslandFontScale().coerceIn(0.8f, 1.3f),
             expandedOutset = (expandedWidth * (scale - 1f) / 2f).dp,
@@ -395,6 +397,7 @@ class IslandCoordinator(
             SettingsRepository.KEY_ISLAND_EXPANDED_ROUNDNESS,
             SettingsRepository.KEY_ISLAND_EXPANDED_PADDING,
             SettingsRepository.KEY_ISLAND_EXPANDED_TOP_PADDING,
+            SettingsRepository.KEY_ISLAND_EXPANDED_BOTTOM_PADDING,
             SettingsRepository.KEY_ISLAND_EXPANDED_TIMEOUT_MS,
             SettingsRepository.KEY_ISLAND_LINE_STAGE_ENABLED,
             SettingsRepository.KEY_ISLAND_EXPANDED_SCALE,

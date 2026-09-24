@@ -81,6 +81,7 @@ class TimerPlugin : BaseIslandPlugin() {
     }
 
     override fun refresh() {
+        if (ctx == null) return
         entries = visible(allEntries)
         render()
         restartTicker()
@@ -181,7 +182,7 @@ class TimerPlugin : BaseIslandPlugin() {
                                     },
                                 )
                             }
-                            Spacer(Modifier.height(spec.expandedPadding * 0.7f))
+                            Spacer(Modifier.height(spec.expandedBottomPadding))
                         }
                     }
                 },

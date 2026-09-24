@@ -130,7 +130,7 @@ fun MediaExpanded(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(spec.expandedOutset)
-                .padding(start = 12.dp, end = 12.dp, bottom = maxOf(spec.expandedPadding, 16.dp)),
+                .padding(start = 12.dp, end = 12.dp, bottom = spec.expandedBottomPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(Modifier.height(spec.cameraDiameter + 28.dp + spec.expandedTopPadding))

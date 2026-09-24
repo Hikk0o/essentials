@@ -207,6 +207,7 @@ class MainViewModel : ViewModel() {
     val islandDevicesBatteryOrder = mutableStateOf<List<String>>(emptyList())
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
+    val islandExpandedBottomPadding = mutableFloatStateOf(12f)
     val islandExpandedTimeoutMs = mutableLongStateOf(0L)
     val isIslandSuppressSystemHeadsUp = mutableStateOf(false)
     val isIslandDynamicHideStatusBar = mutableStateOf(false)
@@ -218,6 +219,7 @@ class MainViewModel : ViewModel() {
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
     val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
+    val isIslandNotifTapToOpen = mutableStateOf(false)
     val isIslandCatchUpEnabled = mutableStateOf(true)
     val islandCatchUpTimeoutMs = mutableLongStateOf(10000L)
     val isIslandShowGlow = mutableStateOf(true)
@@ -833,6 +835,9 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_ISLAND_NOTIF_QUEUE ->
                         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
+
+                    SettingsRepository.KEY_ISLAND_NOTIF_TAP_TO_OPEN ->
+                        isIslandNotifTapToOpen.value = settingsRepository.isIslandNotifTapToOpenEnabled()
 
                     SettingsRepository.KEY_ISLAND_CATCH_UP_ENABLED ->
                         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
@@ -2229,6 +2234,7 @@ class MainViewModel : ViewModel() {
         islandDevicesBatteryOrder.value = settingsRepository.getIslandDevicesBatteryOrder()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
+        islandExpandedBottomPadding.floatValue = settingsRepository.getIslandExpandedBottomPadding()
         islandExpandedTimeoutMs.longValue = settingsRepository.getIslandExpandedTimeoutMs()
         isIslandSuppressSystemHeadsUp.value = settingsRepository.isIslandSuppressSystemHeadsUpEnabled()
         isIslandDynamicHideStatusBar.value =
@@ -2244,6 +2250,7 @@ class MainViewModel : ViewModel() {
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
         isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
+        isIslandNotifTapToOpen.value = settingsRepository.isIslandNotifTapToOpenEnabled()
         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
         islandCatchUpTimeoutMs.longValue = settingsRepository.getIslandCatchUpTimeoutMs()
         isIslandShowGlow.value = settingsRepository.isIslandShowGlowEnabled()
@@ -5313,6 +5320,11 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandExpandedTopPadding(value)
     }
 
+    fun setIslandExpandedBottomPadding(value: Float) {
+        islandExpandedBottomPadding.floatValue = value
+        settingsRepository.setIslandExpandedBottomPadding(value)
+    }
+
     fun setIslandExpandedTimeoutMs(value: Long) {
         islandExpandedTimeoutMs.longValue = value
         settingsRepository.setIslandExpandedTimeoutMs(value)
@@ -5365,6 +5377,11 @@ class MainViewModel : ViewModel() {
     fun setIslandNotifQueue(enabled: Boolean) {
         isIslandNotifQueue.value = enabled
         settingsRepository.setIslandNotifQueueEnabled(enabled)
+    }
+
+    fun setIslandNotifTapToOpen(enabled: Boolean) {
+        isIslandNotifTapToOpen.value = enabled
+        settingsRepository.setIslandNotifTapToOpenEnabled(enabled)
     }
 
     fun setIslandNotifKeepProgress(enabled: Boolean) {

@@ -464,6 +464,7 @@ class SettingsRepository(
         const val KEY_ISLAND_EXPANDED_ROUNDNESS = "island_expanded_roundness"
         const val KEY_ISLAND_EXPANDED_PADDING = "island_expanded_padding"
         const val KEY_ISLAND_EXPANDED_TOP_PADDING = "island_expanded_top_padding"
+        const val KEY_ISLAND_EXPANDED_BOTTOM_PADDING = "island_expanded_bottom_padding"
         const val KEY_ISLAND_EXPANDED_TIMEOUT_MS = "island_expanded_timeout_ms"
         const val KEY_ISLAND_CATCH_UP_ENABLED = "island_catch_up_enabled"
         const val KEY_ISLAND_CATCH_UP_TIMEOUT_MS = "island_catch_up_timeout_ms"
@@ -532,6 +533,7 @@ class SettingsRepository(
         const val KEY_ISLAND_NOTIF_COMPACT_HEADS_UP = "island_notif_compact_heads_up"
         const val KEY_ISLAND_NOTIF_KEEP_PROGRESS = "island_notif_keep_progress"
         const val KEY_ISLAND_NOTIF_QUEUE = "island_notif_queue"
+        const val KEY_ISLAND_NOTIF_TAP_TO_OPEN = "island_notif_tap_to_open"
 
         // Status Glance
         const val KEY_STATUS_GLANCE_ENABLED = "status_glance_enabled"
@@ -3553,6 +3555,8 @@ class SettingsRepository(
 
     fun getIslandExpandedTopPadding(): Float = getFloat(KEY_ISLAND_EXPANDED_TOP_PADDING, 0f)
     fun setIslandExpandedTopPadding(value: Float) = putFloat(KEY_ISLAND_EXPANDED_TOP_PADDING, value)
+    fun getIslandExpandedBottomPadding(): Float = getFloat(KEY_ISLAND_EXPANDED_BOTTOM_PADDING, 12f)
+    fun setIslandExpandedBottomPadding(value: Float) = putFloat(KEY_ISLAND_EXPANDED_BOTTOM_PADDING, value)
 
     fun getIslandExpandedTimeoutMs(): Long = getLong(KEY_ISLAND_EXPANDED_TIMEOUT_MS, 0L)
     fun setIslandExpandedTimeoutMs(value: Long) = putLong(KEY_ISLAND_EXPANDED_TIMEOUT_MS, value)
@@ -3738,6 +3742,9 @@ class SettingsRepository(
 
     fun isIslandNotifQueueEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_QUEUE, true)
     fun setIslandNotifQueueEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_QUEUE, enabled)
+
+    fun isIslandNotifTapToOpenEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_TAP_TO_OPEN, false)
+    fun setIslandNotifTapToOpenEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_TAP_TO_OPEN, enabled)
 
     fun isIslandNotifCompactHeadsUpEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_COMPACT_HEADS_UP, true)
     fun setIslandNotifCompactHeadsUpEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_COMPACT_HEADS_UP, enabled)
