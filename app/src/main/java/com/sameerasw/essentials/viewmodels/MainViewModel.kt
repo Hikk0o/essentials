@@ -207,6 +207,7 @@ class MainViewModel : ViewModel() {
     val islandDevicesBatteryOrder = mutableStateOf<List<String>>(emptyList())
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
+    val islandExpandedBottomPadding = mutableFloatStateOf(12f)
     val islandExpandedTimeoutMs = mutableLongStateOf(0L)
     val isIslandSuppressSystemHeadsUp = mutableStateOf(false)
     val isIslandDynamicHideStatusBar = mutableStateOf(false)
@@ -2229,6 +2230,7 @@ class MainViewModel : ViewModel() {
         islandDevicesBatteryOrder.value = settingsRepository.getIslandDevicesBatteryOrder()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
+        islandExpandedBottomPadding.floatValue = settingsRepository.getIslandExpandedBottomPadding()
         islandExpandedTimeoutMs.longValue = settingsRepository.getIslandExpandedTimeoutMs()
         isIslandSuppressSystemHeadsUp.value = settingsRepository.isIslandSuppressSystemHeadsUpEnabled()
         isIslandDynamicHideStatusBar.value =
@@ -5311,6 +5313,11 @@ class MainViewModel : ViewModel() {
     fun setIslandExpandedTopPadding(value: Float) {
         islandExpandedTopPadding.floatValue = value
         settingsRepository.setIslandExpandedTopPadding(value)
+    }
+
+    fun setIslandExpandedBottomPadding(value: Float) {
+        islandExpandedBottomPadding.floatValue = value
+        settingsRepository.setIslandExpandedBottomPadding(value)
     }
 
     fun setIslandExpandedTimeoutMs(value: Long) {

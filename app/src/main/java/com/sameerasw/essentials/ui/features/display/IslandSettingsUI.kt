@@ -437,6 +437,20 @@ fun IslandSettingsUI(
                 valueFormatter = { "${it.toInt()} dp" },
                 modifier = Modifier.highlight(highlightSetting == "island_expanded_top_padding"),
             )
+
+            ConfigSliderItem(
+                title = stringResource(R.string.island_expanded_bottom_padding_title),
+                value = viewModel.islandExpandedBottomPadding.floatValue,
+                onValueChange = {
+                    HapticUtil.performUIHaptic(view)
+                    viewModel.setIslandExpandedBottomPadding(it)
+                },
+                valueRange = 0f..40f,
+                increment = 2f,
+                iconRes = R.drawable.rounded_vertical_align_bottom_24,
+                valueFormatter = { "${it.toInt()} dp" },
+                modifier = Modifier.highlight(highlightSetting == "island_expanded_bottom_padding"),
+            )
         }
 
         IslandExpandableSection(

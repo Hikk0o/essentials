@@ -436,7 +436,7 @@ private fun BriefOverview(
     val artwork = remember(media?.artwork) { media?.artwork?.asImageBitmap() }
     Box(propagateMinConstraints = true) {
         
-        Column(Modifier.fillMaxWidth().padding(spec.expandedOutset).padding(bottom = spec.expandedPadding)) {
+        Column(Modifier.fillMaxWidth().padding(spec.expandedOutset).padding(bottom = spec.expandedBottomPadding)) {
             Spacer(Modifier.height(spec.expandedTopPadding))
             scope.CameraRow(
                 horizontalPadding = spec.cameraGap + spec.expandedCorner * 0.35f,

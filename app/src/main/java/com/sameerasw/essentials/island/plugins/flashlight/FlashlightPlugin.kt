@@ -127,7 +127,7 @@ class FlashlightPlugin : BaseIslandPlugin() {
                 },
                 line = LineContent(icon = { IslandIcon(R.drawable.rounded_flashlight_on_24, tint = MaterialTheme.colorScheme.primary) }, start = "", end = percentText),
                 expanded = ExpandedContent { scope ->
-                    Column(Modifier.padding(scope.spec.expandedOutset).padding(top = scope.spec.expandedTopPadding, bottom = scope.spec.expandedPadding * 0.7f)) {
+                    Column(Modifier.padding(scope.spec.expandedOutset).padding(top = scope.spec.expandedTopPadding, bottom = scope.spec.expandedBottomPadding)) {
                         scope.CameraRow(
                             horizontalPadding = 20.dp,
                             start = {},

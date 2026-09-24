@@ -79,7 +79,7 @@ fun ProgressExpanded(
             Spacer(Modifier.height(16.dp))
             ConnectedButtonRow(
                 height = 44.dp,
-                modifier = Modifier.padding(horizontal = sidePadding).padding(bottom = spec.expandedPadding * 0.7f),
+                modifier = Modifier.padding(horizontal = sidePadding).padding(bottom = spec.expandedBottomPadding),
                 container = Color.White.copy(alpha = 0.2f),
                 items = listOf(
                     ConnectedItem({

@@ -131,7 +131,7 @@ fun NotificationExpanded(
                         },
                     )
                 }
-                Spacer(Modifier.height(if (alert.actions.isEmpty()) spec.expandedPadding * 0.9f else spec.expandedPadding * 0.7f))
+                Spacer(Modifier.height(spec.expandedBottomPadding))
             }
         }
     }

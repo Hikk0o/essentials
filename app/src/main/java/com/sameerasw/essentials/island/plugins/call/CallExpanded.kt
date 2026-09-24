@@ -126,7 +126,7 @@ fun CallExpanded(
                     container = Color.White.copy(alpha = 0.2f),
                     items = items,
                 )
-                Spacer(Modifier.height(spec.expandedPadding * 0.7f))
+                Spacer(Modifier.height(spec.expandedBottomPadding))
             }
         }
     }

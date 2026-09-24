@@ -182,7 +182,7 @@ class TimerPlugin : BaseIslandPlugin() {
                                     },
                                 )
                             }
-                            Spacer(Modifier.height(spec.expandedPadding * 0.7f))
+                            Spacer(Modifier.height(spec.expandedBottomPadding))
                         }
                     }
                 },
