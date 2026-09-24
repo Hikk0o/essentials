@@ -248,6 +248,7 @@ class MainViewModel : ViewModel() {
     val statusGlanceCalendarShowAllDay = mutableStateOf(false)
     val statusGlanceSelectedCalendarIds = mutableStateOf<Set<String>>(emptySet())
     val statusGlanceAvailableCalendars = mutableStateListOf<CalendarAccount>()
+    val islandCalendarEmojis = mutableStateOf<Map<Long, String>>(emptyMap())
     val isStatusGlanceShowMedia = mutableStateOf(true)
     val isStatusGlanceShowTime = mutableStateOf(true)
     val isStatusGlanceBackgroundPill = mutableStateOf(false)
@@ -5234,6 +5235,15 @@ class MainViewModel : ViewModel() {
     fun setIslandShowNetwork(enabled: Boolean) {
         isIslandShowNetwork.value = enabled
         settingsRepository.setIslandShowNetworkEnabled(enabled)
+    }
+
+    fun loadIslandCalendarEmojis() {
+        islandCalendarEmojis.value = settingsRepository.getIslandCalendarEmojis()
+    }
+
+    fun setIslandCalendarEmoji(calendarId: Long, emoji: String?) {
+        settingsRepository.setIslandCalendarEmoji(calendarId, emoji)
+        islandCalendarEmojis.value = settingsRepository.getIslandCalendarEmojis()
     }
 
     fun setIslandShowTimers(enabled: Boolean) {

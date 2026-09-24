@@ -18,10 +18,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.foundation.Canvas
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,7 +53,7 @@ fun CalendarExpanded(
     showGlow: Boolean,
     onView: () -> Unit,
     scope: IslandExpandedScope,
-    
+    emoji: String? = null,
     drawBackground: Boolean = true,
 ) {
     val spec = scope.spec
@@ -79,7 +83,7 @@ fun CalendarExpanded(
                     horizontalPadding = spec.cameraGap + spec.expandedCorner * 0.35f,
                     start = {
                         Box(Modifier.size(spec.cellSize), contentAlignment = Alignment.Center) {
-                            IslandIcon(R.drawable.rounded_calendar_today_24, tint = calendarColor, size = 20.dp)
+                            CalendarGlyph(emoji, size = 20.dp, tint = calendarColor)
                         }
                         MarqueeText(text = event.title, style = IslandTextStyles.title, modifier = Modifier.weight(1f))
                     },
@@ -124,3 +128,28 @@ private fun DetailRow(icon: Int, text: String) {
         Text(text, style = IslandTextStyles.body, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
+
+@Composable
+fun CalendarGlyph(emoji: String?, size: Dp, tint: Color) {
+    if (emoji.isNullOrBlank()) {
+        IslandIcon(R.drawable.rounded_calendar_today_24, tint = tint, size = size)
+    } else {
+        val paint = remember { android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG) }
+        val bounds = remember { android.graphics.Rect() }
+        Canvas(Modifier.size(size)) {
+            paint.textSize = this.size.minDimension
+            paint.getTextBounds(emoji, 0, emoji.length, bounds)
+            val scale = this.size.minDimension * EMOJI_SCALE / maxOf(bounds.width(), bounds.height()).coerceAtLeast(1)
+            paint.textSize *= scale
+            paint.getTextBounds(emoji, 0, emoji.length, bounds)
+            drawContext.canvas.nativeCanvas.drawText(
+                emoji,
+                center.x - bounds.exactCenterX(),
+                center.y - bounds.exactCenterY(),
+                paint,
+            )
+        }
+    }
+}
+
+private const val EMOJI_SCALE = 1.25f

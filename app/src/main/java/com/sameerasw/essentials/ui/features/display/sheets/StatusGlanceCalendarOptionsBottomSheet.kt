@@ -11,6 +11,11 @@ package com.sameerasw.essentials.ui.features.display.sheets
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +25,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -31,6 +40,7 @@ import com.sameerasw.essentials.ui.core.cards.ConfigPickerItem
 import com.sameerasw.essentials.ui.core.cards.IconToggleItem
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
 import com.sameerasw.essentials.ui.core.sheets.EssentialsBottomSheet
+import com.sameerasw.essentials.utils.EmojiUtil
 import com.sameerasw.essentials.utils.HapticUtil
 import com.sameerasw.essentials.viewmodels.MainViewModel
 
@@ -39,13 +49,16 @@ import com.sameerasw.essentials.viewmodels.MainViewModel
 fun StatusGlanceCalendarOptionsBottomSheet(
     viewModel: MainViewModel,
     onDismissRequest: () -> Unit,
+    allowIconEdit: Boolean = false,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
     val scrollState = rememberScrollState()
+    var editingCalendar by remember { mutableStateOf<MainViewModel.CalendarAccount?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchStatusGlanceCalendars(context)
+        if (allowIconEdit) viewModel.loadIslandCalendarEmojis()
     }
 
     val timeframes = listOf(
@@ -139,17 +152,101 @@ fun StatusGlanceCalendarOptionsBottomSheet(
                         cornerRadius = 24.dp,
                     ) {
                         accountCalendars.forEach { calendar ->
+                            val emoji = if (allowIconEdit) viewModel.islandCalendarEmojis.value[calendar.id] else null
                             IconToggleItem(
-                                title = calendar.name,
+                                title = if (emoji != null) "$emoji  ${calendar.name}" else calendar.name,
                                 iconRes = R.drawable.rounded_calendar_today_24,
                                 isChecked = calendar.isSelected,
                                 onCheckedChange = {
                                     HapticUtil.performVirtualKeyHaptic(view)
                                     viewModel.toggleStatusGlanceCalendarSelection(calendar.id)
                                 },
+                                onSettingsClick = if (allowIconEdit) ({ editingCalendar = calendar }) else null,
+                                settingsIconRes = R.drawable.rounded_edit_24,
                             )
                         }
                     }
+                }
+            }
+        }
+    }
+
+    editingCalendar?.let { calendar ->
+        CalendarEmojiSheet(
+            calendarName = calendar.name,
+            initial = viewModel.islandCalendarEmojis.value[calendar.id].orEmpty(),
+            onSave = { emoji -> viewModel.setIslandCalendarEmoji(calendar.id, emoji) },
+            onDismissRequest = { editingCalendar = null },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CalendarEmojiSheet(
+    calendarName: String,
+    initial: String,
+    onSave: (String?) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    val view = LocalView.current
+    var input by remember { mutableStateOf(initial) }
+    val trimmed = input.trim()
+    val valid = trimmed.isEmpty() || EmojiUtil.isSingleEmoji(trimmed)
+
+    EssentialsBottomSheet(onDismissRequest = onDismissRequest) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                text = calendarName,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 8.dp),
+            )
+            OutlinedTextField(
+                value = input,
+                onValueChange = { input = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = !valid,
+                placeholder = { Text(stringResource(R.string.island_calendar_emoji_hint)) },
+                supportingText = if (!valid) {
+                    { Text(stringResource(R.string.island_calendar_emoji_invalid)) }
+                } else {
+                    null
+                },
+                textStyle = MaterialTheme.typography.headlineSmall,
+                shape = RoundedCornerShape(16.dp),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        onSave(null)
+                        onDismissRequest()
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.action_reset))
+                }
+                Button(
+                    onClick = {
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        onSave(trimmed.ifEmpty { null })
+                        onDismissRequest()
+                    },
+                    enabled = valid,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.action_save))
                 }
             }
         }

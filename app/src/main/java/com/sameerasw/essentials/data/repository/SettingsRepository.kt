@@ -495,6 +495,7 @@ class SettingsRepository(
         const val KEY_ISLAND_CAMERA_POSITION = "island_camera_position"
         const val KEY_ISLAND_SHOW_CALLS = "island_show_calls"
         const val KEY_ISLAND_SHOW_TIMERS = "island_show_timers"
+        const val KEY_ISLAND_CALENDAR_EMOJIS = "island_calendar_emojis"
         const val KEY_ISLAND_TIMERS_SHOW_SCREEN_RECORDER = "island_timers_show_screen_recorder"
         const val KEY_ISLAND_SHOW_NETWORK = "island_show_network"
         const val KEY_ISLAND_SHOW_SOUND_MODE = "island_show_sound_mode"
@@ -3591,6 +3592,22 @@ class SettingsRepository(
     fun isIslandDevicesBatteryOnlyLowEnabled(): Boolean = getBoolean(KEY_ISLAND_DEVICES_BATTERY_ONLY_LOW, false)
     fun setIslandDevicesBatteryOnlyLowEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_DEVICES_BATTERY_ONLY_LOW, enabled)
     fun setIslandBatteryPercentageConditional(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL, enabled)
+
+    fun getIslandCalendarEmojis(): Map<Long, String> =
+        try {
+            val json = org.json.JSONObject(getString(KEY_ISLAND_CALENDAR_EMOJIS, "{}") ?: "{}")
+            json.keys().asSequence().mapNotNull { key -> key.toLongOrNull()?.let { it to json.getString(key) } }.toMap()
+        } catch (_: Exception) {
+            emptyMap()
+        }
+
+    fun setIslandCalendarEmoji(calendarId: Long, emoji: String?) {
+        val updated = getIslandCalendarEmojis().toMutableMap()
+        if (emoji.isNullOrBlank()) updated.remove(calendarId) else updated[calendarId] = emoji
+        val json = org.json.JSONObject()
+        updated.forEach { (id, value) -> json.put(id.toString(), value) }
+        putString(KEY_ISLAND_CALENDAR_EMOJIS, json.toString())
+    }
 
     fun isIslandShowTimersEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_TIMERS, true)
     fun setIslandShowTimersEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_TIMERS, enabled)

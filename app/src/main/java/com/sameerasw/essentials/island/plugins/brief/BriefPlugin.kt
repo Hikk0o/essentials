@@ -312,6 +312,9 @@ private fun BriefEventDetail(event: UpcomingCalendarEvent, showGlow: Boolean, sc
                 scope.collapse()
             },
             scope = scope,
+            emoji = remember(event.calendarId) {
+                com.sameerasw.essentials.data.repository.SettingsRepository(context).getIslandCalendarEmojis()[event.calendarId]
+            },
             drawBackground = false,
         )
     }

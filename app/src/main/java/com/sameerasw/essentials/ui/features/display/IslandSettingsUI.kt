@@ -1072,6 +1072,7 @@ fun IslandSettingsUI(
         StatusGlanceCalendarOptionsBottomSheet(
             viewModel = viewModel,
             onDismissRequest = { showCalendarOptionsSheet = false },
+            allowIconEdit = true,
         )
     }
 }
