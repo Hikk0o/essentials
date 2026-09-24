@@ -156,6 +156,7 @@ class IslandCoordinator(
                 Intent.ACTION_SCREEN_ON, Intent.ACTION_USER_PRESENT -> isScreenOff = false
                 else -> return
             }
+            if (!running) return
             applySuppression()
             plugins.forEach { it.onScreenStateChanged() }
         }

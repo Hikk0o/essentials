@@ -81,6 +81,7 @@ class TimerPlugin : BaseIslandPlugin() {
     }
 
     override fun refresh() {
+        if (ctx == null) return
         entries = visible(allEntries)
         render()
         restartTicker()
