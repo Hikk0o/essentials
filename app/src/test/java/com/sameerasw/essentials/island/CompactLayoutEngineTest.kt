@@ -10,6 +10,7 @@ class CompactLayoutEngineTest {
     private val time = CompactEntry("time", 0, true, listOf("time"))
     private val battery = CompactEntry("battery", 1, true, listOf("battery"))
     private val catchUp = CompactEntry("notif", 10, false, listOf("notif.icon"))
+    private val chatCatchUp = CompactEntry("notif", 10, false, listOf("notif.icon"), listOf("notif.app"))
     private val flash = CompactEntry("flash", 20, false, listOf("flash.icon"))
     private val media = CompactEntry("media", 30, false, listOf("media.art", "media.eq"))
     private val calendar = CompactEntry("cal", 50, false, listOf("cal.icon", "cal.time"))
@@ -48,4 +49,16 @@ class CompactLayoutEngineTest {
         assertEquals("media.art media.eq battery time |", visual(listOf(time, battery, media), CameraAnchor.End))
 
     @Test fun empty() = assertEquals("|", visual(emptyList()))
+
+    @Test fun soloChatNotificationBalancesAroundCamera() =
+        assertEquals("notif.app | notif.icon", visual(listOf(chatCatchUp)))
+
+    @Test fun soloCellHiddenWithPinned() =
+        assertEquals("time | battery notif.icon", visual(listOf(time, battery, chatCatchUp)))
+
+    @Test fun soloCellHiddenWithOtherDynamic() =
+        assertEquals("flash.icon | notif.icon", visual(listOf(chatCatchUp, flash)))
+
+    @Test fun soloCellIgnoredWhenAnchoredToSide() =
+        assertEquals("| notif.icon", visual(listOf(chatCatchUp), CameraAnchor.Start))
 }

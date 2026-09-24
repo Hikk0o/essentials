@@ -230,7 +230,13 @@ class IslandController(
 
         val arrangement = CompactLayoutEngine.arrange(
             items.values.filter { it.compactVisible }.map { item ->
-                CompactEntry(item.key, item.effectivePriority, item.placement == CompactPlacement.Pinned, item.compact.map { it.key })
+                CompactEntry(
+                    item.key,
+                    item.effectivePriority,
+                    item.placement == CompactPlacement.Pinned,
+                    item.compact.filterNot { it.soloOnly }.map { it.key },
+                    item.compact.filter { it.soloOnly }.map { it.key },
+                )
             },
             anchorProvider(),
         )

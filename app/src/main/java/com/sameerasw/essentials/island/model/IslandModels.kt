@@ -35,6 +35,8 @@ object IslandPriority {
 
 class CompactCell(
     val key: String,
+    // Shown only when this item is alone in a centred compact island, on the side opposite its cells.
+    val soloOnly: Boolean = false,
     val content: @Composable () -> Unit,
 )
 
