@@ -142,6 +142,7 @@ class FlashlightPlugin : BaseIslandPlugin() {
                                 turnOff()
                                 scope.collapse()
                             },
+                            onInteraction = scope::keepAlive,
                             modifier = Modifier.padding(horizontal = 20.dp),
                         )
                     }
@@ -190,18 +191,25 @@ private fun TorchBeam(
     color: Color,
     onChange: (Float) -> Unit,
     onLampTap: () -> Unit,
+    onInteraction: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     var current by remember { mutableFloatStateOf(level.coerceIn(MIN_LEVEL, 1f)) }
     var dragging by remember { mutableStateOf(false) }
     var lastStep by remember { mutableIntStateOf((current * 10).toInt()) }
+    var lastInteraction by remember { mutableStateOf(0L) }
     LaunchedEffect(level) {
         if (!dragging) current = level.coerceIn(MIN_LEVEL, 1f)
     }
     val shown by animateFloatAsState(current, label = "torchBeam")
 
     fun set(value: Float) {
+        val now = android.os.SystemClock.uptimeMillis()
+        if (now - lastInteraction >= INTERACTION_THROTTLE_MS) {
+            lastInteraction = now
+            onInteraction()
+        }
         val previous = current
         current = value.coerceIn(MIN_LEVEL, 1f)
         onChange(current)
@@ -242,10 +250,12 @@ private fun TorchBeam(
                         detectVerticalDragGestures(
                             onDragStart = {
                                 dragging = true
+                                onInteraction()
                                 IslandHaptics.touchDown(context)
                             },
                             onDragEnd = {
                                 dragging = false
+                                onInteraction()
                                 IslandHaptics.commit(context)
                             },
                             onDragCancel = { dragging = false },
@@ -311,6 +321,7 @@ private fun TorchBeam(
 
 private const val MIN_LEVEL = 0.01f
 private const val MILESTONE_LEVEL = 0.8f
+private const val INTERACTION_THROTTLE_MS = 500L
 private const val BEAM_LAYERS = 8
 private val BEAM_HEIGHT = 200.dp
 private val LAMP_SIZE = 72.dp

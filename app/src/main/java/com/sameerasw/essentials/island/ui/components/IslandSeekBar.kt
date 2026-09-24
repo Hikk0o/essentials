@@ -34,14 +34,21 @@ fun IslandSeekBar(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     onValueChange: (Float) -> Unit = {},
     onValueChangeFinished: (Float) -> Unit = {},
+    onInteraction: () -> Unit = {},
 ) {
     val context = LocalContext.current
     var dragValue by remember { mutableStateOf<Float?>(null) }
     var lastStep by remember { mutableIntStateOf(-1) }
+    var lastInteraction by remember { mutableStateOf(0L) }
     val dragging = dragValue != null
     Slider(
         value = dragValue ?: value,
         onValueChange = { v ->
+            val now = android.os.SystemClock.uptimeMillis()
+            if (now - lastInteraction >= 500L) {
+                lastInteraction = now
+                onInteraction()
+            }
             val step = (v * steps).toInt()
             if (dragValue == null) {
                 IslandHaptics.touchDown(context)
@@ -54,6 +61,7 @@ fun IslandSeekBar(
             onValueChange(v)
         },
         onValueChangeFinished = {
+            onInteraction()
             dragValue?.let {
                 IslandHaptics.commit(context)
                 onValueChangeFinished(it)

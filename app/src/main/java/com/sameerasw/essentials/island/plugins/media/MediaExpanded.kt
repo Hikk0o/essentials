@@ -175,6 +175,7 @@ fun MediaExpanded(
                 enabled = canSeek,
                 wavy = playing,
                 modifier = Modifier.padding(horizontal = 4.dp),
+                onInteraction = scope::keepAlive,
                 onValueChangeFinished = { target ->
                     actions.seekTo(target)
                     pendingSeek = target to SystemClock.elapsedRealtime()
