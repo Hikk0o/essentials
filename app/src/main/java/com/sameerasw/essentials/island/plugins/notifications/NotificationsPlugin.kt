@@ -35,6 +35,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
         SettingsRepository.KEY_ISLAND_SHOW_GLOW,
         SettingsRepository.KEY_ISLAND_NOTIF_QUEUE,
         SettingsRepository.KEY_ISLAND_NOTIF_TAP_TO_OPEN,
+        SettingsRepository.KEY_ISLAND_SHOW_NOTIFICATIONS,
     )
 
     private val alerts = ArrayDeque<ActiveNotificationAlert>()
@@ -70,7 +71,10 @@ class NotificationsPlugin : BaseIslandPlugin() {
         alerts.clear()
     }
 
-    override fun refresh() = render()
+    override fun refresh() {
+        if (ctx == null) return
+        if (!settings.isIslandShowNotificationsEnabled()) clearAll() else render()
+    }
 
     override fun onUserInteraction(focusedKey: String?) {
         if (alerts.isEmpty()) return
@@ -85,7 +89,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
 
     private fun onPosted(alert: ActiveNotificationAlert) {
         val c = ctx ?: return
-        if (c.isContentSuppressed()) return
+        if (c.isContentSuppressed() || !settings.isIslandShowNotificationsEnabled()) return
         alerts.removeAll { it.key == alert.key }
         alerts.addFirst(alert)
         val cap = if (queueEnabled()) MAX_QUEUE else 1

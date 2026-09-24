@@ -220,6 +220,7 @@ class MainViewModel : ViewModel() {
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
     val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
+    val isIslandShowNotifications = mutableStateOf(true)
     val isIslandNotifTapToOpen = mutableStateOf(false)
     val isIslandCatchUpEnabled = mutableStateOf(true)
     val islandCatchUpTimeoutMs = mutableLongStateOf(10000L)
@@ -839,6 +840,9 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_ISLAND_NOTIF_QUEUE ->
                         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
+
+                    SettingsRepository.KEY_ISLAND_SHOW_NOTIFICATIONS ->
+                        isIslandShowNotifications.value = settingsRepository.isIslandShowNotificationsEnabled()
 
                     SettingsRepository.KEY_ISLAND_NOTIF_TAP_TO_OPEN ->
                         isIslandNotifTapToOpen.value = settingsRepository.isIslandNotifTapToOpenEnabled()
@@ -2255,6 +2259,7 @@ class MainViewModel : ViewModel() {
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
         isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
+        isIslandShowNotifications.value = settingsRepository.isIslandShowNotificationsEnabled()
         isIslandNotifTapToOpen.value = settingsRepository.isIslandNotifTapToOpenEnabled()
         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
         islandCatchUpTimeoutMs.longValue = settingsRepository.getIslandCatchUpTimeoutMs()
@@ -5379,9 +5384,9 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandMediaKeepWhenPausedEnabled(enabled)
     }
 
-    fun setIslandMediaShowPrevious(enabled: Boolean) {
-        isIslandMediaShowPrevious.value = enabled
-        settingsRepository.setIslandMediaShowPreviousEnabled(enabled)
+    fun setIslandShowNotifications(enabled: Boolean) {
+        isIslandShowNotifications.value = enabled
+        settingsRepository.setIslandShowNotificationsEnabled(enabled)
     }
 
     fun setIslandNotifQueue(enabled: Boolean) {
