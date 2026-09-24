@@ -60,6 +60,7 @@ object CalendarEventUtil {
         return when {
             minutes < 1 -> "1m"
             minutes < 60 -> "${minutes}m"
+            hours < 2 -> (minutes % 60).let { if (it > 0) "${hours}h ${it}m" else "${hours}h" }
             hours < 24 -> "${hours}h"
             else -> "${days}d"
         }
