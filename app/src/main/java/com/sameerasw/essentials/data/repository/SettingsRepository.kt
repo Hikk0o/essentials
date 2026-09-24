@@ -405,6 +405,7 @@ class SettingsRepository(
         // Duo
         const val KEY_DUO_ENABLED = "duo_enabled"
         const val KEY_DUO_ISLAND_COMBINED = "duo_island_combined"
+        const val KEY_DUO_TAP_FOR_BRIEF = "duo_tap_for_brief"
         const val KEY_DUO_HIDE_ON_SHADE = "duo_hide_on_shade"
         const val KEY_DUO_USE_AUTO_DETECT = "duo_use_auto_detect"
         const val KEY_DUO_CAMERA_OFFSET_X = "duo_camera_offset_x"
@@ -3363,6 +3364,10 @@ class SettingsRepository(
 
     // Only effective while both features are on
     fun isDuoIslandCombined(): Boolean = isDuoIslandCombinedSetting() && isDuoEnabled() && isIslandEnabled()
+
+    fun isDuoTapForBriefEnabled(): Boolean = getBoolean(KEY_DUO_TAP_FOR_BRIEF, false)
+    fun setDuoTapForBriefEnabled(enabled: Boolean) = putBoolean(KEY_DUO_TAP_FOR_BRIEF, enabled)
+    fun isDuoTapForBriefActive(): Boolean = isDuoTapForBriefEnabled() && isDuoIslandCombined() && isIslandBriefEnabled()
 
     fun isDuoAutoDetectEnabled(): Boolean = getBoolean(KEY_DUO_USE_AUTO_DETECT, true)
     fun setDuoAutoDetectEnabled(enabled: Boolean) = putBoolean(KEY_DUO_USE_AUTO_DETECT, enabled)

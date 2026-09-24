@@ -137,6 +137,7 @@ class MainViewModel : ViewModel() {
 
     val isDuoEnabled = mutableStateOf(false)
     val isDuoIslandCombined = mutableStateOf(false)
+    val isDuoTapForBrief = mutableStateOf(false)
     val isDuoHideOnShade = mutableStateOf(false)
     val isDuoAutoDetect = mutableStateOf(true)
     val hasMultipleDuoDisplays = mutableStateOf(false)
@@ -2240,6 +2241,7 @@ class MainViewModel : ViewModel() {
         islandAlarmWindowHours.intValue = settingsRepository.getIslandAlarmWindowHours()
         isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
         isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
+        isDuoTapForBrief.value = settingsRepository.isDuoTapForBriefEnabled()
         isDuoHideOnShade.value = settingsRepository.isDuoHideOnShadeEnabled()
         isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
         isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
@@ -5144,6 +5146,11 @@ class MainViewModel : ViewModel() {
     fun setDuoHideOnShade(enabled: Boolean) {
         isDuoHideOnShade.value = enabled
         settingsRepository.setDuoHideOnShadeEnabled(enabled)
+    }
+
+    fun setDuoTapForBrief(enabled: Boolean) {
+        isDuoTapForBrief.value = enabled
+        settingsRepository.setDuoTapForBriefEnabled(enabled)
     }
 
     fun setDuoIslandCombined(enabled: Boolean) {

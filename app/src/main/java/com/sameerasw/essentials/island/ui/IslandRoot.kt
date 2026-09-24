@@ -310,7 +310,11 @@ fun IslandRoot(
                 .layout { measurable, constraints ->
                     val child = measurable.measure(constraints)
                     val t = collapse.value.coerceIn(0f, 1f)
-                    val end = if (compactSize != IntSize.Zero) compactSize else fallbackCompact
+                    val end = when {
+                        currentState.arrangement.visibleItems.isEmpty() -> IntSize(minSurfaceWidth, minSurfaceHeight)
+                        compactSize != IntSize.Zero -> compactSize
+                        else -> fallbackCompact
+                    }
                     // Never smaller than the camera, whatever a spring or fling does.
                     val w = (if (t > 0f) lerp(child.width, end.width, t) else child.width).coerceAtLeast(minSurfaceWidth)
                     val h = (if (t > 0f) lerp(child.height, end.height, t) else child.height).coerceAtLeast(minSurfaceHeight)

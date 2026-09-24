@@ -2926,6 +2926,7 @@
     <string name="island_show_alarm_title">Alarm</string>
     <string name="island_alarm_options_title">Alarm options</string>
     <string name="island_brief_show_alarm_title">Show upcoming alarm</string>
+    <string name="duo_tap_for_brief_title">Tap for Brief</string>
     <string name="island_alarm_window_title">Show alarms within</string>
     <string name="island_alarm_window_hours">%1$d hours</string>
     <string name="island_sound_mode_sound">Sound</string>

@@ -123,7 +123,7 @@ class IslandCoordinator(
         context = service,
         settings = settings,
         scope = { scope },
-        openBrief = { mainHandler.post { controller.expand(BriefPlugin.ITEM_KEY) } },
+        openBrief = { openBrief() },
     )
 
     private val actions = object : IslandActions {
@@ -193,6 +193,10 @@ class IslandCoordinator(
         if (visible == lastVisible) return
         lastVisible = visible
         onVisibilityChanged?.invoke(visible)
+    }
+
+    fun openBrief() {
+        mainHandler.post { controller.expand(BriefPlugin.ITEM_KEY) }
     }
 
     fun updateState() {

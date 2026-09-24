@@ -542,17 +542,36 @@ fun DuoSettingsUI(
             cornerRadius = 24.dp,
         ) {
             val tapAction = viewModel.duoTapAction.value
+            val tapForBriefActive = viewModel.isDuoIslandCombined.value && viewModel.isDuoTapForBrief.value
             IconToggleItem(
                 iconRes = R.drawable.rounded_pan_tool_alt_24,
                 title = stringResource(R.string.duo_action_tap_title),
                 description = tapAction?.let { stringResource(it.title) } ?: stringResource(R.string.duo_action_none),
                 showToggle = false,
+                enabled = !tapForBriefActive,
                 onClick = {
                     HapticUtil.performVirtualKeyHaptic(view)
                     pickingActionForGesture = "tap"
                 },
                 modifier = Modifier.highlight(highlightSetting == "duo_tap_action"),
             )
+
+            AnimatedVisibility(
+                visible = viewModel.isDuoIslandCombined.value,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_calendar_today_24,
+                    title = stringResource(R.string.duo_tap_for_brief_title),
+                    isChecked = viewModel.isDuoTapForBrief.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setDuoTapForBrief(checked)
+                    },
+                    modifier = Modifier.highlight(highlightSetting == "duo_tap_for_brief"),
+                )
+            }
 
             val doubleTapAction = viewModel.duoDoubleTapAction.value
             IconToggleItem(
