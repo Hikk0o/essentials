@@ -1689,4 +1689,13 @@ Cuando llegue un mensaje o alerta de una aplicación seleccionada, la Pantalla s
     <string name="island_show_calls_title">Llamadas</string>
     <string name="island_show_time_battery_title">Hora y bateria</string>
     <string name="island_battery_style_title">Estilo de bateria</string>
+    <string name="island_enable_title">Habilitar Isla</string>
+    <string name="island_show_timers_title">Temporizadores y cronometros</string>
+    <string name="duo_action_horizontal_slide_sound_mode">Modo de sonido</string>
+    <string name="island_show_network_title">Actividad de conexiones</string>
+    <string name="island_devices_battery_section">Dispositivos</string>
+    <string name="island_brief_desc">Ten un breve de que esta pasando</string>
+    <string name="island_like_while_playing_title">Like a la cancion si se esta reproduciendo</string>
+    <string name="duo_action_horizontal_slide_track">Cambiar cancion</string>
+    <string name="duo_action_horizontal_slide_track_desc">Solo activar si los medios estan sonando</string>
 </resources>
