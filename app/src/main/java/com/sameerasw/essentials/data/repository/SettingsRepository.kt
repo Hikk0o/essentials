@@ -414,6 +414,7 @@ class SettingsRepository(
         const val KEY_DUO_ARC_THICKNESS = "duo_arc_thickness"
         const val KEY_DUO_DOT_SIZE = "duo_dot_size"
         const val KEY_DUO_RING_RADIUS = "duo_ring_radius"
+        const val KEY_DUO_TIME_TEXT_SCALE = "duo_time_text_scale"
         const val KEY_DUO_SHOW_BATTERY = "duo_show_battery"
         const val KEY_DUO_SHOW_BATTERY_PERCENTAGE = "duo_show_battery_percentage"
         const val KEY_DUO_BATTERY_PERCENTAGE_ONLY_COLORED = "duo_battery_percentage_only_colored"
@@ -3380,6 +3381,10 @@ class SettingsRepository(
 
     fun getDuoRingRadius(): Float = getFloat(KEY_DUO_RING_RADIUS, 1.0f)
     fun setDuoRingRadius(value: Float) = putFloat(KEY_DUO_RING_RADIUS, value)
+
+    fun getDuoTimeTextScale(): Float = getFloat(KEY_DUO_TIME_TEXT_SCALE, 1.0f)
+
+    fun setDuoTimeTextScale(value: Float) = putFloat(KEY_DUO_TIME_TEXT_SCALE, value)
 
     fun isDuoShowBatteryEnabled(): Boolean = getBoolean(KEY_DUO_SHOW_BATTERY, true)
     fun setDuoShowBatteryEnabled(enabled: Boolean) = putBoolean(KEY_DUO_SHOW_BATTERY, enabled)

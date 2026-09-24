@@ -2654,6 +2654,7 @@
     <string name="duo_show_battery_title">Battery</string>
     <string name="duo_show_battery_percentage_title">Battery percentage</string>
     <string name="duo_battery_percentage_options_title">Battery percentage options</string>
+    <string name="duo_time_options_title">Time options</string>
     <string name="duo_battery_percentage_only_colored_title">Only for colored instances</string>
     <string name="duo_battery_percentage_only_colored_desc">Show percentage only when charging, in battery saver, or at low battery levels</string>
     <string name="duo_battery_options_title">Battery options</string>

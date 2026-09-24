@@ -146,6 +146,7 @@ class MainViewModel : ViewModel() {
     val duoArcThickness = mutableFloatStateOf(4f)
     val duoDotSize = mutableFloatStateOf(4f)
     val duoRingRadius = mutableFloatStateOf(1.0f)
+    val duoTimeTextScale = mutableFloatStateOf(1.0f)
     val isDuoShowBattery = mutableStateOf(true)
     val isDuoShowBatteryPercentage = mutableStateOf(false)
     val isDuoBatteryPercentageOnlyColored = mutableStateOf(false)
@@ -678,6 +679,9 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_DUO_RING_RADIUS ->
                         duoRingRadius.floatValue = settingsRepository.getDuoRingRadius()
+
+                    SettingsRepository.KEY_DUO_TIME_TEXT_SCALE ->
+                        duoTimeTextScale.floatValue = settingsRepository.getDuoTimeTextScale()
 
                     SettingsRepository.KEY_DUO_SHOW_BATTERY ->
                         isDuoShowBattery.value = settingsRepository.isDuoShowBatteryEnabled()
@@ -2148,6 +2152,7 @@ class MainViewModel : ViewModel() {
         duoArcThickness.floatValue = settingsRepository.getDuoArcThickness()
         duoDotSize.floatValue = settingsRepository.getDuoDotSize()
         duoRingRadius.floatValue = settingsRepository.getDuoRingRadius()
+        duoTimeTextScale.floatValue = settingsRepository.getDuoTimeTextScale()
         isDuoShowBattery.value = settingsRepository.isDuoShowBatteryEnabled()
         isDuoShowBatteryPercentage.value = settingsRepository.isDuoShowBatteryPercentageEnabled()
         isDuoBatteryPercentageOnlyColored.value = settingsRepository.isDuoBatteryPercentageOnlyColoredEnabled()
@@ -4952,6 +4957,11 @@ class MainViewModel : ViewModel() {
     fun setDuoRingRadius(value: Float) {
         duoRingRadius.floatValue = value
         settingsRepository.setDuoRingRadius(value)
+    }
+
+    fun setDuoTimeTextScale(value: Float) {
+        duoTimeTextScale.floatValue = value
+        settingsRepository.setDuoTimeTextScale(value)
     }
 
     fun setDuoShowBattery(enabled: Boolean) {
