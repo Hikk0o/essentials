@@ -2926,6 +2926,7 @@
     <string name="island_show_alarm_title">Alarm</string>
     <string name="island_alarm_options_title">Alarm options</string>
     <string name="island_brief_show_alarm_title">Show upcoming alarm</string>
+    <string name="island_brief_options_title">Brief options</string>
     <string name="duo_tap_for_brief_title">Tap for Brief</string>
     <string name="island_launcher_only_title">Only show on launcher</string>
     <string name="island_launcher_only_desc">Hide while an app is open</string>

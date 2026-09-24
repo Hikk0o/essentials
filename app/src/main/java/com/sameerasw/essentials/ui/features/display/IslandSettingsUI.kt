@@ -62,6 +62,7 @@ import com.sameerasw.essentials.ui.features.display.actions.GestureActionPickerS
 import com.sameerasw.essentials.ui.features.display.actions.HorizontalSlideModeSheet
 import com.sameerasw.essentials.ui.features.display.actions.horizontalSlideDescription
 import com.sameerasw.essentials.ui.features.display.sheets.IslandAlarmOptionsBottomSheet
+import com.sameerasw.essentials.ui.features.display.sheets.IslandBriefOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandDevicesBatteryBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandNotificationOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandTimeBatteryOptionsBottomSheet
@@ -167,6 +168,7 @@ fun IslandSettingsUI(
     var showTimeBatteryOptionsSheet by remember { mutableStateOf(false) }
     var showTimerOptionsSheet by remember { mutableStateOf(false) }
     var showAlarmOptionsSheet by remember { mutableStateOf(false) }
+    var showBriefOptionsSheet by remember { mutableStateOf(highlightSetting == "island_brief_show_alarm") }
     var showNotificationOptionsSheet by remember {
         mutableStateOf(highlightSetting in notificationSheetSettings)
     }
@@ -821,13 +823,6 @@ fun IslandSettingsUI(
             )
         }
 
-        Text(
-            text = stringResource(R.string.island_section_brief),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 8.dp),
-        )
-
         RoundedCardContainer(
             spacing = 2.dp,
             cornerRadius = 24.dp,
@@ -841,25 +836,9 @@ fun IslandSettingsUI(
                     HapticUtil.performVirtualKeyHaptic(view)
                     viewModel.setIslandBriefEnabled(checked)
                 },
+                onSettingsClick = { showBriefOptionsSheet = true },
                 modifier = Modifier.highlight(highlightSetting == "island_brief_enabled"),
             )
-
-            AnimatedVisibility(
-                visible = viewModel.isIslandBriefEnabled.value,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically(),
-            ) {
-                IconToggleItem(
-                    iconRes = R.drawable.rounded_alarm_24,
-                    title = stringResource(R.string.island_brief_show_alarm_title),
-                    isChecked = viewModel.isIslandBriefShowAlarm.value,
-                    onCheckedChange = { checked ->
-                        HapticUtil.performVirtualKeyHaptic(view)
-                        viewModel.setIslandBriefShowAlarm(checked)
-                    },
-                    modifier = Modifier.highlight(highlightSetting == "island_brief_show_alarm"),
-                )
-            }
         }
 
         Text(
@@ -1070,6 +1049,14 @@ fun IslandSettingsUI(
         IslandNotificationOptionsBottomSheet(
             viewModel = viewModel,
             onDismissRequest = { showNotificationOptionsSheet = false },
+            highlightSetting = highlightSetting,
+        )
+    }
+
+    if (showBriefOptionsSheet) {
+        IslandBriefOptionsBottomSheet(
+            viewModel = viewModel,
+            onDismissRequest = { showBriefOptionsSheet = false },
             highlightSetting = highlightSetting,
         )
     }
