@@ -405,6 +405,7 @@ class SettingsRepository(
         // Duo
         const val KEY_DUO_ENABLED = "duo_enabled"
         const val KEY_DUO_ISLAND_COMBINED = "duo_island_combined"
+        const val KEY_DUO_TAP_FOR_BRIEF = "duo_tap_for_brief"
         const val KEY_DUO_HIDE_ON_SHADE = "duo_hide_on_shade"
         const val KEY_DUO_USE_AUTO_DETECT = "duo_use_auto_detect"
         const val KEY_DUO_CAMERA_OFFSET_X = "duo_camera_offset_x"
@@ -518,10 +519,17 @@ class SettingsRepository(
         const val KEY_ISLAND_TIMERS_SHOW_SCREEN_RECORDER = "island_timers_show_screen_recorder"
         const val KEY_ISLAND_SHOW_NETWORK = "island_show_network"
         const val KEY_ISLAND_SHOW_SOUND_MODE = "island_show_sound_mode"
+        const val KEY_ISLAND_SHOW_ALARM = "island_show_alarm"
+        const val KEY_ISLAND_TIME_BATTERY_LAUNCHER_ONLY = "island_time_battery_launcher_only"
+        const val KEY_ISLAND_WEATHER_LAUNCHER_ONLY = "island_weather_launcher_only"
+        const val KEY_ISLAND_CALENDAR_LAUNCHER_ONLY = "island_calendar_launcher_only"
+        const val KEY_ISLAND_ALARM_LAUNCHER_ONLY = "island_alarm_launcher_only"
+        const val KEY_ISLAND_ALARM_WINDOW_HOURS = "island_alarm_window_hours"
         const val KEY_ISLAND_SHOW_TRAVEL = "island_show_travel"
         const val KEY_ISLAND_SHOW_CAFFEINATE = "island_show_caffeinate"
         const val KEY_ISLAND_SHOW_DEVICES = "island_show_devices"
         const val KEY_ISLAND_BRIEF_ENABLED = "island_brief_enabled"
+        const val KEY_ISLAND_BRIEF_SHOW_ALARM = "island_brief_show_alarm"
         const val KEY_ISLAND_DEVICES_BATTERY_ORDER = "island_devices_battery_order"
         const val ISLAND_CAMERA_POSITION_LEFT = "left"
         const val ISLAND_CAMERA_POSITION_CENTER = "center"
@@ -530,9 +538,11 @@ class SettingsRepository(
         const val KEY_ISLAND_PEEK_DURATION_MS = "island_peek_duration_ms"
         const val KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE = "island_media_peek_song_change"
         const val KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED = "island_media_keep_when_paused"
+        const val KEY_ISLAND_MEDIA_SHOW_PREVIOUS = "island_media_show_previous"
         const val KEY_ISLAND_NOTIF_COMPACT_HEADS_UP = "island_notif_compact_heads_up"
         const val KEY_ISLAND_NOTIF_KEEP_PROGRESS = "island_notif_keep_progress"
         const val KEY_ISLAND_NOTIF_QUEUE = "island_notif_queue"
+        const val KEY_ISLAND_SHOW_NOTIFICATIONS = "island_show_notifications"
         const val KEY_ISLAND_NOTIF_TAP_TO_OPEN = "island_notif_tap_to_open"
 
         // Status Glance
@@ -3359,6 +3369,10 @@ class SettingsRepository(
     // Only effective while both features are on
     fun isDuoIslandCombined(): Boolean = isDuoIslandCombinedSetting() && isDuoEnabled() && isIslandEnabled()
 
+    fun isDuoTapForBriefEnabled(): Boolean = getBoolean(KEY_DUO_TAP_FOR_BRIEF, false)
+    fun setDuoTapForBriefEnabled(enabled: Boolean) = putBoolean(KEY_DUO_TAP_FOR_BRIEF, enabled)
+    fun isDuoTapForBriefActive(): Boolean = isDuoTapForBriefEnabled() && isDuoIslandCombined() && isIslandBriefEnabled()
+
     fun isDuoAutoDetectEnabled(): Boolean = getBoolean(KEY_DUO_USE_AUTO_DETECT, true)
     fun setDuoAutoDetectEnabled(enabled: Boolean) = putBoolean(KEY_DUO_USE_AUTO_DETECT, enabled)
 
@@ -3509,7 +3523,10 @@ class SettingsRepository(
 
     // Island
     fun isIslandEnabled(): Boolean = getBoolean(KEY_ISLAND_ENABLED, false)
-    fun setIslandEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_ENABLED, enabled)
+    fun setIslandEnabled(enabled: Boolean) {
+        putBoolean(KEY_ISLAND_ENABLED, enabled)
+        if (isIslandSuppressSystemHeadsUpEnabled()) applyHeadsUpSuppression(enabled)
+    }
 
     fun isIslandAutoDetectEnabled(): Boolean = getBoolean(KEY_ISLAND_USE_AUTO_DETECT, true)
     fun setIslandAutoDetectEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_USE_AUTO_DETECT, enabled)
@@ -3532,7 +3549,7 @@ class SettingsRepository(
     fun isIslandSuppressSystemHeadsUpEnabled(): Boolean = getBoolean(KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP, false)
     fun setIslandSuppressSystemHeadsUpEnabled(enabled: Boolean) {
         putBoolean(KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP, enabled)
-        applyHeadsUpSuppression(enabled)
+        applyHeadsUpSuppression(enabled && isIslandEnabled())
     }
 
     fun isIslandHideWhenScreenOffEnabled(): Boolean = getBoolean(KEY_ISLAND_HIDE_WHEN_SCREEN_OFF, true)
@@ -3566,6 +3583,8 @@ class SettingsRepository(
 
     fun getIslandCatchUpTimeoutMs(): Long = getLong(KEY_ISLAND_CATCH_UP_TIMEOUT_MS, 10000L)
     fun setIslandCatchUpTimeoutMs(value: Long) = putLong(KEY_ISLAND_CATCH_UP_TIMEOUT_MS, value)
+
+    fun isIslandCatchUpInfinite(): Boolean = getIslandCatchUpTimeoutMs() <= 0L
 
     fun isIslandShowMediaEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_MEDIA, true)
     fun setIslandShowMediaEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_MEDIA, enabled)
@@ -3688,6 +3707,12 @@ class SettingsRepository(
     fun isIslandShowSoundModeEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_SOUND_MODE, true)
     fun setIslandShowSoundModeEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_SOUND_MODE, enabled)
 
+    fun isIslandShowAlarmEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_ALARM, false)
+    fun setIslandShowAlarmEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_ALARM, enabled)
+
+    fun getIslandAlarmWindowHours(): Int = getInt(KEY_ISLAND_ALARM_WINDOW_HOURS, 12)
+    fun setIslandAlarmWindowHours(hours: Int) = putInt(KEY_ISLAND_ALARM_WINDOW_HOURS, hours)
+
     fun isIslandShowTravelEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_TRAVEL, true)
     fun setIslandShowTravelEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_TRAVEL, enabled)
 
@@ -3699,6 +3724,9 @@ class SettingsRepository(
 
     fun isIslandBriefEnabled(): Boolean = getBoolean(KEY_ISLAND_BRIEF_ENABLED, false)
     fun setIslandBriefEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_BRIEF_ENABLED, enabled)
+
+    fun isIslandBriefShowAlarmEnabled(): Boolean = getBoolean(KEY_ISLAND_BRIEF_SHOW_ALARM, true)
+    fun setIslandBriefShowAlarmEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_BRIEF_SHOW_ALARM, enabled)
 
     // Ordered addresses; the first connected one with a battery reading is shown
     fun getIslandDevicesBatteryOrder(): List<String> =
@@ -3740,6 +3768,12 @@ class SettingsRepository(
     fun isIslandMediaKeepWhenPausedEnabled(): Boolean = getBoolean(KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED, true)
     fun setIslandMediaKeepWhenPausedEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED, enabled)
 
+    fun isIslandMediaShowPreviousEnabled(): Boolean = getBoolean(KEY_ISLAND_MEDIA_SHOW_PREVIOUS, false)
+    fun setIslandMediaShowPreviousEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_MEDIA_SHOW_PREVIOUS, enabled)
+
+    fun isIslandShowNotificationsEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_NOTIFICATIONS, true)
+    fun setIslandShowNotificationsEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_NOTIFICATIONS, enabled)
+
     fun isIslandNotifQueueEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_QUEUE, true)
     fun setIslandNotifQueueEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_QUEUE, enabled)
 
@@ -3752,7 +3786,7 @@ class SettingsRepository(
     fun isIslandNotifKeepProgressEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_KEEP_PROGRESS, true)
     fun setIslandNotifKeepProgressEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_KEEP_PROGRESS, enabled)
 
-    fun applyHeadsUpSuppression(suppress: Boolean = isIslandSuppressSystemHeadsUpEnabled()) {
+    fun applyHeadsUpSuppression(suppress: Boolean = isIslandEnabled() && isIslandSuppressSystemHeadsUpEnabled()) {
         val targetValue = if (suppress) 0 else 1
         try {
             android.provider.Settings.Global.putInt(

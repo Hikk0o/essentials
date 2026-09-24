@@ -786,6 +786,11 @@ object FeatureRegistry {
                             "island_show_travel",
                         ),
                         SearchSetting(
+                            R.string.island_show_alarm_title,
+                            R.string.island_alarm_window_title,
+                            "island_show_alarm",
+                        ),
+                        SearchSetting(
                             R.string.island_show_sound_mode_title,
                             R.string.island_sound_mode_vibrate,
                             "island_show_sound_mode",
@@ -804,6 +809,11 @@ object FeatureRegistry {
                             R.string.island_show_network_title,
                             R.string.island_network_connected_to,
                             "island_show_network",
+                        ),
+                        SearchSetting(
+                            R.string.island_section_notifications,
+                            R.string.island_notification_options_title,
+                            "island_show_notifications",
                         ),
                         SearchSetting(
                             R.string.island_show_calls_title,

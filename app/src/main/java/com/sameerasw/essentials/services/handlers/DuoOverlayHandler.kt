@@ -361,6 +361,8 @@ class DuoOverlayHandler(
         }
     }
 
+    var openBrief: (() -> Unit)? = null
+
     fun init() {
         windowManager = service.getSystemService(AccessibilityService.WINDOW_SERVICE) as? WindowManager
         updateState()
@@ -936,6 +938,7 @@ class DuoOverlayHandler(
             }
 
             val isTouchEnabled = settingsRepository.getDuoTapAction() != null ||
+                settingsRepository.isDuoTapForBriefActive() ||
                 settingsRepository.getDuoDoubleTapAction() != null ||
                 settingsRepository.getDuoLongPressAction() != null ||
                 settingsRepository.getDuoSwipeDownAction() != null ||
@@ -952,6 +955,7 @@ class DuoOverlayHandler(
                     this.cameraCenterY = centerY
                     this.cameraRadiusPx = cameraRadiusPx
                     this.ringRadiusScale = settingsRepository.getDuoRingRadius()
+                    this.openBrief = this@DuoOverlayHandler.openBrief
                 }
 
                 if (touchAnchorView == null) {
@@ -1160,6 +1164,7 @@ class DuoOverlayHandler(
         if (!isTouchAnchorAdded) return
 
         val gesturesEnabled = settingsRepository.getDuoTapAction() != null ||
+                settingsRepository.isDuoTapForBriefActive() ||
             settingsRepository.getDuoDoubleTapAction() != null ||
             settingsRepository.getDuoLongPressAction() != null ||
             settingsRepository.getDuoSwipeDownAction() != null ||

@@ -1,5 +1,7 @@
 package com.sameerasw.essentials.island.service
 
+import android.provider.Settings
+import com.sameerasw.essentials.island.plugins.alarm.AlarmPlugin
 import com.sameerasw.essentials.island.plugins.timer.TimerPlugin
 import com.sameerasw.essentials.island.plugins.call.CallPlugin
 import android.accessibilityservice.AccessibilityService
@@ -91,6 +93,7 @@ class IslandCoordinator(
         FlashlightPlugin(),
         TimerPlugin(),
         SoundModePlugin(),
+        AlarmPlugin(),
         WeatherPlugin(),
         CaffeinatePlugin(),
         TravelPlugin(),
@@ -121,7 +124,7 @@ class IslandCoordinator(
         context = service,
         settings = settings,
         scope = { scope },
-        openBrief = { mainHandler.post { controller.expand(BriefPlugin.ITEM_KEY) } },
+        openBrief = { openBrief() },
     )
 
     private val actions = object : IslandActions {
@@ -193,6 +196,10 @@ class IslandCoordinator(
         onVisibilityChanged?.invoke(visible)
     }
 
+    fun openBrief() {
+        mainHandler.post { controller.expand(BriefPlugin.ITEM_KEY) }
+    }
+
     fun updateState() {
         mainHandler.post {
             val shouldRun = settings.isIslandEnabled() && !isWindowSuppressed
@@ -217,6 +224,35 @@ class IslandCoordinator(
         if (foregroundPackage == packageName) return
         foregroundPackage = packageName
         applyOwnerAppHiding()
+        when {
+            packageName in launcherPackages -> onLauncher = true
+            !isTransientPackage(packageName) -> onLauncher = false
+        }
+        applyLauncherOnly()
+    }
+
+    private var onLauncher = true
+
+    private val launcherPackages: Set<String> by lazy {
+        try {
+            service.packageManager
+                .queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)
+                .map { it.activityInfo.packageName }
+                .toSet()
+        } catch (_: Exception) {
+            emptySet()
+        }
+    }
+
+    private fun isTransientPackage(packageName: String): Boolean =
+        packageName == "android" ||
+            packageName == "com.android.systemui" ||
+            packageName == service.packageName ||
+            packageName == Settings.Secure.getString(service.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)?.substringBefore('/')
+
+    private fun applyLauncherOnly() {
+        val sources = LAUNCHER_ONLY_KEYS.filterValues { settings.getBoolean(it, false) }.keys
+        controller.setLauncherState(onLauncher, sources)
     }
 
     private fun applyOwnerAppHiding() {
@@ -263,6 +299,7 @@ class IslandCoordinator(
     private fun start() {
         if (running) return
         running = true
+        applyLauncherOnly()
         val newScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         scope = newScope
         applyConfig()
@@ -377,6 +414,7 @@ class IslandCoordinator(
             SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR -> syncStatusBar(controller.state.value.stage)
             SettingsRepository.KEY_ISLAND_HIDE_WHEN_SCREEN_OFF -> applySuppression()
             SettingsRepository.KEY_ISLAND_HIDE_IN_OWNER_APP -> applyOwnerAppHiding()
+            in LAUNCHER_ONLY_KEYS.values -> applyLauncherOnly()
             SettingsRepository.KEY_ISLAND_HIDE_ON_SHADE -> applySuppression()
             SettingsRepository.KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP ->
                 if (running) settings.applyHeadsUpSuppression(settings.isIslandSuppressSystemHeadsUpEnabled())
@@ -386,6 +424,12 @@ class IslandCoordinator(
     }
 
     private companion object {
+        val LAUNCHER_ONLY_KEYS = mapOf(
+            "time_battery" to SettingsRepository.KEY_ISLAND_TIME_BATTERY_LAUNCHER_ONLY,
+            "weather" to SettingsRepository.KEY_ISLAND_WEATHER_LAUNCHER_ONLY,
+            "calendar" to SettingsRepository.KEY_ISLAND_CALENDAR_LAUNCHER_ONLY,
+            "alarm" to SettingsRepository.KEY_ISLAND_ALARM_LAUNCHER_ONLY,
+        )
         val CONFIG_KEYS = setOf(
             SettingsRepository.KEY_ISLAND_USE_AUTO_DETECT,
             SettingsRepository.KEY_ISLAND_CAMERA_OFFSET_X,

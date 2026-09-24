@@ -48,6 +48,8 @@ class IslandController(
     private var expandedTimer: Cancellable? = null
 
     private var hiddenPackage: String? = null
+    private var launcherOnlySources: Set<String> = emptySet()
+    private var onLauncher = true
 
     fun setItems(sourceId: String, items: List<IslandItem>) {
         itemsBySource[sourceId] = items
@@ -57,6 +59,13 @@ class IslandController(
     fun setHiddenPackage(packageName: String?) {
         if (hiddenPackage == packageName) return
         hiddenPackage = packageName
+        recompute()
+    }
+
+    fun setLauncherState(onLauncher: Boolean, launcherOnlySources: Set<String>) {
+        if (this.onLauncher == onLauncher && this.launcherOnlySources == launcherOnlySources) return
+        this.onLauncher = onLauncher
+        this.launcherOnlySources = launcherOnlySources
         recompute()
     }
 
@@ -216,7 +225,9 @@ class IslandController(
     }
 
     private fun allItems(): Map<String, IslandItem> =
-        itemsBySource.values.flatten()
+        itemsBySource
+            .filterKeys { onLauncher || it !in launcherOnlySources }
+            .values.flatten()
             .filter { hiddenPackage == null || it.sourcePackage != hiddenPackage }
             .associateBy { it.key }
 

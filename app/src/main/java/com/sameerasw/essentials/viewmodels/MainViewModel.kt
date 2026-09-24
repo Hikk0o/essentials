@@ -137,6 +137,7 @@ class MainViewModel : ViewModel() {
 
     val isDuoEnabled = mutableStateOf(false)
     val isDuoIslandCombined = mutableStateOf(false)
+    val isDuoTapForBrief = mutableStateOf(false)
     val isDuoHideOnShade = mutableStateOf(false)
     val isDuoAutoDetect = mutableStateOf(true)
     val hasMultipleDuoDisplays = mutableStateOf(false)
@@ -200,10 +201,13 @@ class MainViewModel : ViewModel() {
     val isIslandTimersShowScreenRecorder = mutableStateOf(true)
     val isIslandShowNetwork = mutableStateOf(true)
     val isIslandShowSoundMode = mutableStateOf(true)
+    val isIslandShowAlarm = mutableStateOf(false)
+    val islandAlarmWindowHours = mutableIntStateOf(12)
     val isIslandShowTravel = mutableStateOf(true)
     val isIslandShowCaffeinate = mutableStateOf(true)
     val isIslandShowDevices = mutableStateOf(true)
     val isIslandBriefEnabled = mutableStateOf(false)
+    val isIslandBriefShowAlarm = mutableStateOf(true)
     val islandDevicesBatteryOrder = mutableStateOf<List<String>>(emptyList())
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
@@ -216,9 +220,11 @@ class MainViewModel : ViewModel() {
     val isIslandLineStageEnabled = mutableStateOf(true)
     val isIslandMediaPeekSongChange = mutableStateOf(true)
     val isIslandMediaKeepWhenPaused = mutableStateOf(true)
+    val isIslandMediaShowPrevious = mutableStateOf(false)
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
     val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
+    val isIslandShowNotifications = mutableStateOf(true)
     val isIslandNotifTapToOpen = mutableStateOf(false)
     val isIslandCatchUpEnabled = mutableStateOf(true)
     val islandCatchUpTimeoutMs = mutableLongStateOf(10000L)
@@ -830,11 +836,17 @@ class MainViewModel : ViewModel() {
                     SettingsRepository.KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED ->
                         isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
 
+                    SettingsRepository.KEY_ISLAND_MEDIA_SHOW_PREVIOUS ->
+                        isIslandMediaShowPrevious.value = settingsRepository.isIslandMediaShowPreviousEnabled()
+
                     SettingsRepository.KEY_ISLAND_NOTIF_COMPACT_HEADS_UP ->
                         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
 
                     SettingsRepository.KEY_ISLAND_NOTIF_QUEUE ->
                         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
+
+                    SettingsRepository.KEY_ISLAND_SHOW_NOTIFICATIONS ->
+                        isIslandShowNotifications.value = settingsRepository.isIslandShowNotificationsEnabled()
 
                     SettingsRepository.KEY_ISLAND_NOTIF_TAP_TO_OPEN ->
                         isIslandNotifTapToOpen.value = settingsRepository.isIslandNotifTapToOpenEnabled()
@@ -2225,12 +2237,16 @@ class MainViewModel : ViewModel() {
         isIslandTimersShowScreenRecorder.value = settingsRepository.isIslandTimersShowScreenRecorderEnabled()
         isIslandShowNetwork.value = settingsRepository.isIslandShowNetworkEnabled()
         isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
+        isIslandShowAlarm.value = settingsRepository.isIslandShowAlarmEnabled()
+        islandAlarmWindowHours.intValue = settingsRepository.getIslandAlarmWindowHours()
         isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
         isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
+        isDuoTapForBrief.value = settingsRepository.isDuoTapForBriefEnabled()
         isDuoHideOnShade.value = settingsRepository.isDuoHideOnShadeEnabled()
         isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
         isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
         isIslandBriefEnabled.value = settingsRepository.isIslandBriefEnabled()
+        isIslandBriefShowAlarm.value = settingsRepository.isIslandBriefShowAlarmEnabled()
         islandDevicesBatteryOrder.value = settingsRepository.getIslandDevicesBatteryOrder()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
@@ -2247,9 +2263,11 @@ class MainViewModel : ViewModel() {
         isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
         isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
+        isIslandMediaShowPrevious.value = settingsRepository.isIslandMediaShowPreviousEnabled()
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
         isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
+        isIslandShowNotifications.value = settingsRepository.isIslandShowNotificationsEnabled()
         isIslandNotifTapToOpen.value = settingsRepository.isIslandNotifTapToOpenEnabled()
         isIslandCatchUpEnabled.value = settingsRepository.isIslandCatchUpEnabled()
         islandCatchUpTimeoutMs.longValue = settingsRepository.getIslandCatchUpTimeoutMs()
@@ -5130,6 +5148,11 @@ class MainViewModel : ViewModel() {
         settingsRepository.setDuoHideOnShadeEnabled(enabled)
     }
 
+    fun setDuoTapForBrief(enabled: Boolean) {
+        isDuoTapForBrief.value = enabled
+        settingsRepository.setDuoTapForBriefEnabled(enabled)
+    }
+
     fun setDuoIslandCombined(enabled: Boolean) {
         isDuoIslandCombined.value = enabled
         settingsRepository.setDuoIslandCombined(enabled)
@@ -5216,6 +5239,11 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandDevicesBatteryOrder(addresses)
     }
 
+    fun setIslandBriefShowAlarm(enabled: Boolean) {
+        isIslandBriefShowAlarm.value = enabled
+        settingsRepository.setIslandBriefShowAlarmEnabled(enabled)
+    }
+
     fun setIslandBriefEnabled(enabled: Boolean) {
         isIslandBriefEnabled.value = enabled
         settingsRepository.setIslandBriefEnabled(enabled)
@@ -5234,6 +5262,16 @@ class MainViewModel : ViewModel() {
     fun setIslandShowTravel(enabled: Boolean) {
         isIslandShowTravel.value = enabled
         settingsRepository.setIslandShowTravelEnabled(enabled)
+    }
+
+    fun setIslandShowAlarm(enabled: Boolean) {
+        isIslandShowAlarm.value = enabled
+        settingsRepository.setIslandShowAlarmEnabled(enabled)
+    }
+
+    fun setIslandAlarmWindowHours(hours: Int) {
+        islandAlarmWindowHours.intValue = hours
+        settingsRepository.setIslandAlarmWindowHours(hours)
     }
 
     fun setIslandShowSoundMode(enabled: Boolean) {
@@ -5372,6 +5410,16 @@ class MainViewModel : ViewModel() {
     fun setIslandMediaKeepWhenPaused(enabled: Boolean) {
         isIslandMediaKeepWhenPaused.value = enabled
         settingsRepository.setIslandMediaKeepWhenPausedEnabled(enabled)
+    }
+
+    fun setIslandMediaShowPrevious(enabled: Boolean) {
+        isIslandMediaShowPrevious.value = enabled
+        settingsRepository.setIslandMediaShowPreviousEnabled(enabled)
+    }
+
+    fun setIslandShowNotifications(enabled: Boolean) {
+        isIslandShowNotifications.value = enabled
+        settingsRepository.setIslandShowNotificationsEnabled(enabled)
     }
 
     fun setIslandNotifQueue(enabled: Boolean) {

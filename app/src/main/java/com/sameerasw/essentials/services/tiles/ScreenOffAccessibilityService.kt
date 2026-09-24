@@ -304,6 +304,7 @@ class ScreenOffAccessibilityService :
         duoOverlayHandler = DuoOverlayHandler(this)
         islandOverlayHandler = IslandCoordinator(this)
         islandOverlayHandler.onVisibilityChanged = { duoOverlayHandler.setIslandVisible(it) }
+        duoOverlayHandler.openBrief = { islandOverlayHandler.openBrief() }
         statusGlanceHandler = StatusGlanceHandler(this)
 
         flashlightHandler.register()
