@@ -3742,6 +3742,9 @@ class SettingsRepository(
     fun isIslandMediaKeepWhenPausedEnabled(): Boolean = getBoolean(KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED, true)
     fun setIslandMediaKeepWhenPausedEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED, enabled)
 
+    fun isIslandMediaShowPreviousEnabled(): Boolean = getBoolean(KEY_ISLAND_MEDIA_SHOW_PREVIOUS, false)
+    fun setIslandMediaShowPreviousEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_MEDIA_SHOW_PREVIOUS, enabled)
+
     fun isIslandShowNotificationsEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_NOTIFICATIONS, true)
     fun setIslandShowNotificationsEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_NOTIFICATIONS, enabled)
 
