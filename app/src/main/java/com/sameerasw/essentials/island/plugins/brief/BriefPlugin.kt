@@ -397,10 +397,16 @@ private fun BriefOverview(
                 Spacer(Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = sidePadding),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 ) {
+                    val single = devices.size == 1
                     devices.forEach { device ->
-                        BriefDeviceChip(device, iconStyle, accent, Modifier.weight(1f))
+                        BriefDeviceChip(
+                            device,
+                            iconStyle,
+                            accent,
+                            if (single) Modifier else Modifier.weight(1f),
+                        )
                     }
                 }
             }
