@@ -171,6 +171,8 @@ class MediaPlugin : BaseIslandPlugin() {
             previous = { active?.transportControls?.skipToPrevious() },
             like = { like() },
             progress = { active?.let(MediaSessionSource::position) ?: 0f },
+            canSeek = { active?.let(MediaSessionSource::canSeek) ?: false },
+            seekTo = { fraction -> active?.let { MediaSessionSource.seekTo(it, fraction) } },
         )
         publish(
             IslandItem(
@@ -229,6 +231,8 @@ class MediaPlugin : BaseIslandPlugin() {
             previous = { controller.transportControls.skipToPrevious() },
             like = { like() },
             progress = { MediaSessionSource.position(controller) },
+            canSeek = { MediaSessionSource.canSeek(controller) },
+            seekTo = { fraction -> MediaSessionSource.seekTo(controller, fraction) },
         )
         IslandMediaState.current.value = MediaSnapshot(
             title = t.title,
