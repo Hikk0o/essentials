@@ -57,6 +57,7 @@ class MediaPlugin : BaseIslandPlugin() {
     private var track: Track? = null
     private var playing = false
     private var liked = false
+    private var likable = false;
 
     private var lastController: MediaController? = null
     private var lastTrack: Track? = null
@@ -100,6 +101,7 @@ class MediaPlugin : BaseIslandPlugin() {
 
         if (playingController != null) {
             c.mainHandler.removeCallbacks(pausedGrace)
+            likable = playingController.ratingType !=0
             active = playingController
             lastController = playingController
             playing = true
@@ -143,7 +145,8 @@ class MediaPlugin : BaseIslandPlugin() {
             playing = false
             render()
             c.mainHandler.removeCallbacks(pausedGrace)
-            c.mainHandler.postDelayed(pausedGrace, PAUSED_GRACE_MS)
+            val grace = if (settings.isIslandMediaKeepWhenPausedEnabled()) settings.getIslandCatchUpTimeoutMs() else PAUSED_GRACE_MS
+            c.mainHandler.postDelayed(pausedGrace, grace)
         } else {
             c.mainHandler.removeCallbacks(pausedGrace)
             active = null
@@ -169,6 +172,8 @@ class MediaPlugin : BaseIslandPlugin() {
             previous = { active?.transportControls?.skipToPrevious() },
             like = { like() },
             progress = { active?.let(MediaSessionSource::position) ?: 0f },
+            canSeek = { active?.let(MediaSessionSource::canSeek) ?: false },
+            seekTo = { fraction -> active?.let { MediaSessionSource.seekTo(it, fraction) } },
         )
         publish(
             IslandItem(
@@ -194,7 +199,7 @@ class MediaPlugin : BaseIslandPlugin() {
                     endSlot = { EqualizerBars(isPlaying, accent) },
                 ),
                 expanded = ExpandedContent { scope ->
-                    MediaExpanded(t.title, t.artist, t.artwork, accent, isPlaying, isLiked, actions, scope)
+                    MediaExpanded(t.title, t.artist, t.artwork, accent, isPlaying, isLiked, actions, scope, likable = likable)
                 },
                 accent = accent,
                 onOpen = { openPlayer() },
@@ -227,6 +232,8 @@ class MediaPlugin : BaseIslandPlugin() {
             previous = { controller.transportControls.skipToPrevious() },
             like = { like() },
             progress = { MediaSessionSource.position(controller) },
+            canSeek = { MediaSessionSource.canSeek(controller) },
+            seekTo = { fraction -> MediaSessionSource.seekTo(controller, fraction) },
         )
         IslandMediaState.current.value = MediaSnapshot(
             title = t.title,
@@ -239,6 +246,7 @@ class MediaPlugin : BaseIslandPlugin() {
             open = {
                 if (!sendPendingIntent(context, controller.sessionActivity)) launchPackage(context, controller.packageName)
             },
+            likable = likable
         )
     }
 

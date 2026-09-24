@@ -414,6 +414,7 @@ class SettingsRepository(
         const val KEY_DUO_ARC_THICKNESS = "duo_arc_thickness"
         const val KEY_DUO_DOT_SIZE = "duo_dot_size"
         const val KEY_DUO_RING_RADIUS = "duo_ring_radius"
+        const val KEY_DUO_TIME_TEXT_SCALE = "duo_time_text_scale"
         const val KEY_DUO_SHOW_BATTERY = "duo_show_battery"
         const val KEY_DUO_SHOW_BATTERY_PERCENTAGE = "duo_show_battery_percentage"
         const val KEY_DUO_BATTERY_PERCENTAGE_ONLY_COLORED = "duo_battery_percentage_only_colored"
@@ -423,6 +424,8 @@ class SettingsRepository(
         const val KEY_DUO_BATTERY_POWER_SAVE_COLOR = "duo_battery_power_save_color"
         const val KEY_DUO_BATTERY_LOW_COLOR_ENABLED = "duo_battery_low_color_enabled"
         const val KEY_DUO_BATTERY_LOW_COLOR = "duo_battery_low_color"
+        const val KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED = "island_battery_idle_color_enabled"
+        const val KEY_ISLAND_BATTERY_IDLE_COLOR = "island_battery_idle_color"
         const val KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED = "duo_battery_critical_color_enabled"
         const val KEY_DUO_BATTERY_CRITICAL_COLOR = "duo_battery_critical_color"
         const val KEY_DUO_SHOW_NETWORKS = "duo_show_networks"
@@ -492,6 +495,8 @@ class SettingsRepository(
         const val KEY_ISLAND_CAMERA_POSITION = "island_camera_position"
         const val KEY_ISLAND_SHOW_CALLS = "island_show_calls"
         const val KEY_ISLAND_SHOW_TIMERS = "island_show_timers"
+        const val KEY_ISLAND_CALENDAR_EMOJIS = "island_calendar_emojis"
+        const val KEY_ISLAND_TIMERS_SHOW_SCREEN_RECORDER = "island_timers_show_screen_recorder"
         const val KEY_ISLAND_SHOW_NETWORK = "island_show_network"
         const val KEY_ISLAND_SHOW_SOUND_MODE = "island_show_sound_mode"
         const val KEY_ISLAND_SHOW_TRAVEL = "island_show_travel"
@@ -505,6 +510,7 @@ class SettingsRepository(
         const val KEY_ISLAND_LINE_STAGE_ENABLED = "island_line_stage_enabled"
         const val KEY_ISLAND_PEEK_DURATION_MS = "island_peek_duration_ms"
         const val KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE = "island_media_peek_song_change"
+        const val KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED = "island_media_keep_when_paused"
         const val KEY_ISLAND_NOTIF_COMPACT_HEADS_UP = "island_notif_compact_heads_up"
         const val KEY_ISLAND_NOTIF_KEEP_PROGRESS = "island_notif_keep_progress"
         const val KEY_ISLAND_NOTIF_QUEUE = "island_notif_queue"
@@ -3381,6 +3387,10 @@ class SettingsRepository(
     fun getDuoRingRadius(): Float = getFloat(KEY_DUO_RING_RADIUS, 1.0f)
     fun setDuoRingRadius(value: Float) = putFloat(KEY_DUO_RING_RADIUS, value)
 
+    fun getDuoTimeTextScale(): Float = getFloat(KEY_DUO_TIME_TEXT_SCALE, 1.0f)
+
+    fun setDuoTimeTextScale(value: Float) = putFloat(KEY_DUO_TIME_TEXT_SCALE, value)
+
     fun isDuoShowBatteryEnabled(): Boolean = getBoolean(KEY_DUO_SHOW_BATTERY, true)
     fun setDuoShowBatteryEnabled(enabled: Boolean) = putBoolean(KEY_DUO_SHOW_BATTERY, enabled)
 
@@ -3407,6 +3417,12 @@ class SettingsRepository(
 
     fun getDuoBatteryLowColor(): String = getString(KEY_DUO_BATTERY_LOW_COLOR, "#FFEB3B") ?: "#FFEB3B"
     fun setDuoBatteryLowColor(colorHex: String) = putString(KEY_DUO_BATTERY_LOW_COLOR, colorHex)
+
+    fun isIslandBatteryIdleColorEnabled(): Boolean = getBoolean(KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED, false)
+    fun setIslandBatteryIdleColorEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED, enabled)
+
+    fun getIslandBatteryIdleColor(): String = getString(KEY_ISLAND_BATTERY_IDLE_COLOR, "#FFFFFF") ?: "#FFFFFF"
+    fun setIslandBatteryIdleColor(colorHex: String) = putString(KEY_ISLAND_BATTERY_IDLE_COLOR, colorHex)
 
     fun isDuoBatteryCriticalColorEnabled(): Boolean = getBoolean(KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED, true)
     fun setDuoBatteryCriticalColorEnabled(enabled: Boolean) = putBoolean(KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED, enabled)
@@ -3577,8 +3593,27 @@ class SettingsRepository(
     fun setIslandDevicesBatteryOnlyLowEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_DEVICES_BATTERY_ONLY_LOW, enabled)
     fun setIslandBatteryPercentageConditional(enabled: Boolean) = putBoolean(KEY_ISLAND_BATTERY_PERCENTAGE_CONDITIONAL, enabled)
 
+    fun getIslandCalendarEmojis(): Map<Long, String> =
+        try {
+            val json = org.json.JSONObject(getString(KEY_ISLAND_CALENDAR_EMOJIS, "{}") ?: "{}")
+            json.keys().asSequence().mapNotNull { key -> key.toLongOrNull()?.let { it to json.getString(key) } }.toMap()
+        } catch (_: Exception) {
+            emptyMap()
+        }
+
+    fun setIslandCalendarEmoji(calendarId: Long, emoji: String?) {
+        val updated = getIslandCalendarEmojis().toMutableMap()
+        if (emoji.isNullOrBlank()) updated.remove(calendarId) else updated[calendarId] = emoji
+        val json = org.json.JSONObject()
+        updated.forEach { (id, value) -> json.put(id.toString(), value) }
+        putString(KEY_ISLAND_CALENDAR_EMOJIS, json.toString())
+    }
+
     fun isIslandShowTimersEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_TIMERS, true)
     fun setIslandShowTimersEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_TIMERS, enabled)
+
+    fun isIslandTimersShowScreenRecorderEnabled(): Boolean = getBoolean(KEY_ISLAND_TIMERS_SHOW_SCREEN_RECORDER, true)
+    fun setIslandTimersShowScreenRecorderEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_TIMERS_SHOW_SCREEN_RECORDER, enabled)
 
     fun isIslandShowNetworkEnabled(): Boolean = getBoolean(KEY_ISLAND_SHOW_NETWORK, true)
     fun setIslandShowNetworkEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_SHOW_NETWORK, enabled)
@@ -3634,6 +3669,9 @@ class SettingsRepository(
 
     fun isIslandMediaPeekSongChangeEnabled(): Boolean = getBoolean(KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE, true)
     fun setIslandMediaPeekSongChangeEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE, enabled)
+
+    fun isIslandMediaKeepWhenPausedEnabled(): Boolean = getBoolean(KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED, true)
+    fun setIslandMediaKeepWhenPausedEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED, enabled)
 
     fun isIslandNotifQueueEnabled(): Boolean = getBoolean(KEY_ISLAND_NOTIF_QUEUE, true)
     fun setIslandNotifQueueEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_QUEUE, enabled)

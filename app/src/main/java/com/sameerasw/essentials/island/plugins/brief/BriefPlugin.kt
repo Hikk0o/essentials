@@ -211,7 +211,7 @@ private fun BriefExpanded(
                     }
                     BriefPage.Player -> SwipeBackPage(scope, onBack = { page = BriefPage.Overview }) {
                         media?.let { m ->
-                            MediaExpanded(m.title, m.artist, m.artwork, m.accent, m.playing, m.liked, m.actions, scope, drawBackground = false)
+                            MediaExpanded(m.title, m.artist, m.artwork, m.accent, m.playing, m.liked, m.actions, scope, drawBackground = false, likable = m.likable)
                         }
                     }
                 }
@@ -312,6 +312,9 @@ private fun BriefEventDetail(event: UpcomingCalendarEvent, showGlow: Boolean, sc
                 scope.collapse()
             },
             scope = scope,
+            emoji = remember(event.calendarId) {
+                com.sameerasw.essentials.data.repository.SettingsRepository(context).getIslandCalendarEmojis()[event.calendarId]
+            },
             drawBackground = false,
         )
     }
@@ -397,10 +400,16 @@ private fun BriefOverview(
                 Spacer(Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = sidePadding),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 ) {
+                    val single = devices.size == 1
                     devices.forEach { device ->
-                        BriefDeviceChip(device, iconStyle, accent, Modifier.weight(1f))
+                        BriefDeviceChip(
+                            device,
+                            iconStyle,
+                            accent,
+                            if (single) Modifier else Modifier.weight(1f),
+                        )
                     }
                 }
             }
@@ -504,9 +513,9 @@ private fun BriefPlayer(media: MediaSnapshot, artwork: ImageBitmap?, onClick: ()
         }
         BriefPlayerButton(
             icon = if (media.liked) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-            tint = if (media.liked) media.accent else Color.White,
+            tint = if (media.likable) {if (media.liked) media.accent else Color.White} else {Color.Gray},
         ) {
-            IslandHaptics.button(context)
+            if (media.likable) IslandHaptics.button(context) else IslandHaptics.wiggle(context)
             media.actions.like()
         }
         BriefPlayerButton(

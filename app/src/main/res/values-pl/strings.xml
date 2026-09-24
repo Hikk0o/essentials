@@ -1563,9 +1563,6 @@ Aby ustawienie zadziałało, może być konieczne wielokrotne zastosowanie.</str
     <string name="label_auto_reset_battery_stats_title">Automatyczne resetowanie </string>
     <string name="label_auto_reset_battery_stats_desc">Automatycznie zresetuj statystyki baterii, gdy urządzenie jest naładowane powyżej 90% i nie ładuje się.</string>
     <string name="label_battery_capacity_health">Pojemność rzeczywista</string>
-    <string name="label_screen_on_drain">Zużycie przy włączonym ekranie</string>
-    <string name="label_screen_max_drain">Maksymalne zużycie przez ekran</string>
-    <string name="label_ambient_aod_drain">Zużycie przy AOD</string>
     <string name="label_device_battery">Bateria</string>
     <string name="feat_sim_names_title">Nazwy kart SIM</string>
     <string name="feat_sim_names_desc">Zarządzaj nazwami operatów dla aktywnych kart SIM</string>

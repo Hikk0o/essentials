@@ -857,6 +857,7 @@ class DuoOverlayHandler(
                 this.cameraCenterY = centerY
                 this.cameraRadiusPx = cameraRadiusPx
                 this.ringRadiusScale = settingsRepository.getDuoRingRadius()
+                this.timeTextScale = settingsRepository.getDuoTimeTextScale()
                 this.arcThicknessPx = settingsRepository.getDuoArcThickness() * density
                 this.dotRadiusPx = settingsRepository.getDuoDotSize() * density
                 this.isDarkTheme = isNightMode

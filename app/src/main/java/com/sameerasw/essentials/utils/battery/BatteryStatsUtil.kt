@@ -12,7 +12,6 @@ package com.sameerasw.essentials.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
 
 data class BatteryUsageApp(
@@ -23,13 +22,6 @@ data class BatteryUsageApp(
     val fgTimeMs: Long,
     val bgTimeMs: Long,
     val icon: Drawable?,
-)
-
-data class CpuWakeupItem(
-    val timeAgo: String,
-    val subsystem: String,
-    val attribution: String,
-    val iconRes: Int,
 )
 
 object BatteryStatsUtil {
@@ -153,51 +145,6 @@ object BatteryStatsUtil {
         }
 
         return list.sortedByDescending { it.powerMah }
-    }
-
-    fun parseWakeupHistory(context: Context): List<CpuWakeupItem> {
-        val output =
-            ShellUtils.runCommandWithOutput(context, "dumpsys batterystats --wakeups")
-                ?: return emptyList()
-
-        val list = mutableListOf<CpuWakeupItem>()
-        var currentTimeAgo = ""
-
-        output.lines().forEach { line ->
-            val trimmed = line.trim()
-            if (trimmed.startsWith("-") && trimmed.endsWith(":")) {
-                val rawTime = trimmed.removePrefix("-").removeSuffix(":")
-                currentTimeAgo = formatReadableDuration(rawTime)
-            } else if (trimmed.startsWith("Attribution:")) {
-                val attr = trimmed.removePrefix("Attribution:").trim()
-                val subsystem =
-                    when {
-                        attr.contains("Alarm", ignoreCase = true) -> "Alarm"
-                        attr.contains("Wifi", ignoreCase = true) -> "Wi-Fi"
-                        attr.contains("Sensor", ignoreCase = true) -> "Sensor"
-                        attr.contains("Cellular", ignoreCase = true) -> "Cellular Data"
-                        else -> "Subsystem"
-                    }
-                val icon =
-                    when (subsystem) {
-                        "Alarm" -> R.drawable.rounded_info_24
-                        "Wi-Fi" -> R.drawable.rounded_info_24
-                        "Sensor" -> R.drawable.rounded_device_thermostat_24
-                        "Cellular Data" -> R.drawable.rounded_cable_24
-                        else -> R.drawable.rounded_info_24
-                    }
-                list.add(CpuWakeupItem(currentTimeAgo, subsystem, attr, icon))
-            }
-        }
-
-        return list.take(50)
-    }
-
-    private fun formatReadableDuration(raw: String): String {
-        // Raw example: "1m9s227ms" or "2h12m56s324ms"
-        var str = raw.substringBefore("ms")
-        if (str.isEmpty()) str = raw
-        return "$str ago"
     }
 
     private fun getAppName(

@@ -118,7 +118,8 @@ fun Modifier.accentGlow(color: Color, enabled: Boolean, clearTop: Dp): Modifier 
 class ConnectedItem(
     val onClick: () -> Unit,
     val container: Color? = null,
-    val content: @Composable () -> Unit,
+    val enabled: Boolean = true,
+    val content: @Composable () -> Unit
 )
 
 
@@ -140,18 +141,24 @@ fun ConnectedButtonRow(
                 index == items.lastIndex -> RoundedCornerShape(inner, outer, outer, inner)
                 else -> RoundedCornerShape(inner)
             }
+            val c = item.container ?:container
+            val background = if (!item.enabled) Color(c.red,c.green,c.blue,0.05f) else c
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .height(height)
                     .clip(shape)
-                    .background(item.container ?: container)
+                    .background(background)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = ripple(color = Color.White),
                     ) {
-                        IslandHaptics.button(context)
-                        item.onClick()
+                        if (item.enabled) {
+                            IslandHaptics.button(context)
+                            item.onClick()
+                        } else {
+                            IslandHaptics.wiggle(context)
+                        }
                     },
                 contentAlignment = Alignment.Center,
             ) { item.content() }

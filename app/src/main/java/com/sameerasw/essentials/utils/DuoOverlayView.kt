@@ -417,11 +417,20 @@ class DuoOverlayView(context: Context) : View(context) {
             }
         }
 
-    var currentTimeText: String = ""
+    var timeTextScale: Float = 1.0f
         set(value) {
             if (field != value) {
                 field = value
-                invalidate()
+                animateLayoutChange()
+            }
+        }
+
+    var currentTimeText: String = ""
+        set(value) {
+            if (field != value) {
+                val templateChanged = timeTemplate(field) != timeTemplate(value)
+                field = value
+                if (templateChanged && showTime) animateLayoutChange() else invalidate()
             }
         }
 
@@ -484,6 +493,9 @@ class DuoOverlayView(context: Context) : View(context) {
         }
 
     companion object {
+        private const val DEFAULT_BOTTOM_GAP = 116f
+        private const val MIN_TIME_GAP = 60f
+        private const val MAX_BOTTOM_GAP = 220f
         const val INTERACTIVE_MODE_NONE = 0
         const val INTERACTIVE_MODE_VOLUME = 1
         const val INTERACTIVE_MODE_BRIGHTNESS = 2
@@ -1258,6 +1270,26 @@ class DuoOverlayView(context: Context) : View(context) {
         }
     }
 
+    private fun timeTemplate(text: String): String = text.map { if (it.isDigit()) '8' else it }.joinToString("")
+
+    private fun timeTextSize(): Float = (dotRadiusPx * 2.2f).coerceIn(12f * density, 15f * density) * timeTextScale
+
+    private fun timeGapDegrees(): Float {
+        if (currentTimeText.isEmpty()) return DEFAULT_BOTTOM_GAP
+        val textSize = timeTextSize()
+        val ringRadius = (cameraRadiusPx + 14f * density) * ringRadiusScale
+        val timeRadius = ringRadius + textSize * 0.45f
+        val previousSize = timePaint.textSize
+        timePaint.textSize = textSize
+        val textWidth = timePaint.measureText(timeTemplate(currentTimeText))
+        timePaint.textSize = previousSize
+        val textDegrees = Math.toDegrees((textWidth / timeRadius).toDouble()).toFloat()
+        val paddingDegrees = Math.toDegrees(((arcThicknessPx + 4f * density) / ringRadius).toDouble()).toFloat()
+        return (textDegrees + paddingDegrees).coerceIn(MIN_TIME_GAP, MAX_BOTTOM_GAP)
+    }
+
+    private fun bottomGapDegrees(): Float = if (showTime) timeGapDegrees() else DEFAULT_BOTTOM_GAP
+
     private fun animateLayoutChange() {
         layoutAnimator?.cancel()
         scaleAnimator?.cancel()
@@ -1265,8 +1297,9 @@ class DuoOverlayView(context: Context) : View(context) {
         val isCustom = isCustomProgressActive()
         val targetCustomFraction = if (isCustom) 1.0f else 0.0f
         val isWifiMode = isWifi && isDifferentiateWifi
-        val targetStartAngle = if (isCustom) 120f else (if (showTime || (showNetworks && isWifiMode)) 148f else if (showNetworks) 140f else -90f)
-        val targetTotalSweep = if (isCustom) 300f else (if (showTime || (showNetworks && isWifiMode)) 244f else if (showNetworks) 260f else 360f)
+        val gap = bottomGapDegrees()
+        val targetStartAngle = if (isCustom) 120f else (if (showTime || (showNetworks && isWifiMode)) 90f + gap / 2f else if (showNetworks) 140f else -90f)
+        val targetTotalSweep = if (isCustom) 300f else (if (showTime || (showNetworks && isWifiMode)) 360f - gap else if (showNetworks) 260f else 360f)
         val targetDotAlpha = if (isCustom) 0.0f else (if (showNetworks && !isWifiMode) 1.0f else 0.0f)
         val targetWifiAlpha = if (isCustom) 0.0f else (if (showNetworks && isWifiMode) 1.0f else 0.0f)
         val targetTimeAlpha = if (isCustom) 0.0f else (if (showTime) 1.0f else 0.0f)
@@ -1396,8 +1429,9 @@ class DuoOverlayView(context: Context) : View(context) {
         animatedDotAlpha = if (showNetworks && !isWifiMode) 1.0f else 0.0f
         animatedWifiAlpha = if (showNetworks && isWifiMode) 1.0f else 0.0f
         animatedTimeAlpha = if (showTime) 1.0f else 0.0f
-        animatedStartAngle = if (showTime || (showNetworks && isWifiMode)) 148f else if (showNetworks) 140f else -90f
-        animatedTotalSweep = if (showTime || (showNetworks && isWifiMode)) 244f else if (showNetworks) 260f else 360f
+        val gap = bottomGapDegrees()
+        animatedStartAngle = if (showTime || (showNetworks && isWifiMode)) 90f + gap / 2f else if (showNetworks) 140f else -90f
+        animatedTotalSweep = if (showTime || (showNetworks && isWifiMode)) 360f - gap else if (showNetworks) 260f else 360f
         currentDotBaseColor = dot
         trackPaint.color = currentTrackColor
         progressPaint.color = currentProgressColor
@@ -1783,7 +1817,7 @@ class DuoOverlayView(context: Context) : View(context) {
 
             val textAlpha = (baseAlpha * effectiveTimeAlpha * animatedVisibilityAlpha).toInt().coerceIn(0, 255)
             timePaint.color = Color.argb(textAlpha, red, green, blue)
-            val calculatedTextSize = (dotRadiusPx * 2.2f).coerceIn(12f * density, 15f * density)
+            val calculatedTextSize = timeTextSize()
             timePaint.textSize = calculatedTextSize
             contrastTimePaint.textSize = calculatedTextSize
 
@@ -1794,8 +1828,9 @@ class DuoOverlayView(context: Context) : View(context) {
                 cameraCenterX + timeRadius,
                 cameraCenterY + timeRadius
             )
+            val timeGap = timeGapDegrees()
             timePath.reset()
-            timePath.addArc(timeArcBounds, 148f, -116f)
+            timePath.addArc(timeArcBounds, 90f + timeGap / 2f, -timeGap)
 
             if (useUniversalContrast && contrastAlpha > 0) {
                 val shadowAlpha = (contrastAlpha * effectiveTimeAlpha).toInt().coerceIn(0, 255)

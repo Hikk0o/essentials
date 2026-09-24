@@ -5,7 +5,6 @@ import android.content.Intent
 import android.provider.CalendarContract
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
-import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.island.model.CompactCell
 import com.sameerasw.essentials.island.model.CompactPlacement
@@ -15,7 +14,6 @@ import com.sameerasw.essentials.island.model.IslandPriority
 import com.sameerasw.essentials.island.model.LineContent
 import com.sameerasw.essentials.island.plugins.BaseIslandPlugin
 import com.sameerasw.essentials.island.ui.components.RollingText
-import com.sameerasw.essentials.island.ui.components.IslandIcon
 import com.sameerasw.essentials.utils.CalendarEventUtil
 import com.sameerasw.essentials.utils.UpcomingCalendarEvent
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +23,11 @@ import kotlinx.coroutines.withContext
 class CalendarPlugin : BaseIslandPlugin() {
     override val id = "calendar"
 
-    override val settingKeys = setOf(SettingsRepository.KEY_ISLAND_SHOW_CALENDAR, SettingsRepository.KEY_ISLAND_SHOW_GLOW)
+    override val settingKeys = setOf(
+        SettingsRepository.KEY_ISLAND_SHOW_CALENDAR,
+        SettingsRepository.KEY_ISLAND_SHOW_GLOW,
+        SettingsRepository.KEY_ISLAND_CALENDAR_EMOJIS,
+    )
 
     private var event: UpcomingCalendarEvent? = null
     private val poll = Runnable { refresh() }
@@ -69,6 +71,7 @@ class CalendarPlugin : BaseIslandPlugin() {
         val full = CalendarEventUtil.formatRelativeTime(context, e.startTimeMillis, now)
         val short = CalendarEventUtil.formatRelativeTimeCompact(e.startTimeMillis, now)
         val showGlow = settings.isIslandShowGlowEnabled()
+        val emoji = settings.getIslandCalendarEmojis()[e.calendarId]
         publish(
             IslandItem(
                 key = ITEM_KEY,
@@ -76,17 +79,18 @@ class CalendarPlugin : BaseIslandPlugin() {
                 priorityOverride = IslandPriority.CALENDAR_OVERRIDE.takeIf { e.startTimeMillis - now in 0..URGENT_MS },
                 placement = CompactPlacement.Dynamic,
                 compact = listOf(
-                    CompactCell("cal.icon") { IslandIcon(R.drawable.rounded_calendar_today_24, size = 18.dp, tint = MaterialTheme.colorScheme.primary) },
+                    CompactCell("cal.icon") { CalendarGlyph(emoji, size = 18.dp, tint = MaterialTheme.colorScheme.primary) },
                     CompactCell("cal.time") { RollingText(short) },
                 ),
                 line = LineContent(
-                    icon = { IslandIcon(R.drawable.rounded_calendar_today_24, tint = MaterialTheme.colorScheme.primary) },
+                    icon = { CalendarGlyph(emoji, size = 20.dp, tint = MaterialTheme.colorScheme.primary) },
                     start = e.title,
                     end = full,
                 ),
                 expanded = ExpandedContent { scope ->
                     CalendarExpanded(
                         event = e,
+                        emoji = emoji,
                         relative = full,
                         countdown = short,
                         showGlow = showGlow,

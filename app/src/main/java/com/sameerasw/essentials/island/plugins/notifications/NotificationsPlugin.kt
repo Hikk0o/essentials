@@ -182,11 +182,17 @@ class NotificationsPlugin : BaseIslandPlugin() {
             key = ITEM_KEY,
             priority = IslandPriority.NOTIFICATION,
             placement = CompactPlacement.Dynamic,
-            compact = listOf(
-                CompactCell("notif.icon") {
-                    IslandBitmap(icon, 22.dp, fallbackRes = R.drawable.rounded_notifications_unread_24)
-                },
-            ),
+            compact = buildList {
+                add(
+                    CompactCell("notif.icon") {
+                        IslandBitmap(icon, 22.dp, fallbackRes = R.drawable.rounded_notifications_unread_24)
+                    },
+                )
+                val appIcon = alert.appIcon
+                if (alert.chatIcon != null && appIcon != null) {
+                    add(CompactCell("notif.app", soloOnly = true) { IslandBitmap(appIcon, 22.dp, circle = true) })
+                }
+            },
             line = LineContent(
                 icon = { IslandBitmap(icon, 24.dp, fallbackRes = R.drawable.rounded_notifications_unread_24) },
                 start = sender,

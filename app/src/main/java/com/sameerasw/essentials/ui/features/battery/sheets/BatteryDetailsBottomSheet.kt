@@ -53,12 +53,10 @@ import androidx.compose.ui.unit.dp
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.ui.components.battery.BatteryAppsTabContent
 import com.sameerasw.essentials.ui.components.battery.BatteryInfoTabContent
-import com.sameerasw.essentials.ui.components.battery.BatterySystemTabContent
 import com.sameerasw.essentials.ui.core.containers.RoundedCardContainer
 import com.sameerasw.essentials.ui.core.pickers.SegmentedPicker
 import com.sameerasw.essentials.utils.BatteryStatsUtil
 import com.sameerasw.essentials.utils.BatteryUsageApp
-import com.sameerasw.essentials.utils.CpuWakeupItem
 import com.sameerasw.essentials.utils.DeviceUtils
 import com.sameerasw.essentials.utils.battery.BatteryDetails
 import com.sameerasw.essentials.utils.battery.BatteryInfoUtil
@@ -88,10 +86,8 @@ fun BatteryDetailsBottomSheet(
     var showAllApps by remember { mutableStateOf(false) }
 
     var showPercentage by remember { mutableStateOf(true) }
-    var showSystemPercentage by remember { mutableStateOf(false) }
 
     var usageApps by remember { mutableStateOf<List<BatteryUsageApp>>(emptyList()) }
-    var wakeupsList by remember { mutableStateOf<List<CpuWakeupItem>>(emptyList()) }
 
     DisposableEffect(context) {
         val receiver =
@@ -137,11 +133,9 @@ fun BatteryDetailsBottomSheet(
         withContext(Dispatchers.IO) {
             val updated = BatteryInfoUtil.fetchAdvancedDetails(context, initialDetails)
             val parsedApps = BatteryStatsUtil.parseUsageApps(context)
-            val parsedWakeups = BatteryStatsUtil.parseWakeupHistory(context)
             withContext(Dispatchers.Main) {
                 batteryDetails = updated
                 usageApps = parsedApps
-                wakeupsList = parsedWakeups
                 isLoadingAdvanced = false
             }
         }
@@ -195,7 +189,6 @@ fun BatteryDetailsBottomSheet(
             listOf(
                 R.string.label_battery_tab_info,
                 R.string.label_battery_tab_apps,
-                R.string.label_battery_tab_system,
             )
         }
     val tabLabels = tabResIds.map { stringResource(it) }
@@ -213,22 +206,6 @@ fun BatteryDetailsBottomSheet(
                     .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            val totalAppsMah = remember(usageApps) { usageApps.sumOf { it.powerMah } }
-            val systemDrainMa =
-                remember(batteryDetails.powerProfile) {
-                    batteryDetails.powerProfile
-                        ?.values
-                        ?.mapNotNull { it.toDoubleOrNull() }
-                        ?.sum()
-                        ?: 0.0
-                }
-
-            // Estimate breakdown percentages (Apps vs System vs Other)
-            val totalCalculated = (totalAppsMah + systemDrainMa).coerceAtLeast(1.0)
-            val appsPct = ((totalAppsMah / totalCalculated) * 75.0).toFloat().coerceIn(10f, 80f)
-            val systemPct = ((systemDrainMa / totalCalculated) * 75.0).toFloat().coerceIn(10f, 80f)
-            val otherPct = (100f - appsPct - systemPct).coerceAtLeast(5f)
-
             if (selectedTab == 0) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -271,16 +248,9 @@ fun BatteryDetailsBottomSheet(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-            } else if (selectedTab == 1) {
+            } else {
                 com.sameerasw.essentials.ui.components.battery.TopAppsBreakdownHeader(
                     usageApps = usageApps,
-                )
-            } else {
-                com.sameerasw.essentials.ui.components.battery.BatteryUsageBreakdownHeader(
-                    appsPct = appsPct,
-                    systemPct = systemPct,
-                    otherPct = otherPct,
-                    activeTab = selectedTab,
                 )
             }
 
@@ -372,15 +342,6 @@ fun BatteryDetailsBottomSheet(
                         chargeTimeRemainingMs = batteryDetails.chargeTimeRemainingMs,
                         avgCurrentMa = batteryDetails.currentAvgMa,
                         isPlugged = batteryDetails.plugged > 0,
-                    )
-
-                2 ->
-                    BatterySystemTabContent(
-                        isLoadingAdvanced = isLoadingAdvanced,
-                        powerProfile = batteryDetails.powerProfile,
-                        wakeupsList = wakeupsList,
-                        showPercentage = showSystemPercentage,
-                        onToggleUnit = { showSystemPercentage = !showSystemPercentage },
                     )
             }
 

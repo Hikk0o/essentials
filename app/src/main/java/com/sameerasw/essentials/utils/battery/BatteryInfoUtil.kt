@@ -39,7 +39,6 @@ data class BatteryDetails(
     val capacityLevel: Int? = null,
     val currentNow: Long? = null,
     val voltageNow: Long? = null,
-    val powerProfile: Map<String, String>? = null,
     val batteryChargingEnforceLevel: Int? = null,
     // Android 14+ public & system APIs
     val cycleCount: Int? = null,
@@ -272,10 +271,6 @@ object BatteryInfoUtil {
                 ?.let { if (it == 0) 1 else 2 }
                 ?: dumpsysMap["Part status"]?.cleanNumericValue()?.toIntOrNull()
 
-        val powerProfileOutput =
-            ShellUtils.runCommandWithOutput(context, "dumpsys batterystats --power-profile", notifyOnError = false)
-        val powerProfileMap = parsePowerProfile(powerProfileOutput)
-
         val settingsOutput =
             ShellUtils.runCommandWithOutput(context, "dumpsys batterystats --settings", notifyOnError = false)
         val enforceLevel = parseSettingsEnforceLevel(settingsOutput)
@@ -291,7 +286,6 @@ object BatteryInfoUtil {
             capacityLevel = capacityLevel,
             currentNow = currentNow,
             voltageNow = voltageNow,
-            powerProfile = powerProfileMap.takeIf { it.isNotEmpty() },
             batteryChargingEnforceLevel = enforceLevel,
             cycleCount = samsungCycleCount?.takeIf { it > 0 } ?: basic.cycleCount,
             stateOfHealth = samsungSoH?.takeIf { it > 0 } ?: basic.stateOfHealth,
@@ -299,21 +293,6 @@ object BatteryInfoUtil {
             partStatus = samsungPartStatus ?: basic.partStatus,
             thermalInfo = ThermalUtil.getThermalInfo(context),
         )
-    }
-
-    private fun parsePowerProfile(output: String?): Map<String, String> {
-        if (output.isNullOrBlank()) return emptyMap()
-        val map = mutableMapOf<String, String>()
-        output.lines().forEach { line ->
-            val trimmed = line.trim()
-            if (trimmed.contains("=")) {
-                val parts = trimmed.split("=", limit = 2)
-                if (parts.size == 2) {
-                    map[parts[0].trim()] = parts[1].trim()
-                }
-            }
-        }
-        return map
     }
 
     private fun parseSettingsEnforceLevel(output: String?): Int? {

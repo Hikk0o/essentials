@@ -68,6 +68,7 @@ fun IconToggleItem(
     checked: Boolean? = null,
     onCheckedChangeWithPosition: ((Boolean, Offset) -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
+    settingsIconRes: Int = R.drawable.rounded_settings_24,
     trailingContent: (@Composable () -> Unit)? = null,
     infoText: String? = null,
 ) {
@@ -296,7 +297,7 @@ fun IconToggleItem(
                                     modifier = Modifier.size(36.dp),
                                 ) {
                                     Icon(
-                                        painter = painterResource(id = R.drawable.rounded_settings_24),
+                                        painter = painterResource(id = settingsIconRes),
                                         contentDescription = null,
                                         modifier = Modifier.size(20.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,

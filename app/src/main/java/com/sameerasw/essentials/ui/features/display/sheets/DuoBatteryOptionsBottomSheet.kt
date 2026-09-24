@@ -35,7 +35,10 @@ import com.sameerasw.essentials.utils.HapticUtil
 import com.sameerasw.essentials.viewmodels.MainViewModel
 
 @Composable
-fun BatteryColorOptions(viewModel: MainViewModel) {
+fun BatteryColorOptions(
+    viewModel: MainViewModel,
+    showIdleColor: Boolean = false,
+) {
     val view = LocalView.current
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // Low Battery (< 20%)
@@ -148,6 +151,35 @@ fun BatteryColorOptions(viewModel: MainViewModel) {
                     },
                     allowAuto = true,
                 )
+            }
+        }
+
+        if (showIdleColor) {
+            RoundedCardContainer(
+                spacing = 2.dp,
+                cornerRadius = 24.dp,
+            ) {
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_battery_android_frame_6_24,
+                    title = stringResource(R.string.island_battery_idle_color_title),
+                    isChecked = viewModel.isIslandBatteryIdleColorEnabled.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setIslandBatteryIdleColorEnabled(checked)
+                    },
+                )
+                AnimatedVisibility(
+                    visible = viewModel.isIslandBatteryIdleColorEnabled.value,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut(),
+                ) {
+                    ColorSwatchPicker(
+                        selectedColorHex = viewModel.islandBatteryIdleColor.value,
+                        onColorSelected = { hex ->
+                            viewModel.setIslandBatteryIdleColor(hex)
+                        },
+                    )
+                }
             }
         }
     }

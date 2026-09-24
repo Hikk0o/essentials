@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.draw.drawBehind
 import com.sameerasw.essentials.island.ui.components.MarqueeText
 import android.graphics.Bitmap
+import android.os.SystemClock
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,11 +26,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,7 +54,11 @@ import com.sameerasw.essentials.island.ui.IslandTextStyles
 import com.sameerasw.essentials.island.ui.components.ConnectedButtonRow
 import com.sameerasw.essentials.island.ui.components.ConnectedItem
 import com.sameerasw.essentials.island.ui.components.IslandIcon
+import com.sameerasw.essentials.island.ui.components.IslandSeekBar
 import kotlinx.coroutines.delay
+import kotlin.math.abs
+
+private const val SEEK_SETTLE_MS = 1500L
 
 class MediaActions(
     val playPause: () -> Unit,
@@ -61,6 +66,8 @@ class MediaActions(
     val previous: () -> Unit,
     val like: () -> Unit,
     val progress: () -> Float,
+    val canSeek: () -> Boolean = { false },
+    val seekTo: (Float) -> Unit = {},
 )
 
 class MediaSnapshot(
@@ -72,6 +79,7 @@ class MediaSnapshot(
     val liked: Boolean,
     val actions: MediaActions,
     val open: () -> Unit,
+    val likable: Boolean = false
 )
 
 object IslandMediaState {
@@ -89,19 +97,29 @@ fun MediaExpanded(
     liked: Boolean,
     actions: MediaActions,
     scope: IslandExpandedScope,
-    
+    likable: Boolean = true,
     drawBackground: Boolean = true,
 ) {
     val spec = scope.spec
+    val context = LocalContext.current
     var progress by remember { mutableFloatStateOf(actions.progress()) }
+    var pendingSeek by remember { mutableStateOf<Pair<Float, Long>?>(null) }
+    val canSeek = remember(playing, title) { actions.canSeek() }
     LaunchedEffect(playing) {
         while (true) {
-            progress = actions.progress()
+            val actual = actions.progress()
+            val pending = pendingSeek
+            progress =
+                if (pending != null && SystemClock.elapsedRealtime() - pending.second < SEEK_SETTLE_MS && abs(actual - pending.first) > 0.02f) {
+                    pending.first
+                } else {
+                    pendingSeek = null
+                    actual
+                }
             if (!playing) break
             delay(200L)
         }
     }
-    val context = LocalContext.current
     val image = remember(artwork) { artwork?.asImageBitmap() }
 
     Box {
@@ -150,22 +168,29 @@ fun MediaExpanded(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             )
-            Spacer(Modifier.height(20.dp))
-            LinearWavyProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            Spacer(Modifier.height(4.dp))
+            IslandSeekBar(
+                value = progress,
                 color = accent,
-                trackColor = Color.White.copy(alpha = 0.2f),
-                amplitude = { if (playing) 1f else 0f },
+                enabled = canSeek,
+                wavy = playing,
+                modifier = Modifier.padding(horizontal = 4.dp),
+                onInteraction = scope::keepAlive,
+                onValueChangeFinished = { target ->
+                    actions.seekTo(target)
+                    pendingSeek = target to SystemClock.elapsedRealtime()
+                    progress = target
+                },
             )
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(4.dp))
             ConnectedButtonRow(
                 height = 52.dp,
                 items = listOf(
-                    ConnectedItem(actions.like) {
+
+                    ConnectedItem(actions.like, enabled = likable) {
                         IslandIcon(
                             if (liked) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-                            tint = if (liked) accent else Color.White,
+                            tint = if (!likable) Color.LightGray else {if (liked) accent else Color.White},
                             size = 24.dp,
                         )
                     },

@@ -21,6 +21,8 @@ import android.media.session.PlaybackState
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import android.view.KeyEvent
 import android.widget.Toast
 import com.sameerasw.essentials.R
@@ -730,10 +732,17 @@ object CombinedActionExecutor {
                 }
                 is Action.TurnOnWifi -> setWifiEnabled(context, true)
                 is Action.TurnOffWifi -> setWifiEnabled(context, false)
+                is Action.ToggleWifi ->
+                    isWifiEnabled(context)?.let { setWifiEnabled(context, !it) }
+                        ?: showStateUnknown(context, R.string.diy_action_wifi_toggle)
                 is Action.TurnOnCellularData -> setCellularDataEnabled(context, true)
                 is Action.TurnOffCellularData -> setCellularDataEnabled(context, false)
+                is Action.ToggleCellularData ->
+                    isCellularDataEnabled(context)?.let { setCellularDataEnabled(context, !it) }
+                        ?: showStateUnknown(context, R.string.diy_action_cellular_toggle)
                 is Action.TurnOnAutoBrightness -> setAutoBrightnessEnabled(context, true)
                 is Action.TurnOffAutoBrightness -> setAutoBrightnessEnabled(context, false)
+                is Action.ToggleAutoBrightness -> setAutoBrightnessEnabled(context, !isAutoBrightnessEnabled(context))
                 is Action.FreezeApps -> {
                     action.packageNames.forEach { pkg ->
                         com.sameerasw.essentials.utils.FreezeManager
@@ -870,6 +879,18 @@ object CombinedActionExecutor {
         }
     }
 
+    private fun isWifiEnabled(context: Context): Boolean? =
+        try {
+            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            when (wifiManager.wifiState) {
+                WifiManager.WIFI_STATE_ENABLED, WifiManager.WIFI_STATE_ENABLING -> true
+                WifiManager.WIFI_STATE_DISABLED, WifiManager.WIFI_STATE_DISABLING -> false
+                else -> null
+            }
+        } catch (_: Exception) {
+            null
+        }
+
     private fun setWifiEnabled(
         context: Context,
         enabled: Boolean,
@@ -880,6 +901,49 @@ object CombinedActionExecutor {
             "svc wifi $state",
             featureName = context.getString(if (enabled) R.string.diy_action_wifi_on else R.string.diy_action_wifi_off),
         )
+    }
+
+    @Suppress("MissingPermission")
+    private fun isCellularDataEnabled(context: Context): Boolean? =
+        try {
+            (context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).isDataEnabled
+        } catch (_: Exception) {
+            readMobileDataSetting(context)
+        }
+
+    private fun readMobileDataSetting(context: Context): Boolean? {
+        val subId = SubscriptionManager.getDefaultDataSubscriptionId()
+        val keys =
+            buildList {
+                if (subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) add("mobile_data$subId")
+                add("mobile_data")
+            }
+        for (key in keys) {
+            val value =
+                try {
+                    Settings.Global.getInt(context.contentResolver, key, -1)
+                } catch (_: Exception) {
+                    -1
+                }
+            if (value == 1) return true
+            if (value == 0) return false
+        }
+        return null
+    }
+
+    private fun showStateUnknown(
+        context: Context,
+        actionTitle: Int,
+    ) {
+        android.util.Log.w("CombinedActionExecutor", "Could not read current state for ${context.getString(actionTitle)}")
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            Toast
+                .makeText(
+                    context,
+                    context.getString(R.string.diy_action_state_unknown, context.getString(actionTitle)),
+                    Toast.LENGTH_SHORT,
+                ).show()
+        }
     }
 
     private fun setCellularDataEnabled(
@@ -893,6 +957,13 @@ object CombinedActionExecutor {
             featureName = context.getString(if (enabled) R.string.diy_action_cellular_on else R.string.diy_action_cellular_off),
         )
     }
+
+    private fun isAutoBrightnessEnabled(context: Context): Boolean =
+        android.provider.Settings.System.getInt(
+            context.contentResolver,
+            android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE,
+            android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL,
+        ) == android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
 
     private fun setAutoBrightnessEnabled(
         context: Context,

@@ -63,6 +63,7 @@ import com.sameerasw.essentials.ui.features.display.actions.HorizontalSlideModeS
 import com.sameerasw.essentials.ui.features.display.actions.horizontalSlideDescription
 import com.sameerasw.essentials.ui.features.display.sheets.IslandDevicesBatteryBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandTimeBatteryOptionsBottomSheet
+import com.sameerasw.essentials.ui.features.display.sheets.IslandTimerOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.StatusGlanceCalendarOptionsBottomSheet
 import com.sameerasw.essentials.ui.modifiers.highlight
 import com.sameerasw.essentials.utils.HapticUtil
@@ -151,6 +152,7 @@ fun IslandSettingsUI(
     var showCalendarOptionsSheet by remember { mutableStateOf(false) }
     var showDevicesBatterySheet by remember { mutableStateOf(false) }
     var showTimeBatteryOptionsSheet by remember { mutableStateOf(false) }
+    var showTimerOptionsSheet by remember { mutableStateOf(false) }
     var pickingGesture by remember { mutableStateOf<String?>(null) }
     var showSlideModeSheet by remember { mutableStateOf(false) }
 
@@ -724,6 +726,7 @@ fun IslandSettingsUI(
                     HapticUtil.performVirtualKeyHaptic(view)
                     viewModel.setIslandShowTimers(checked)
                 },
+                onSettingsClick = { showTimerOptionsSheet = true },
                 modifier = Modifier.highlight(highlightSetting == "island_show_timers"),
             )
 
@@ -1009,8 +1012,8 @@ fun IslandSettingsUI(
             context = context,
             headerContent = {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    if (viewModel.isIslandLineStageEnabled.value) {
-                        RoundedCardContainer(spacing = 2.dp, cornerRadius = 24.dp) {
+                    RoundedCardContainer(spacing = 2.dp, cornerRadius = 24.dp) {
+                        if (viewModel.isIslandLineStageEnabled.value) {
                             IconToggleItem(
                                 iconRes = R.drawable.rounded_music_note_24,
                                 title = stringResource(R.string.island_media_peek_song_change_title),
@@ -1022,6 +1025,16 @@ fun IslandSettingsUI(
                                 modifier = Modifier.highlight(highlightSetting == "island_media_peek_song_change"),
                             )
                         }
+                        IconToggleItem(
+                            iconRes = R.drawable.rounded_pause_24,
+                            title = stringResource(R.string.island_media_keep_when_paused_title),
+                            isChecked = viewModel.isIslandMediaKeepWhenPaused.value,
+                            onCheckedChange = { checked ->
+                                HapticUtil.performVirtualKeyHaptic(view)
+                                viewModel.setIslandMediaKeepWhenPaused(checked)
+                            },
+                            modifier = Modifier.highlight(highlightSetting == "island_media_keep_when_paused"),
+                        )
                     }
                     Text(
                         text = stringResource(R.string.duo_media_skip_apps_title),
@@ -1031,6 +1044,13 @@ fun IslandSettingsUI(
                     )
                 }
             },
+        )
+    }
+
+    if (showTimerOptionsSheet) {
+        IslandTimerOptionsBottomSheet(
+            viewModel = viewModel,
+            onDismissRequest = { showTimerOptionsSheet = false },
         )
     }
 
@@ -1052,6 +1072,7 @@ fun IslandSettingsUI(
         StatusGlanceCalendarOptionsBottomSheet(
             viewModel = viewModel,
             onDismissRequest = { showCalendarOptionsSheet = false },
+            allowIconEdit = true,
         )
     }
 }

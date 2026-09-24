@@ -339,8 +339,8 @@ class BatteriesWidget : GlanceAppWidget() {
                 else -> primaryColor
             }
 
-        val padding = if (itemSize > 100.dp) 12.dp else 8.dp
-        val iconPadding = if (itemSize > 100.dp) 32.dp else 24.dp
+        val padding = (itemSize * 0.1f).coerceIn(2.dp, 12.dp)
+        val iconPadding = (itemSize * 0.28f).coerceIn(4.dp, 32.dp)
 
         Box(modifier = modifier, contentAlignment = Alignment.Center) {
             // 1. Background Circle
@@ -396,8 +396,8 @@ class BatteriesWidget : GlanceAppWidget() {
 
             // 4. Status Indicator Bubble (at the top)
             if (item.statusIconRes != null) {
-                val bubbleSize = if (itemSize > 100.dp) 32.dp else 24.dp
-                val bubbleIconPadding = if (itemSize > 100.dp) 6.dp else 4.dp
+                val bubbleSize = (itemSize * 0.28f).coerceIn(10.dp, 32.dp)
+                val bubbleIconPadding = (bubbleSize * 0.19f).coerceAtLeast(1.dp)
 
                 Box(
                     modifier = GlanceModifier.fillMaxSize(),

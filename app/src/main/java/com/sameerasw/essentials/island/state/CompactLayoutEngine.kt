@@ -6,6 +6,7 @@ data class CompactEntry(
     val pinned: Boolean,
     // [icon, value] — icon always ends up on the outer edge.
     val cellKeys: List<String>,
+    val soloCellKeys: List<String> = emptyList(),
 )
 
 // `before` / `after` are camera-relative and ordered inner (next to camera) → outer.
@@ -57,6 +58,11 @@ object CompactLayoutEngine {
             pinned.getOrNull(0)?.let { before += it.cellKeys }
             pinned.getOrNull(1)?.let { after += it.cellKeys }
             oneCell.forEach { if (after.size <= before.size) after += it.cellKeys else before += it.cellKeys }
+        }
+
+        val solo = selected.singleOrNull()
+        if (solo != null && solo.soloCellKeys.isNotEmpty() && solo.cellKeys.size == 1) {
+            return CompactArrangement(solo.soloCellKeys, solo.cellKeys, visible)
         }
 
         if (before.isEmpty() && selected.size == 1 && after.size == 2) {

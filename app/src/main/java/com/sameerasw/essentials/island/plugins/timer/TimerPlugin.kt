@@ -42,7 +42,12 @@ import java.util.Locale
 class TimerPlugin : BaseIslandPlugin() {
     override val id = "timer"
 
-    override val settingKeys = setOf(SettingsRepository.KEY_ISLAND_SHOW_TIMERS)
+    override val settingKeys = setOf(
+        SettingsRepository.KEY_ISLAND_SHOW_TIMERS,
+        SettingsRepository.KEY_ISLAND_TIMERS_SHOW_SCREEN_RECORDER,
+    )
+
+    private var allEntries: List<ChronometerEntry> = emptyList()
 
     private var entries: List<ChronometerEntry> = emptyList()
     private val seen = HashSet<String>()
@@ -52,7 +57,9 @@ class TimerPlugin : BaseIslandPlugin() {
     override fun onStart() {
         val c = ctx!!
         observer = c.scope.launch {
-            ChronometerRepository.entries.collect { next ->
+            ChronometerRepository.entries.collect { all ->
+                allEntries = all
+                val next = visible(all)
                 entries = next
                 val fresh = next.firstOrNull { it.key !in seen && it.running }
                 seen.retainAll(next.map { it.key }.toSet())
@@ -70,9 +77,20 @@ class TimerPlugin : BaseIslandPlugin() {
         observer?.cancel()
         ticker?.cancel()
         entries = emptyList()
+        allEntries = emptyList()
     }
 
-    override fun refresh() = render()
+    override fun refresh() {
+        entries = visible(allEntries)
+        render()
+        restartTicker()
+    }
+
+    private fun visible(all: List<ChronometerEntry>): List<ChronometerEntry> =
+        if (settings.isIslandTimersShowScreenRecorderEnabled()) all else all.filterNot { isScreenRecorder(it.packageName) }
+
+    private fun isScreenRecorder(packageName: String): Boolean =
+        packageName == "com.android.systemui" || packageName.contains("screenrecord", ignoreCase = true)
 
     private fun restartTicker() {
         ticker?.cancel()

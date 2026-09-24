@@ -146,6 +146,7 @@ class MainViewModel : ViewModel() {
     val duoArcThickness = mutableFloatStateOf(4f)
     val duoDotSize = mutableFloatStateOf(4f)
     val duoRingRadius = mutableFloatStateOf(1.0f)
+    val duoTimeTextScale = mutableFloatStateOf(1.0f)
     val isDuoShowBattery = mutableStateOf(true)
     val isDuoShowBatteryPercentage = mutableStateOf(false)
     val isDuoBatteryPercentageOnlyColored = mutableStateOf(false)
@@ -155,6 +156,8 @@ class MainViewModel : ViewModel() {
     val duoBatteryPowerSaveColor = mutableStateOf("#FF9800")
     val isDuoBatteryLowColorEnabled = mutableStateOf(true)
     val duoBatteryLowColor = mutableStateOf("#FFEB3B")
+    val isIslandBatteryIdleColorEnabled = mutableStateOf(false)
+    val islandBatteryIdleColor = mutableStateOf("#FFFFFF")
     val isDuoBatteryCriticalColorEnabled = mutableStateOf(true)
     val duoBatteryCriticalColor = mutableStateOf("#F44336")
     val isDuoShowNetworks = mutableStateOf(true)
@@ -193,6 +196,7 @@ class MainViewModel : ViewModel() {
     val islandCameraPosition = mutableStateOf(SettingsRepository.ISLAND_CAMERA_POSITION_CENTER)
     val isIslandShowCalls = mutableStateOf(true)
     val isIslandShowTimers = mutableStateOf(true)
+    val isIslandTimersShowScreenRecorder = mutableStateOf(true)
     val isIslandShowNetwork = mutableStateOf(true)
     val isIslandShowSoundMode = mutableStateOf(true)
     val isIslandShowTravel = mutableStateOf(true)
@@ -209,6 +213,7 @@ class MainViewModel : ViewModel() {
     val islandTimeoutMs = mutableLongStateOf(4500L)
     val isIslandLineStageEnabled = mutableStateOf(true)
     val isIslandMediaPeekSongChange = mutableStateOf(true)
+    val isIslandMediaKeepWhenPaused = mutableStateOf(true)
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
     val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
@@ -243,6 +248,7 @@ class MainViewModel : ViewModel() {
     val statusGlanceCalendarShowAllDay = mutableStateOf(false)
     val statusGlanceSelectedCalendarIds = mutableStateOf<Set<String>>(emptySet())
     val statusGlanceAvailableCalendars = mutableStateListOf<CalendarAccount>()
+    val islandCalendarEmojis = mutableStateOf<Map<Long, String>>(emptyMap())
     val isStatusGlanceShowMedia = mutableStateOf(true)
     val isStatusGlanceShowTime = mutableStateOf(true)
     val isStatusGlanceBackgroundPill = mutableStateOf(false)
@@ -679,6 +685,9 @@ class MainViewModel : ViewModel() {
                     SettingsRepository.KEY_DUO_RING_RADIUS ->
                         duoRingRadius.floatValue = settingsRepository.getDuoRingRadius()
 
+                    SettingsRepository.KEY_DUO_TIME_TEXT_SCALE ->
+                        duoTimeTextScale.floatValue = settingsRepository.getDuoTimeTextScale()
+
                     SettingsRepository.KEY_DUO_SHOW_BATTERY ->
                         isDuoShowBattery.value = settingsRepository.isDuoShowBatteryEnabled()
 
@@ -705,6 +714,12 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_DUO_BATTERY_LOW_COLOR ->
                         duoBatteryLowColor.value = settingsRepository.getDuoBatteryLowColor()
+
+                    SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR_ENABLED ->
+                        isIslandBatteryIdleColorEnabled.value = settingsRepository.isIslandBatteryIdleColorEnabled()
+
+                    SettingsRepository.KEY_ISLAND_BATTERY_IDLE_COLOR ->
+                        islandBatteryIdleColor.value = settingsRepository.getIslandBatteryIdleColor()
 
                     SettingsRepository.KEY_DUO_BATTERY_CRITICAL_COLOR_ENABLED ->
                         isDuoBatteryCriticalColorEnabled.value = settingsRepository.isDuoBatteryCriticalColorEnabled()
@@ -808,6 +823,9 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE ->
                         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
+
+                    SettingsRepository.KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED ->
+                        isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
 
                     SettingsRepository.KEY_ISLAND_NOTIF_COMPACT_HEADS_UP ->
                         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
@@ -2148,6 +2166,7 @@ class MainViewModel : ViewModel() {
         duoArcThickness.floatValue = settingsRepository.getDuoArcThickness()
         duoDotSize.floatValue = settingsRepository.getDuoDotSize()
         duoRingRadius.floatValue = settingsRepository.getDuoRingRadius()
+        duoTimeTextScale.floatValue = settingsRepository.getDuoTimeTextScale()
         isDuoShowBattery.value = settingsRepository.isDuoShowBatteryEnabled()
         isDuoShowBatteryPercentage.value = settingsRepository.isDuoShowBatteryPercentageEnabled()
         isDuoBatteryPercentageOnlyColored.value = settingsRepository.isDuoBatteryPercentageOnlyColoredEnabled()
@@ -2157,6 +2176,8 @@ class MainViewModel : ViewModel() {
         duoBatteryPowerSaveColor.value = settingsRepository.getDuoBatteryPowerSaveColor()
         isDuoBatteryLowColorEnabled.value = settingsRepository.isDuoBatteryLowColorEnabled()
         duoBatteryLowColor.value = settingsRepository.getDuoBatteryLowColor()
+        isIslandBatteryIdleColorEnabled.value = settingsRepository.isIslandBatteryIdleColorEnabled()
+        islandBatteryIdleColor.value = settingsRepository.getIslandBatteryIdleColor()
         isDuoBatteryCriticalColorEnabled.value = settingsRepository.isDuoBatteryCriticalColorEnabled()
         duoBatteryCriticalColor.value = settingsRepository.getDuoBatteryCriticalColor()
         isDuoShowNetworks.value = settingsRepository.isDuoShowNetworksEnabled()
@@ -2194,6 +2215,7 @@ class MainViewModel : ViewModel() {
         islandCameraPosition.value = settingsRepository.getIslandCameraPosition()
         isIslandShowCalls.value = settingsRepository.isIslandShowCallsEnabled()
         isIslandShowTimers.value = settingsRepository.isIslandShowTimersEnabled()
+        isIslandTimersShowScreenRecorder.value = settingsRepository.isIslandTimersShowScreenRecorderEnabled()
         isIslandShowNetwork.value = settingsRepository.isIslandShowNetworkEnabled()
         isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
         isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
@@ -2216,6 +2238,7 @@ class MainViewModel : ViewModel() {
         islandTimeoutMs.longValue = settingsRepository.getIslandTimeoutMs()
         isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
+        isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
         isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
@@ -4954,6 +4977,11 @@ class MainViewModel : ViewModel() {
         settingsRepository.setDuoRingRadius(value)
     }
 
+    fun setDuoTimeTextScale(value: Float) {
+        duoTimeTextScale.floatValue = value
+        settingsRepository.setDuoTimeTextScale(value)
+    }
+
     fun setDuoShowBattery(enabled: Boolean) {
         isDuoShowBattery.value = enabled
         settingsRepository.setDuoShowBatteryEnabled(enabled)
@@ -5005,6 +5033,16 @@ class MainViewModel : ViewModel() {
     fun setDuoBatteryLowColor(colorHex: String) {
         duoBatteryLowColor.value = colorHex
         settingsRepository.setDuoBatteryLowColor(colorHex)
+    }
+
+    fun setIslandBatteryIdleColorEnabled(enabled: Boolean) {
+        isIslandBatteryIdleColorEnabled.value = enabled
+        settingsRepository.setIslandBatteryIdleColorEnabled(enabled)
+    }
+
+    fun setIslandBatteryIdleColor(colorHex: String) {
+        islandBatteryIdleColor.value = colorHex
+        settingsRepository.setIslandBatteryIdleColor(colorHex)
     }
 
     fun setDuoBatteryCriticalColorEnabled(enabled: Boolean) {
@@ -5199,9 +5237,23 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandShowNetworkEnabled(enabled)
     }
 
+    fun loadIslandCalendarEmojis() {
+        islandCalendarEmojis.value = settingsRepository.getIslandCalendarEmojis()
+    }
+
+    fun setIslandCalendarEmoji(calendarId: Long, emoji: String?) {
+        settingsRepository.setIslandCalendarEmoji(calendarId, emoji)
+        islandCalendarEmojis.value = settingsRepository.getIslandCalendarEmojis()
+    }
+
     fun setIslandShowTimers(enabled: Boolean) {
         isIslandShowTimers.value = enabled
         settingsRepository.setIslandShowTimersEnabled(enabled)
+    }
+
+    fun setIslandTimersShowScreenRecorder(enabled: Boolean) {
+        isIslandTimersShowScreenRecorder.value = enabled
+        settingsRepository.setIslandTimersShowScreenRecorderEnabled(enabled)
     }
 
     fun setIslandShowCalls(enabled: Boolean) {
@@ -5296,6 +5348,11 @@ class MainViewModel : ViewModel() {
     fun setIslandMediaPeekSongChange(enabled: Boolean) {
         isIslandMediaPeekSongChange.value = enabled
         settingsRepository.setIslandMediaPeekSongChangeEnabled(enabled)
+    }
+
+    fun setIslandMediaKeepWhenPaused(enabled: Boolean) {
+        isIslandMediaKeepWhenPaused.value = enabled
+        settingsRepository.setIslandMediaKeepWhenPausedEnabled(enabled)
     }
 
     fun setIslandNotifQueue(enabled: Boolean) {

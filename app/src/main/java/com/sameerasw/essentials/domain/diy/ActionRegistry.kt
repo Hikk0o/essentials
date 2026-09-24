@@ -33,8 +33,10 @@ object ActionRegistry {
             listOf(
                 Action.TurnOnWifi,
                 Action.TurnOffWifi,
+                Action.ToggleWifi,
                 Action.TurnOnCellularData,
                 Action.TurnOffCellularData,
+                Action.ToggleCellularData,
                 Action.TurnOnHotspot,
                 Action.TurnOffHotspot,
                 Action.ToggleHotspot,
@@ -44,6 +46,7 @@ object ActionRegistry {
             buildList {
                 add(Action.TurnOnAutoBrightness)
                 add(Action.TurnOffAutoBrightness)
+                add(Action.ToggleAutoBrightness)
                 add(Action.DimWallpaper())
                 add(Action.ScreenOff())
                 if (sdkInt >= 35) add(Action.DeviceEffects())

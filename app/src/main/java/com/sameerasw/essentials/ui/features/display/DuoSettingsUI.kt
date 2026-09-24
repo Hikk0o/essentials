@@ -66,6 +66,7 @@ import com.sameerasw.essentials.ui.features.audio.sheets.SetVolumeSettingsSheet
 import com.sameerasw.essentials.ui.features.display.sheets.DuoBatteryOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.DuoBatteryPercentageOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.DuoNetworkOptionsBottomSheet
+import com.sameerasw.essentials.ui.features.display.sheets.DuoTimeOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.system.LikeSongSettingsSheet
 import com.sameerasw.essentials.ui.features.system.RemapActionItem
 import com.sameerasw.essentials.ui.modifiers.highlight
@@ -92,6 +93,7 @@ fun DuoSettingsUI(
     var showBatteryOptionsSheet by remember { mutableStateOf(false) }
     var showBatteryPercentageOptionsSheet by remember { mutableStateOf(false) }
     var showNetworkOptionsSheet by remember { mutableStateOf(false) }
+    var showTimeOptionsSheet by remember { mutableStateOf(false) }
     var showMediaAppSelectionSheet by remember { mutableStateOf(false) }
 
     var pickingActionForGesture by remember { mutableStateOf<String?>(null) }
@@ -386,6 +388,9 @@ fun DuoSettingsUI(
                 onCheckedChange = { checked ->
                     HapticUtil.performVirtualKeyHaptic(view)
                     viewModel.setDuoShowTime(checked)
+                },
+                onSettingsClick = {
+                    showTimeOptionsSheet = true
                 },
                 modifier = Modifier.highlight(highlightSetting == "duo_show_time"),
             )
@@ -1074,6 +1079,13 @@ fun DuoSettingsUI(
         DuoBatteryOptionsBottomSheet(
             viewModel = viewModel,
             onDismissRequest = { showBatteryOptionsSheet = false },
+        )
+    }
+
+    if (showTimeOptionsSheet) {
+        DuoTimeOptionsBottomSheet(
+            viewModel = viewModel,
+            onDismissRequest = { showTimeOptionsSheet = false },
         )
     }
 

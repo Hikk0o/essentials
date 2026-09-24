@@ -118,6 +118,18 @@ class MediaSessionSource(
             return ((state.position + elapsed) / duration.toFloat()).coerceIn(0f, 1f)
         }
 
+        fun canSeek(controller: MediaController): Boolean {
+            val actions = controller.playbackState?.actions ?: return false
+            val duration = controller.metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L
+            return duration > 0L && actions and PlaybackState.ACTION_SEEK_TO != 0L
+        }
+
+        fun seekTo(controller: MediaController, fraction: Float) {
+            val duration = controller.metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: return
+            if (duration <= 0L) return
+            controller.transportControls.seekTo((duration * fraction.coerceIn(0f, 1f)).toLong())
+        }
+
         fun isLiked(controller: MediaController): Boolean {
             try {
                 val rating = controller.metadata?.getRating(MediaMetadata.METADATA_KEY_USER_RATING)

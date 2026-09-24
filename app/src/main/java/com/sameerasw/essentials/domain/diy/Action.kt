@@ -375,6 +375,13 @@ sealed interface Action {
     }
 
     @Keep
+    data object ToggleWifi : Action {
+        override val title: Int = R.string.diy_action_wifi_toggle
+        override val icon: Int = R.drawable.rounded_android_wifi_4_bar_plus_24
+        override val permissions: List<String> = listOf("SHIZUKU", "ROOT")
+    }
+
+    @Keep
     data object TurnOnCellularData : Action {
         override val title: Int = R.string.diy_action_cellular_on
         override val icon: Int = R.drawable.rounded_signal_cellular_alt_24
@@ -389,6 +396,13 @@ sealed interface Action {
     }
 
     @Keep
+    data object ToggleCellularData : Action {
+        override val title: Int = R.string.diy_action_cellular_toggle
+        override val icon: Int = R.drawable.rounded_signal_cellular_alt_24
+        override val permissions: List<String> = listOf("SHIZUKU", "ROOT")
+    }
+
+    @Keep
     data object TurnOnAutoBrightness : Action {
         override val title: Int = R.string.diy_action_auto_brightness_on
         override val icon: Int = R.drawable.rounded_brightness_auto_24
@@ -398,6 +412,13 @@ sealed interface Action {
     @Keep
     data object TurnOffAutoBrightness : Action {
         override val title: Int = R.string.diy_action_auto_brightness_off
+        override val icon: Int = R.drawable.rounded_brightness_auto_24
+        override val permissions: List<String> = listOf("WRITE_SETTINGS")
+    }
+
+    @Keep
+    data object ToggleAutoBrightness : Action {
+        override val title: Int = R.string.diy_action_auto_brightness_toggle
         override val icon: Int = R.drawable.rounded_brightness_auto_24
         override val permissions: List<String> = listOf("WRITE_SETTINGS")
     }

@@ -27,6 +27,7 @@ data class UpcomingCalendarEvent(
     val calendarName: String? = null,
     val calendarColor: Int? = null,
     val description: String? = null,
+    val calendarId: Long = -1L,
 )
 
 object CalendarEventUtil {
@@ -59,6 +60,7 @@ object CalendarEventUtil {
         return when {
             minutes < 1 -> "1m"
             minutes < 60 -> "${minutes}m"
+            hours < 2 -> (minutes % 60).let { if (it > 0) "${hours}h ${it}m" else "${hours}h" }
             hours < 24 -> "${hours}h"
             else -> "${days}d"
         }
@@ -143,6 +145,7 @@ object CalendarEventUtil {
                             calendarName = str(CalendarContract.Instances.CALENDAR_DISPLAY_NAME),
                             calendarColor = if (colorIndex != -1 && !cursor.isNull(colorIndex)) cursor.getInt(colorIndex) else null,
                             description = str(CalendarContract.Instances.DESCRIPTION),
+                            calendarId = calId,
                         )
                     }
                 }
@@ -198,6 +201,7 @@ object CalendarEventUtil {
                         endTimeMillis = end,
                         allDay = allDay,
                         calendarColor = if (c.isNull(8)) null else c.getInt(8),
+                        calendarId = c.getLong(6),
                     )
                 }
             }
