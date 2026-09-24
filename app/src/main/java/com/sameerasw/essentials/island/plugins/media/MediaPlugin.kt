@@ -39,6 +39,7 @@ class MediaPlugin : BaseIslandPlugin() {
     override val settingKeys = setOf(
         SettingsRepository.KEY_ISLAND_SHOW_MEDIA,
         SettingsRepository.KEY_ISLAND_MEDIA_EXCLUDED_APPS,
+        SettingsRepository.KEY_ISLAND_MEDIA_SHOW_PREVIOUS,
     )
 
     private val ART_RETRY_DELAYS_MS = longArrayOf(1500L, 3000L)
@@ -169,7 +170,7 @@ class MediaPlugin : BaseIslandPlugin() {
         val actions = MediaActions(
             playPause = { togglePlay() },
             next = { active?.transportControls?.skipToNext() },
-            previous = { active?.transportControls?.skipToPrevious() },
+            previous = if (settings.isIslandMediaShowPreviousEnabled()) ({ active?.transportControls?.skipToPrevious() }) else null,
             like = { like() },
             progress = { active?.let(MediaSessionSource::position) ?: 0f },
             canSeek = { active?.let(MediaSessionSource::canSeek) ?: false },
@@ -229,7 +230,7 @@ class MediaPlugin : BaseIslandPlugin() {
                 }
             },
             next = { controller.transportControls.skipToNext() },
-            previous = { controller.transportControls.skipToPrevious() },
+            previous = if (settings.isIslandMediaShowPreviousEnabled()) ({ controller.transportControls.skipToPrevious() }) else null,
             like = { like() },
             progress = { MediaSessionSource.position(controller) },
             canSeek = { MediaSessionSource.canSeek(controller) },
