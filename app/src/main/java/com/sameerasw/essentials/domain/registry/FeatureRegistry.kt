@@ -786,6 +786,11 @@ object FeatureRegistry {
                             "island_show_travel",
                         ),
                         SearchSetting(
+                            R.string.island_show_alarm_title,
+                            R.string.island_alarm_window_title,
+                            "island_show_alarm",
+                        ),
+                        SearchSetting(
                             R.string.island_show_sound_mode_title,
                             R.string.island_sound_mode_vibrate,
                             "island_show_sound_mode",

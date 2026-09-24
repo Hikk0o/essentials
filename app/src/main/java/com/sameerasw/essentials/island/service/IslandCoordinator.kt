@@ -1,5 +1,6 @@
 package com.sameerasw.essentials.island.service
 
+import com.sameerasw.essentials.island.plugins.alarm.AlarmPlugin
 import com.sameerasw.essentials.island.plugins.timer.TimerPlugin
 import com.sameerasw.essentials.island.plugins.call.CallPlugin
 import android.accessibilityservice.AccessibilityService
@@ -91,6 +92,7 @@ class IslandCoordinator(
         FlashlightPlugin(),
         TimerPlugin(),
         SoundModePlugin(),
+        AlarmPlugin(),
         WeatherPlugin(),
         CaffeinatePlugin(),
         TravelPlugin(),

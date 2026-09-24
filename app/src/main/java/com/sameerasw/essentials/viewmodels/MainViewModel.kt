@@ -200,10 +200,13 @@ class MainViewModel : ViewModel() {
     val isIslandTimersShowScreenRecorder = mutableStateOf(true)
     val isIslandShowNetwork = mutableStateOf(true)
     val isIslandShowSoundMode = mutableStateOf(true)
+    val isIslandShowAlarm = mutableStateOf(false)
+    val islandAlarmWindowHours = mutableIntStateOf(12)
     val isIslandShowTravel = mutableStateOf(true)
     val isIslandShowCaffeinate = mutableStateOf(true)
     val isIslandShowDevices = mutableStateOf(true)
     val isIslandBriefEnabled = mutableStateOf(false)
+    val isIslandBriefShowAlarm = mutableStateOf(true)
     val islandDevicesBatteryOrder = mutableStateOf<List<String>>(emptyList())
     val islandExpandedPadding = mutableFloatStateOf(16f)
     val islandExpandedTopPadding = mutableFloatStateOf(0f)
@@ -2233,12 +2236,15 @@ class MainViewModel : ViewModel() {
         isIslandTimersShowScreenRecorder.value = settingsRepository.isIslandTimersShowScreenRecorderEnabled()
         isIslandShowNetwork.value = settingsRepository.isIslandShowNetworkEnabled()
         isIslandShowSoundMode.value = settingsRepository.isIslandShowSoundModeEnabled()
+        isIslandShowAlarm.value = settingsRepository.isIslandShowAlarmEnabled()
+        islandAlarmWindowHours.intValue = settingsRepository.getIslandAlarmWindowHours()
         isIslandShowTravel.value = settingsRepository.isIslandShowTravelEnabled()
         isDuoIslandCombined.value = settingsRepository.isDuoIslandCombinedSetting()
         isDuoHideOnShade.value = settingsRepository.isDuoHideOnShadeEnabled()
         isIslandShowCaffeinate.value = settingsRepository.isIslandShowCaffeinateEnabled()
         isIslandShowDevices.value = settingsRepository.isIslandShowDevicesEnabled()
         isIslandBriefEnabled.value = settingsRepository.isIslandBriefEnabled()
+        isIslandBriefShowAlarm.value = settingsRepository.isIslandBriefShowAlarmEnabled()
         islandDevicesBatteryOrder.value = settingsRepository.getIslandDevicesBatteryOrder()
         islandExpandedPadding.floatValue = settingsRepository.getIslandExpandedPadding()
         islandExpandedTopPadding.floatValue = settingsRepository.getIslandExpandedTopPadding()
@@ -5226,6 +5232,11 @@ class MainViewModel : ViewModel() {
         settingsRepository.setIslandDevicesBatteryOrder(addresses)
     }
 
+    fun setIslandBriefShowAlarm(enabled: Boolean) {
+        isIslandBriefShowAlarm.value = enabled
+        settingsRepository.setIslandBriefShowAlarmEnabled(enabled)
+    }
+
     fun setIslandBriefEnabled(enabled: Boolean) {
         isIslandBriefEnabled.value = enabled
         settingsRepository.setIslandBriefEnabled(enabled)
@@ -5244,6 +5255,16 @@ class MainViewModel : ViewModel() {
     fun setIslandShowTravel(enabled: Boolean) {
         isIslandShowTravel.value = enabled
         settingsRepository.setIslandShowTravelEnabled(enabled)
+    }
+
+    fun setIslandShowAlarm(enabled: Boolean) {
+        isIslandShowAlarm.value = enabled
+        settingsRepository.setIslandShowAlarmEnabled(enabled)
+    }
+
+    fun setIslandAlarmWindowHours(hours: Int) {
+        islandAlarmWindowHours.intValue = hours
+        settingsRepository.setIslandAlarmWindowHours(hours)
     }
 
     fun setIslandShowSoundMode(enabled: Boolean) {

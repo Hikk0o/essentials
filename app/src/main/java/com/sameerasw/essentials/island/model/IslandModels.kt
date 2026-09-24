@@ -32,6 +32,7 @@ object IslandPriority {
     const val WEATHER = 58
     const val NETWORK = 60
     const val DEVICES = 62
+    const val ALARM = 90
     const val DEFAULT = 100
 }
 

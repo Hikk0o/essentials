@@ -61,6 +61,7 @@ import com.sameerasw.essentials.ui.features.consciousgate.CONSCIOUS_GATE_FEATURE
 import com.sameerasw.essentials.ui.features.display.actions.GestureActionPickerSheet
 import com.sameerasw.essentials.ui.features.display.actions.HorizontalSlideModeSheet
 import com.sameerasw.essentials.ui.features.display.actions.horizontalSlideDescription
+import com.sameerasw.essentials.ui.features.display.sheets.IslandAlarmOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandDevicesBatteryBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandNotificationOptionsBottomSheet
 import com.sameerasw.essentials.ui.features.display.sheets.IslandTimeBatteryOptionsBottomSheet
@@ -165,6 +166,7 @@ fun IslandSettingsUI(
     var showDevicesBatterySheet by remember { mutableStateOf(false) }
     var showTimeBatteryOptionsSheet by remember { mutableStateOf(false) }
     var showTimerOptionsSheet by remember { mutableStateOf(false) }
+    var showAlarmOptionsSheet by remember { mutableStateOf(false) }
     var showNotificationOptionsSheet by remember {
         mutableStateOf(highlightSetting in notificationSheetSettings)
     }
@@ -780,6 +782,18 @@ fun IslandSettingsUI(
             )
 
             IconToggleItem(
+                iconRes = R.drawable.rounded_alarm_24,
+                title = stringResource(R.string.island_show_alarm_title),
+                isChecked = viewModel.isIslandShowAlarm.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandShowAlarm(checked)
+                },
+                onSettingsClick = { showAlarmOptionsSheet = true },
+                modifier = Modifier.highlight(highlightSetting == "island_show_alarm"),
+            )
+
+            IconToggleItem(
                 iconRes = R.drawable.rounded_android_wifi_3_bar_24,
                 title = stringResource(R.string.island_show_network_title),
                 isChecked = viewModel.isIslandShowNetwork.value,
@@ -829,6 +843,23 @@ fun IslandSettingsUI(
                 },
                 modifier = Modifier.highlight(highlightSetting == "island_brief_enabled"),
             )
+
+            AnimatedVisibility(
+                visible = viewModel.isIslandBriefEnabled.value,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically(),
+            ) {
+                IconToggleItem(
+                    iconRes = R.drawable.rounded_alarm_24,
+                    title = stringResource(R.string.island_brief_show_alarm_title),
+                    isChecked = viewModel.isIslandBriefShowAlarm.value,
+                    onCheckedChange = { checked ->
+                        HapticUtil.performVirtualKeyHaptic(view)
+                        viewModel.setIslandBriefShowAlarm(checked)
+                    },
+                    modifier = Modifier.highlight(highlightSetting == "island_brief_show_alarm"),
+                )
+            }
         }
 
         Text(
@@ -1040,6 +1071,13 @@ fun IslandSettingsUI(
             viewModel = viewModel,
             onDismissRequest = { showNotificationOptionsSheet = false },
             highlightSetting = highlightSetting,
+        )
+    }
+
+    if (showAlarmOptionsSheet) {
+        IslandAlarmOptionsBottomSheet(
+            viewModel = viewModel,
+            onDismissRequest = { showAlarmOptionsSheet = false },
         )
     }
 
