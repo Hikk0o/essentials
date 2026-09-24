@@ -1,5 +1,7 @@
 package com.sameerasw.essentials.island.ui.components
 
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.aspectRatio
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
@@ -155,7 +157,12 @@ fun MediaArtCue(artwork: Bitmap?, accent: Color, size: Dp) {
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
         label = "likedPop",
     )
-    Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+    Box(
+        Modifier
+            .sizeIn(maxWidth = size, maxHeight = size)
+            .aspectRatio(1f, matchHeightConstraintsFirst = true),
+        contentAlignment = Alignment.Center,
+    ) {
         if (pop < 1f) {
             Box(
                 Modifier.graphicsLayer {
