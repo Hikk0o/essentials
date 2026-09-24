@@ -212,6 +212,7 @@ class MainViewModel : ViewModel() {
     val islandTimeoutMs = mutableLongStateOf(4500L)
     val isIslandLineStageEnabled = mutableStateOf(true)
     val isIslandMediaPeekSongChange = mutableStateOf(true)
+    val isIslandMediaKeepWhenPaused = mutableStateOf(true)
     val isIslandNotifCompactHeadsUp = mutableStateOf(true)
     val isIslandNotifKeepProgress = mutableStateOf(true)
     val isIslandNotifQueue = mutableStateOf(true)
@@ -820,6 +821,9 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_ISLAND_MEDIA_PEEK_SONG_CHANGE ->
                         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
+
+                    SettingsRepository.KEY_ISLAND_MEDIA_KEEP_WHEN_PAUSED ->
+                        isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
 
                     SettingsRepository.KEY_ISLAND_NOTIF_COMPACT_HEADS_UP ->
                         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
@@ -2231,6 +2235,7 @@ class MainViewModel : ViewModel() {
         islandTimeoutMs.longValue = settingsRepository.getIslandTimeoutMs()
         isIslandLineStageEnabled.value = settingsRepository.isIslandLineStageEnabled()
         isIslandMediaPeekSongChange.value = settingsRepository.isIslandMediaPeekSongChangeEnabled()
+        isIslandMediaKeepWhenPaused.value = settingsRepository.isIslandMediaKeepWhenPausedEnabled()
         isIslandNotifCompactHeadsUp.value = settingsRepository.isIslandNotifCompactHeadsUpEnabled()
         isIslandNotifKeepProgress.value = settingsRepository.isIslandNotifKeepProgressEnabled()
         isIslandNotifQueue.value = settingsRepository.isIslandNotifQueueEnabled()
@@ -5326,6 +5331,11 @@ class MainViewModel : ViewModel() {
     fun setIslandMediaPeekSongChange(enabled: Boolean) {
         isIslandMediaPeekSongChange.value = enabled
         settingsRepository.setIslandMediaPeekSongChangeEnabled(enabled)
+    }
+
+    fun setIslandMediaKeepWhenPaused(enabled: Boolean) {
+        isIslandMediaKeepWhenPaused.value = enabled
+        settingsRepository.setIslandMediaKeepWhenPausedEnabled(enabled)
     }
 
     fun setIslandNotifQueue(enabled: Boolean) {
