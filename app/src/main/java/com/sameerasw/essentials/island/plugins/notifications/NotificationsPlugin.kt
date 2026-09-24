@@ -34,6 +34,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
         SettingsRepository.KEY_ISLAND_NOTIF_COMPACT_HEADS_UP,
         SettingsRepository.KEY_ISLAND_SHOW_GLOW,
         SettingsRepository.KEY_ISLAND_NOTIF_QUEUE,
+        SettingsRepository.KEY_ISLAND_NOTIF_TAP_TO_OPEN,
     )
 
     private val alerts = ArrayDeque<ActiveNotificationAlert>()
@@ -176,6 +177,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
     private fun itemFor(alert: ActiveNotificationAlert): IslandItem {
         val (sender, message) = senderAndMessage(context, alert)
         val showGlow = settings.isIslandShowGlowEnabled()
+        val tapToOpen = settings.isIslandNotifTapToOpenEnabled()
         val icon = alert.chatIcon ?: alert.appIcon ?: alert.icon
         val accent = alert.appColor?.let { Color(soften(it)) }
         return IslandItem(
@@ -207,6 +209,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
                     onAction = { runAction(alert, it) },
                     onReply = { action, text -> sendReply(alert, action, text) },
                     scope = scope,
+                    tapToOpen = tapToOpen,
                 )
             },
             accent = accent,

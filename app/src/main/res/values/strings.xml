@@ -2932,6 +2932,7 @@
     <string name="island_line_peek_title">Line peek</string>
     <string name="island_line_peek_desc">Briefly show updates across the island, then return to compact</string>
     <string name="island_action_hide">Hide</string>
+    <string name="island_notif_tap_to_open_title">Tap to open notifications</string>
     <string name="island_notif_queue_title">Notification queue</string>
     <string name="island_notif_compact_heads_up_title">Compact heads up</string>
     <string name="island_notif_compact_heads_up_desc">Show new notifications as a line peek</string>

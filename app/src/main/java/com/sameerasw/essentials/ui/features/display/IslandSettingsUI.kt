@@ -653,6 +653,17 @@ fun IslandSettingsUI(
             )
 
             IconToggleItem(
+                iconRes = R.drawable.rounded_touch_app_24,
+                title = stringResource(R.string.island_notif_tap_to_open_title),
+                isChecked = viewModel.isIslandNotifTapToOpen.value,
+                onCheckedChange = { checked ->
+                    HapticUtil.performVirtualKeyHaptic(view)
+                    viewModel.setIslandNotifTapToOpen(checked)
+                },
+                modifier = Modifier.highlight(highlightSetting == "island_notif_tap_to_open"),
+            )
+
+            IconToggleItem(
                 iconRes = R.drawable.rounded_notifications_unread_24,
                 title = stringResource(R.string.island_catch_up_title),
                 description = stringResource(R.string.island_catch_up_desc),
