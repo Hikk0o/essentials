@@ -194,6 +194,9 @@ fun MediaExpanded(
                             size = 24.dp,
                         )
                     },
+                    ConnectedItem(actions.previous) {
+                        IslandIcon(R.drawable.rounded_skip_previous_24, size = 24.dp)
+                    },
                     ConnectedItem(actions.playPause) {
                         AnimatedContent(
                             targetState = playing,
